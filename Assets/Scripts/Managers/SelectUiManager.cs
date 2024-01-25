@@ -90,7 +90,7 @@ public class SelectUiManager : MonoBehaviour
     }
     private void setLoadType()
     {
-        Config.selectedChapter = "notanote“ª≤‚∆◊√Ê";
+        Config.selectedChapter = "notanote‰∏ÄÊµãË∞±Èù¢";
         //Config.selectedChapter = "Chapter1";
         //todo:set loadtype from config.selectedchapter
         Config.loadType = Config.LoadType.Resource;

@@ -275,7 +275,7 @@ public class ColorSelector : MonoBehaviour, IDragHandler, IPointerDownHandler
         {
             arrayColor[i, TexPixelHeight - 1] = Color.white + value * i;
         }
-        // Í¬Àí£¬´¹Ö±·½Ïò
+        // åŒç†ï¼Œå‚ç›´æ–¹å‘
         for (int i = 0; i < TexPixelLength; i++)
         {
             value = (arrayColor[i, TexPixelHeight - 1] - Color.black) / (TexPixelHeight - 1);
@@ -284,7 +284,7 @@ public class ColorSelector : MonoBehaviour, IDragHandler, IPointerDownHandler
                 arrayColor[i, j] = Color.black + value * j;
             }
         }
-        //·µ»ØÒ»¸öÊı×é£¬±£´æÁËËùÓĞÑÕÉ«É«Öµ
+        //è¿”å›ä¸€ä¸ªæ•°ç»„ï¼Œä¿å­˜äº†æ‰€æœ‰é¢œè‰²è‰²å€¼
         List<Color> listColor = new List<Color>();
         for (int i = 0; i < TexPixelHeight; i++)
         {

@@ -5,11 +5,11 @@ using UnityEngine;
 public class CameraManager : MonoBehaviour
 {
 
-    public float shakeLevel = 3f;// 震动幅度
-    public float setShakeTime = 0.5f;   // 震动时间
-    public float shakeFps = 45f;    // 震动的FPS
+    public float shakeLevel = 3f;// 闇囧姩骞呭害
+    public float setShakeTime = 0.5f;   // 闇囧姩鏃堕棿
+    public float shakeFps = 45f;    // 闇囧姩鐨凢PS
 
-    public bool isshakeCamera = false;// 震动标志
+    public bool isshakeCamera = false;// 闇囧姩鏍囧織
     private float fps;
     private float shakeTime = 0.0f;
     private float frameTime = 0.0f;

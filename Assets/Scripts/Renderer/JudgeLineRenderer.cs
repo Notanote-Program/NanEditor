@@ -136,7 +136,7 @@ public class JudgeLineRenderer : MoveableObject
         //textId.transform.position = myposition2world(position);
         Vector3 screenPos = Camera.main.WorldToScreenPoint(myposition2world(pos));
         Vector3 worldPoint;
-        //屏幕转UI  ui(当前的canvas)  _camera_UiCamera(UI的摄像机)
+        //灞忓箷杞琔I  ui(褰撳墠鐨刢anvas)  _camera_UiCamera(UI鐨勬憚鍍忔満)
         if (RectTransformUtility.ScreenPointToWorldPointInRectangle(textId.GetComponent<RectTransform>(), screenPos, Camera.main, out worldPoint))
         {
             textId.transform.position = worldPoint;

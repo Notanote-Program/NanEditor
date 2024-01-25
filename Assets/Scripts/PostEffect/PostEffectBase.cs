@@ -2,8 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Diagnostics.Contracts;
 
-[ExecuteInEditMode]//Õâ¸öÌØĞÔÒâÎªÔÚ±à¼­Æ÷Ä£Ê½ÏÂÒ²¿ÉÒÔÔËĞĞ
-[RequireComponent(typeof(Camera))] //°ó¶¨Camera£»
+[ExecuteInEditMode]//è¿™ä¸ªç‰¹æ€§æ„ä¸ºåœ¨ç¼–è¾‘å™¨æ¨¡å¼ä¸‹ä¹Ÿå¯ä»¥è¿è¡Œ
+[RequireComponent(typeof(Camera))] //ç»‘å®šCameraï¼›
 public class PostEffectBase : MonoBehaviour
 {
     private Material _material = null;
@@ -12,18 +12,18 @@ public class PostEffectBase : MonoBehaviour
     {
         get
         {
-            _material = CheckShaderAndCreateMaterial(shader, _material); //Ö¸Ã÷ShaderºÍ²ÄÖÊ
+            _material = CheckShaderAndCreateMaterial(shader, _material); //æŒ‡æ˜Shaderå’Œæè´¨
             return _material;
         }
     }
 
     /// <summary>
-    /// ¼ì²éshader²¢´´½¨²ÄÖÊ 
+    /// æ£€æŸ¥shaderå¹¶åˆ›å»ºæè´¨ 
     /// </summary>
     /// <param name="shader"></param>
     /// <param name="material"></param>
     /// <returns></returns>
-    /// ²ÎÊıÊÇshader ºÍ material
+    /// å‚æ•°æ˜¯shader å’Œ material
     protected Material CheckShaderAndCreateMaterial(Shader shader, Material material)
     {
         if (shader == null)
@@ -52,12 +52,12 @@ public class PostEffectBase : MonoBehaviour
     {
         if (material != null)
         {
-            //ÓÃGraphics.Blit»æÖÆ
+            //ç”¨Graphics.Blitç»˜åˆ¶
             Graphics.Blit(src, dest, material);
         }
         else
         {
-            //ÒªÊÇÃ»ÓĞMaterial ¾Í³õÊ¼»¯Ò»ÏÂ
+            //è¦æ˜¯æ²¡æœ‰Material å°±åˆå§‹åŒ–ä¸€ä¸‹
             Graphics.Blit(src, dest);
         }
     }

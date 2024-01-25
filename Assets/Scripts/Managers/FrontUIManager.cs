@@ -187,7 +187,7 @@ public class FrontUIManager : MonoBehaviour
     private void initBaseView()
     {
         base_Title = baseView.transform.parent.parent.parent.Find("Title").GetComponent<Text>();
-        base_Title.text = "±à¼­ÅĞ¶¨Ïß";
+        base_Title.text = "ç¼–è¾‘åˆ¤å®šçº¿";
     }
     private void initNoteView()
     {
@@ -241,7 +241,7 @@ public class FrontUIManager : MonoBehaviour
     }
     public void setPitch(float t)
     {
-        pitch.text = "²¥·Å±¶ËÙ£º" + Utilities.round(t,1).ToString();
+        pitch.text = "æ’­æ”¾å€é€Ÿï¼š" + Utilities.round(t,1).ToString();
     }
     public void setInfo(Chart chart)
     {
@@ -383,25 +383,25 @@ public class FrontUIManager : MonoBehaviour
     }
     private void setMoveEvent(MoveEvent _event)
     {
-        event_type.text = "ÒÆ¶¯ÊÂ¼ş";        
+        event_type.text = "ç§»åŠ¨äº‹ä»¶";        
         move_pathtype.SetValueWithoutNotify((int)_event.pathType);
         move_poslist.setPosList(_event.positions,_event.pathType);
     }
     private void setRotateEvent(RotateEvent _event)
     {
-        event_type.text = "Ğı×ªÊÂ¼ş";
+        event_type.text = "æ—‹è½¬äº‹ä»¶";
         rotate_startangle.text = _event.startAngle.ToString();
         rotate_endangle.text = _event.endAngle.ToString();
     }
     private void setColorEvent(ColorModifyEvent _event)
     {
-        event_type.text = "ÑÕÉ«ÊÂ¼ş";
+        event_type.text = "é¢œè‰²äº‹ä»¶";
         color_start.setColor(_event.startColor);
         color_end.setColor(_event.endColor);
     }
     private void setScaleEvent(ScaleEvent _event)
     {
-        event_type.text = "´óĞ¡ÊÂ¼ş";
+        event_type.text = "å¤§å°äº‹ä»¶";
         scale_start.text = _event.startScale.ToString();
         scale_end.text = _event.endScale.ToString();
     }
@@ -419,13 +419,13 @@ public class FrontUIManager : MonoBehaviour
         {
             judgelineView.SetActive(true);
             imageView.SetActive(false);
-            base_Title.text = "±à¼­ÅĞ¶¨Ïß";
+            base_Title.text = "ç¼–è¾‘åˆ¤å®šçº¿";
         }
         else
         {
             judgelineView.SetActive(false);
             imageView.SetActive(true);
-            base_Title.text = "±à¼­Í¼Ïñ";
+            base_Title.text = "ç¼–è¾‘å›¾åƒ";
         }
     }
     public void setRecordList(List<editorRecord> records)

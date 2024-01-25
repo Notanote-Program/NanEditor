@@ -12,9 +12,9 @@ public class PlotManager : MonoBehaviour
     public AudioSource T_typesound;
 
     private Plot plot;
-    private int pos = 0;// µ±Ç°Ö´ĞĞµ½µÄÎ»ÖÃ
-    private bool is_generating = false;// ÕıÔÚÉú³ÉÎÄ±¾
-    private bool display_all = false;// Ö±½ÓÉú³É¿éÖĞËùÓĞÎÄ±¾
+    private int pos = 0;// å½“å‰æ‰§è¡Œåˆ°çš„ä½ç½®
+    private bool is_generating = false;// æ­£åœ¨ç”Ÿæˆæ–‡æœ¬
+    private bool display_all = false;// ç›´æ¥ç”Ÿæˆå—ä¸­æ‰€æœ‰æ–‡æœ¬
     void Start()
     {
         Init();
@@ -108,7 +108,7 @@ public class PlotManager : MonoBehaviour
                     is_generating = false;
                     display_all = false;
                     T_typesound.Pause();
-                    yield break;// ÖÕÖ¹Éú³É
+                    yield break;// ç»ˆæ­¢ç”Ÿæˆ
                 }
             }
             yield return new WaitForSeconds(0.3f);

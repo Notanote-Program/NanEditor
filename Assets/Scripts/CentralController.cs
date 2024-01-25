@@ -1525,7 +1525,7 @@ public class CentralController : MonoBehaviour
     }
     private void garbageCollect()
     {
-        GC.Collect(); //ÒòÎªUnityÌØĞÔ£¬UnityÄÚµÄGCĞèÒªµ÷ÓÃÖÁÉÙ6´Î²ÅÓĞĞ§£¬8´ÎÊÇÒ»°ã´ÎÊı
+        GC.Collect(); //å› ä¸ºUnityç‰¹æ€§ï¼ŒUnityå†…çš„GCéœ€è¦è°ƒç”¨è‡³å°‘6æ¬¡æ‰æœ‰æ•ˆï¼Œ8æ¬¡æ˜¯ä¸€èˆ¬æ¬¡æ•°
         GC.Collect();
         GC.Collect();
         GC.Collect();
