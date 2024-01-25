@@ -165,6 +165,8 @@ public class CentralController : MonoBehaviour
         {
             front_ui.GetComponent<FrontUIManager>().setImage(chart.performImgList[0], 0, chart.performImgList.Count);
         }
+        
+        setSongName("*");
     }
     private void display()
     {
