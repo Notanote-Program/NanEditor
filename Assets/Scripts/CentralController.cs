@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -71,10 +72,10 @@ public class CentralController : MonoBehaviour
         Config.spriteList.Clear();//reload textures at begining
 
         string path = System.Environment.CurrentDirectory + "/Charts/" + chart_name + "/" + chart_name + ".json";
-        Chart newchart = Chart.LoadChart(path, Config.LoadType.External);
-        if (newchart != null)
+        Chart newChart = Chart.LoadChart(path, Config.LoadType.External);
+        if (newChart != null)
         {
-            chart = updateChartVersion(newchart);
+            chart = newChart;
             record("load chart: " + chart_name);
             if(autosave_on)
                 StartCoroutine(autoSave());
@@ -100,45 +101,7 @@ public class CentralController : MonoBehaviour
         }
 
     }
-
-    private Chart updateChartVersion(Chart oldChart)
-    {
-        while (oldChart.formatVersion < Chart.LatestVersion)
-        {
-            if (oldChart.formatVersion == 0)
-            {
-                foreach (JudgeLine judgeLine in oldChart.judgelineList)
-                {
-                    judgeLine.eventList.moveEvents.ForEach(ConvertType);
-                    judgeLine.eventList.rotateEvents.ForEach(ConvertType);
-                    judgeLine.eventList.scaleEvents.ForEach(ConvertType);
-                    judgeLine.eventList.colorModifyEvents.ForEach(ConvertType);
-                }
-
-                foreach (PerformImg performImg in oldChart.performImgList)
-                {
-                    performImg.eventList.moveEvents.ForEach(ConvertType);
-                    performImg.eventList.rotateEvents.ForEach(ConvertType);
-                    performImg.eventList.scaleEvents.ForEach(ConvertType);
-                    performImg.eventList.colorModifyEvents.ForEach(ConvertType);
-                }
-            }
-            oldChart.formatVersion++;
-        }
-        return oldChart;
-
-        void ConvertType(PerformEvent performEvent)
-        {
-            int type = (int)performEvent.type;
-            if (type > 0)
-            {
-                if (type == 10) type = 3;
-                else type += 3;
-            }
-
-            performEvent.type = (Config.EventType)type;
-        }
-    }
+    
     public void saveChart()
     {
         int num = 0;
@@ -208,6 +171,7 @@ public class CentralController : MonoBehaviour
         if (state == State.display)
         {
             float t = display_manager.GetComponent<Test>().getChartTime();
+            Debug.Log(display_manager.GetComponent<AudioSource>().clip);
             if (t > display_manager.GetComponent<AudioSource>().clip.length * 1000.0f)
             {
                 t = display_manager.GetComponent<AudioSource>().clip.length * 1000.0f;
@@ -1561,7 +1525,14 @@ public class CentralController : MonoBehaviour
     }
     private void garbageCollect()
     {
-        System.GC.Collect();
+        GC.Collect(); //因为Unity特性，Unity内的GC需要调用至少6次才有效，8次是一般次数
+        GC.Collect();
+        GC.Collect();
+        GC.Collect();
+        GC.Collect();
+        GC.Collect();
+        GC.Collect();
+        GC.Collect();
         Resources.UnloadUnusedAssets();
     }
     public void userInput()
@@ -1581,7 +1552,11 @@ public class CentralController : MonoBehaviour
         {
             switchType();
         }
-        if (Input.GetKeyDown(KeyCode.S))
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.S))
+        {
+            trySaveChart();
+        }
+        else if (Input.GetKeyDown(KeyCode.S))
         {
             setToSelectedTime();
         }
@@ -1702,13 +1677,22 @@ public class CentralController : MonoBehaviour
             time += Input.GetAxis("Mouse ScrollWheel") * density * 10f * 1000.0f;
             setTime(time);
         }
-        if (Input.GetKeyDown(KeyCode.Space))
+
+        if (Input.GetKeyDown(KeyCode.V))
         {
-            Play();
+            if (state == State.editor) Play();
+            else Pause();
         }
-        if (Input.GetKeyUp(KeyCode.Space))
+        else
         {
-            Pause();
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                Play();
+            }
+            if (Input.GetKeyUp(KeyCode.Space))
+            {
+                Pause();
+            }
         }
         if (Input.GetKeyUp(KeyCode.F))
         {
@@ -1775,10 +1759,6 @@ public class CentralController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.H))
         {
             HideUI();
-        }
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.S))
-        {
-            trySaveChart();
         }
         if (Input.GetKeyDown(KeyCode.O))
         {
