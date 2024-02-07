@@ -10,6 +10,7 @@ using UnityEngine.UIElements;
 using Mono.Cecil;
 using UnityEngine.UI;
 using System.Runtime.Serialization.Formatters.Binary;
+using Uniasset;
 using UnityEngine.SceneManagement;
 
 public class Utilities
@@ -340,15 +341,11 @@ public class Utilities
     }
     public static Texture2D LoadTexture2D(string path)
     {
-        Texture2D texture = new Texture2D(50, 50);
         if (!File.Exists(path))
             return null;
-        FileStream files = new FileStream(path, FileMode.Open);
-        byte[] imgByte = new byte[files.Length];
-        files.Read(imgByte, 0, imgByte.Length);
-        files.Close();
-        texture.LoadImage(imgByte);
-        return texture;
+        using ImageAsset imageAsset = new ImageAsset();
+        imageAsset.Load(path);
+        return imageAsset.ToTexture2D();
     }
     public static Sprite loadSprite(string imgpath, Config.LoadType loadType)
     {
@@ -360,20 +357,12 @@ public class Utilities
             if (loadType == Config.LoadType.Resource)
             {
                 Sprite sprite = Resources.Load<Sprite>(imgpath);
-                if (sprite != null)
-                    return sprite;
-                else
-                    return Resources.Load<Sprite>("Textures/defaultimg");
+                return sprite != null ? sprite : Resources.Load<Sprite>("Textures/defaultimg");
             }
 /*                texture = Resources.Load<Texture2D>(imgpath);*/
-            else
-            {
-                texture = Utilities.LoadTexture2D(imgpath);
-                if (texture != null)
-                    return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
-                else
-                    return Resources.Load<Sprite>("Textures/defaultimg");
-            }
+
+            texture = Utilities.LoadTexture2D(imgpath);
+            return texture != null ? Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f)) : Resources.Load<Sprite>("Textures/defaultimg");
         }
         return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
     }

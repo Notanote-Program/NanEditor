@@ -27,6 +27,7 @@ public class FrontUIManager : MonoBehaviour
     InputField info_offset;
     InputField info_difficulty;
     InputField info_notenum;
+    ColorSelector color_start_tips;
 
     // noteView
     Dropdown note_type;
@@ -114,6 +115,11 @@ public class FrontUIManager : MonoBehaviour
     {
         get { return move_poslist.endPos; }
     }
+
+    public Color startTipsColor
+    {
+        get { return color_start_tips.color; }
+    }
     public Color startColor
     {
         get { return color_start.color; }
@@ -145,6 +151,8 @@ public class FrontUIManager : MonoBehaviour
         info_offset = infoView.transform.Find("offset").transform.Find("InputField").GetComponent<InputField>();
         info_difficulty = infoView.transform.Find("difficulty").transform.Find("InputField").GetComponent<InputField>();
         info_notenum = infoView.transform.Find("noteNum").transform.Find("InputField").GetComponent<InputField>();
+        color_start_tips = infoView.transform.Find("colorStartTips").GetComponent<ColorSelector>();
+        color_start_tips.init();
     }
     private void initEventView()
     {
@@ -253,6 +261,7 @@ public class FrontUIManager : MonoBehaviour
         info_offset.text = chart.offset.ToString();
         info_difficulty.text = chart.difficulty.ToString();
         info_notenum.text = chart.noteNum.ToString();
+        color_start_tips.setColor(chart.startTipcolor);
     }
     public void setNote(Note note)
     {

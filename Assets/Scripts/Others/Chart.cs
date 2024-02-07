@@ -20,9 +20,16 @@ public class Chart
     public int noteNum;
     public List<JudgeLine> judgelineList;
     public List<PerformImg> performImgList;
+    public string _startTipcolor
+    {
+        get => ColorUtility.ToHtmlStringRGBA(startTipcolor);
+        set => startTipcolor = ColorUtility.TryParseHtmlString("#" + value, out Color outcolor) ? outcolor : Color.white;
+    }
+    [JsonIgnore]
+    public Color startTipcolor = Color.white;
     public Chart()
     {
-        formatVersion = 0;
+        formatVersion = LatestVersion;
         offset = 0;
         bpm = 120;// default;
         bpmList = new List<ModifyBpm>();

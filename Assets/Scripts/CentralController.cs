@@ -1027,46 +1027,50 @@ public class CentralController : MonoBehaviour
             }
         }
     }
+
+    public void setStartTipsColor()
+    {
+        if (state != State.editor) return;
+        Color color = front_ui.GetComponent<FrontUIManager>().startTipsColor;
+        chart.startTipcolor = color;
+        setInfo();
+    }
     public void setStartColor()
     {
+        if (state != State.editor) return;
         Color color = front_ui.GetComponent<FrontUIManager>().startColor;
-        if (state == State.editor)
+        Dictionary<PerformEvent, string> _event = chart_maker.GetComponent<chartMaker>().getSelectedEvent();
+        if (_event.Count == 1)
         {
-            Dictionary<PerformEvent, string> _event = chart_maker.GetComponent<chartMaker>().getSelectedEvent();
-            if (_event.Count == 1)
+            foreach (KeyValuePair<PerformEvent, string> p in _event)
             {
-                foreach (KeyValuePair<PerformEvent, string> p in _event)
+                if (p.Value == "colorEvent")
                 {
-                    if (p.Value == "colorEvent")
-                    {
-                        ColorModifyEvent e = p.Key as ColorModifyEvent;
-                        e.startColor = color;
-                        front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
-                    }
+                    ColorModifyEvent e = p.Key as ColorModifyEvent;
+                    e.startColor = color;
+                    front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                 }
-                record("edit start color");
             }
+            record("edit start color");
         }
     }
     public void setEndColor()
     {
+        if (state != State.editor) return;
         Color color = front_ui.GetComponent<FrontUIManager>().endColor;
-        if (state == State.editor)
+        Dictionary<PerformEvent, string> _event = chart_maker.GetComponent<chartMaker>().getSelectedEvent();
+        if (_event.Count == 1)
         {
-            Dictionary<PerformEvent, string> _event = chart_maker.GetComponent<chartMaker>().getSelectedEvent();
-            if (_event.Count == 1)
+            foreach (KeyValuePair<PerformEvent, string> p in _event)
             {
-                foreach (KeyValuePair<PerformEvent, string> p in _event)
+                if (p.Value == "colorEvent")
                 {
-                    if (p.Value == "colorEvent")
-                    {
-                        ColorModifyEvent e = p.Key as ColorModifyEvent;
-                        e.endColor = color;
-                        front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
-                    }
+                    ColorModifyEvent e = p.Key as ColorModifyEvent;
+                    e.endColor = color;
+                    front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                 }
-                record("edit end color");
             }
+            record("edit end color");
         }
     }
     public void setStartScale(string s)
@@ -1539,7 +1543,6 @@ public class CentralController : MonoBehaviour
     }
     public void userInput()
     {
-
         //ui control
         if (Input.GetMouseButtonDown(0))
         {
@@ -1680,7 +1683,7 @@ public class CentralController : MonoBehaviour
             setTime(time);
         }
 
-        if (Input.GetKeyDown(KeyCode.V))
+        if (Input.GetKeyDown(KeyCode.V) && !Input.GetKey(KeyCode.LeftControl))
         {
             if (state == State.editor) Play();
             else Pause();
