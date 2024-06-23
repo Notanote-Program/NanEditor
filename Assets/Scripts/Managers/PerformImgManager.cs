@@ -24,7 +24,8 @@ public class PerformImgManager : BaseManager
         presentMoveEventNum = new List<int>();
         presentRotateEventNum = new List<int>();
         presentColorEventNum = new List<int>();
-        presentScaleEventNum = new List<int>();
+        presentScaleXEventNum = new List<int>();
+        presentScaleYEventNum = new List<int>();
         nextImgId = 0;
 
         if(loadType == Config.LoadType.Resource)
@@ -37,7 +38,7 @@ public class PerformImgManager : BaseManager
         }
         for (int i = 0; i < imgList.Count; i++)
         {
-            EventList.Add(new EventList(imgList[i].eventList.moveEvents, imgList[i].eventList.rotateEvents, imgList[i].eventList.colorModifyEvents, imgList[i].eventList.scaleEvents));
+            EventList.Add(imgList[i].eventList.Clone());
             if (imgList[i].path == null)
                 imgList[i].path = "";
             if (!Config.spriteList.ContainsKey(imgList[i].path))
@@ -45,7 +46,8 @@ public class PerformImgManager : BaseManager
             presentMoveEventNum.Add(0);
             presentRotateEventNum.Add(0);
             presentColorEventNum.Add(0);
-            presentScaleEventNum.Add(0);
+            presentScaleXEventNum.Add(0);
+            presentScaleYEventNum.Add(0);
         }
     }
     
@@ -62,7 +64,8 @@ public class PerformImgManager : BaseManager
             presentMoveEventNum[i] = 0;
             presentRotateEventNum[i] = 0;
             presentColorEventNum[i] = 0;
-            presentScaleEventNum[i] = 0;
+            presentScaleXEventNum[i] = 0;
+            presentScaleYEventNum[i] = 0;
         }
     }
     public void update(float time)
@@ -73,7 +76,7 @@ public class PerformImgManager : BaseManager
             GameObject newImg = pool.get_item();
             //Debug.Log(img.path);
 
-            newImg.GetComponent<PerformImgRenderer>().init(Config.spriteList[img.path], img.color, img.position, img.scale, img.angle, img.sortingOrder,loadType);
+            newImg.GetComponent<PerformImgRenderer>().init(Config.spriteList[img.path], img.color, img.position, img.scaleX, img.scaleY, img.angle, img.sortingOrder,loadType);
             imgObjectList.Add(nextImgId, newImg);
             nextImgId++;
         }
@@ -191,28 +194,69 @@ public class PerformImgManager : BaseManager
     }
     private void updateScaleEvents(int Id, float time)
     { 
-        List<ScaleEvent> events = EventList[Id].scaleEvents;
-        if (events.Count == 0)
+        List<ScaleEvent> xEvents = EventList[Id].scaleXEvents;
+        List<ScaleEvent> yEvents = EventList[Id].scaleYEvents;
+        if (xEvents.Count + yEvents.Count == 0)
             return;
-        while (presentScaleEventNum[Id] < events.Count && events[presentScaleEventNum[Id]].endTime <= time)
+        float x = 1f;
+        float y = 1f;
+        bool xHasEvent = xEvents.Count != 0;
+        bool yHasEvent = yEvents.Count != 0;
+        if (xHasEvent)
         {
-            presentScaleEventNum[Id]++;
+            while (presentScaleXEventNum[Id] < xEvents.Count && xEvents[presentScaleXEventNum[Id]].endTime <= time)
+            {
+                presentScaleXEventNum[Id]++;
+            }
+            if (presentScaleXEventNum[Id] >= xEvents.Count && xEvents.Count > 0)
+            {
+                x = xEvents[^1].endScale;
+            }
+            else
+            {
+                if (xEvents[presentScaleXEventNum[Id]].startTime <= time)
+                {
+                    x = getScale(xEvents[presentScaleXEventNum[Id]], time);
+                }
+                else if (presentScaleXEventNum[Id] > 0)
+                {
+                    x = xEvents[presentScaleXEventNum[Id] - 1].endScale;
+                }
+            }
         }
-        if (presentScaleEventNum[Id] >= events.Count && events.Count > 0)
+
+        if (yHasEvent)
         {
-            float scale = events[events.Count - 1].endScale;
-            imgObjectList[Id].GetComponent<PerformImgRenderer>().scale = scale;
-            return;
+            while (presentScaleYEventNum[Id] < yEvents.Count && yEvents[presentScaleYEventNum[Id]].endTime <= time)
+            {
+                presentScaleYEventNum[Id]++;
+            }
+            if (presentScaleYEventNum[Id] >= yEvents.Count && yEvents.Count > 0)
+            {
+                y = yEvents[^1].endScale;
+            }
+            else
+            {
+                if (yEvents[presentScaleYEventNum[Id]].startTime <= time)
+                {
+                    y = getScale(yEvents[presentScaleYEventNum[Id]], time);
+                }
+                else if (presentScaleYEventNum[Id] > 0)
+                {
+                    y = yEvents[presentScaleYEventNum[Id] - 1].endScale;
+                }
+            }
         }
-        if (events[presentScaleEventNum[Id]].startTime <= time)
+        
+        if (xHasEvent && yHasEvent)
         {
-            float scale = getScale(events[presentScaleEventNum[Id]], time);
-            imgObjectList[Id].GetComponent<PerformImgRenderer>().scale = scale;
-        }
-        else if (presentScaleEventNum[Id] > 0)
+            imgObjectList[Id].GetComponent<PerformImgRenderer>().SetScaleRespectively(x, y);
+        } else if (xHasEvent)
         {
-            float scale = events[presentScaleEventNum[Id] - 1].endScale;
-            imgObjectList[Id].GetComponent<PerformImgRenderer>().scale = scale;
+            imgObjectList[Id].GetComponent<PerformImgRenderer>().scaleX = x;
+        } else if (yHasEvent)
+        {
+            imgObjectList[Id].GetComponent<PerformImgRenderer>().scaleY = y;
         }
     }
     public void reload(string imgpath)

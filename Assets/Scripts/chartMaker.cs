@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class chartMaker : MonoBehaviour
 {
     private readonly Vector2 defaultContentPos = new Vector2(0,-100);
-    private readonly List<float> defaultPos = new List<float> { -3, 0, 2, 4, 6 };// the positions of eventlines
+    private readonly List<float> defaultPos = new List<float> { -3, 0, 2, 4, 6, 8 };// the positions of eventlines
     public int partition = 4;
     private float _density = 0.25f;
     public float density

@@ -15,7 +15,15 @@ public class JudgeLineRenderer : MoveableObject
     private float _width = 0.06f;
     private const float line_length = 10000.0f;
     private const float radius = 0.5f;
-
+    
+    public float scale
+    {
+        get { return transform.localScale.x; }
+        set 
+        {
+            transform.localScale = new Vector3(value, value, 1); 
+        }
+    }
     public float width
     {
         get { return _width; }

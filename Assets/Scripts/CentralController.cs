@@ -16,14 +16,14 @@ public class CentralController : MonoBehaviour
     public string song_name;
 
     public Chart chart;
-    private Config.EventlineType type;// judgeline or performImage
-    private int id;// index of current judgeline or performImage
+    private Config.EventlineType type; // judgeline or performImage
+    private int id; // index of current judgeline or performImage
     private int id_judgeline;
     private int id_performimg;
 
     List<editorRecord> recordList;
-    const int MaxRecordNum = 100;// max num of record
-    int recordIndex = 0;// index of record
+    const int MaxRecordNum = 100; // max num of record
+    int recordIndex = 0; // index of record
 
     bool autosave_on = true;
 
@@ -31,45 +31,52 @@ public class CentralController : MonoBehaviour
     {
         get { return chart_maker.GetComponent<chartMaker>().density; }
     }
+
     private float guideBeats
     {
         get { return chart_maker.GetComponent<chartMaker>().guideBeats; }
     }
+
     public float time
     {
         get { return _time; }
         set { _time = Mathf.Max(0, value); }
     }
+
     private float _time;
+
     private enum State
     {
         editor,
         display
     }
-    State state;// edit mode or display mode
+
+    State state; // edit mode or display mode
 
     bool showEditor = true;
     bool showChart = true;
     bool showLineId = false;
     bool showUI = true;
 
-    Note template;// a template to generate notes
+    Note template; // a template to generate notes
 
     // Start is called before the first frame update
     void Start()
     {
         init();
     }
+
     // Update is called once per frame
     void Update()
     {
         display();
         userInput();
     }
+
     public void loadChart()
     {
         // todo
-        Config.spriteList.Clear();//reload textures at begining
+        Config.spriteList.Clear(); //reload textures at begining
 
         string path = System.Environment.CurrentDirectory + "/Charts/" + chart_name + "/" + chart_name + ".json";
         Chart newChart = Chart.LoadChart(path, Config.LoadType.External);
@@ -77,16 +84,18 @@ public class CentralController : MonoBehaviour
         {
             chart = newChart;
             record("load chart: " + chart_name);
-            if(autosave_on)
+            if (autosave_on)
                 StartCoroutine(autoSave());
         }
+
         reset();
         synchronize();
         setInfo();
         if (type == Config.EventlineType.Judgeline)
         {
             id = Mathf.Min(id, chart.judgelineList.Count - 1);
-            front_ui.GetComponent<FrontUIManager>().setJudgeline(chart.judgelineList[id], id, chart.judgelineList.Count);
+            front_ui.GetComponent<FrontUIManager>()
+                .setJudgeline(chart.judgelineList[id], id, chart.judgelineList.Count);
         }
         else
         {
@@ -96,12 +105,12 @@ public class CentralController : MonoBehaviour
             front_ui.GetComponent<FrontUIManager>().setImageList(chart.performImgList);
             if (chart.performImgList.Count > 0)
             {
-                front_ui.GetComponent<FrontUIManager>().setImage(chart.performImgList[id], id, chart.performImgList.Count);
+                front_ui.GetComponent<FrontUIManager>()
+                    .setImage(chart.performImgList[id], id, chart.performImgList.Count);
             }
         }
-
     }
-    
+
     public void saveChart()
     {
         int num = 0;
@@ -109,15 +118,18 @@ public class CentralController : MonoBehaviour
         {
             num += line.noteList.Count;
         }
+
         chart.noteNum = num;
         string path = System.Environment.CurrentDirectory + "/Charts/" + chart_name + "/" + chart_name + ".json";
         Chart.SaveChart(chart, path);
         setInfo();
     }
+
     public void trySaveChart()
     {
         front_ui.GetComponent<FrontUIManager>().setSaveUI(true);
     }
+
     private IEnumerator autoSave()
     {
         while (true)
@@ -128,11 +140,14 @@ public class CentralController : MonoBehaviour
             {
                 num += line.noteList.Count;
             }
+
             chart.noteNum = num;
-            string path = System.Environment.CurrentDirectory + "/Charts/" + chart_name + "/" + chart_name + "_autosaved.json";
+            string path = System.Environment.CurrentDirectory + "/Charts/" + chart_name + "/" + chart_name +
+                          "_autosaved.json";
             Chart.SaveChart(chart, path);
         }
     }
+
     private void init()
     {
         chart = new Chart();
@@ -165,26 +180,29 @@ public class CentralController : MonoBehaviour
         {
             front_ui.GetComponent<FrontUIManager>().setImage(chart.performImgList[0], 0, chart.performImgList.Count);
         }
-        
+
         setSongName("*");
     }
+
     private void display()
     {
         if (state == State.display)
         {
             float t = display_manager.GetComponent<Test>().getChartTime();
-            Debug.Log(display_manager.GetComponent<AudioSource>().clip);
+            // Debug.Log(display_manager.GetComponent<AudioSource>().clip);
             if (t > display_manager.GetComponent<AudioSource>().clip.length * 1000.0f)
             {
                 t = display_manager.GetComponent<AudioSource>().clip.length * 1000.0f;
                 Pause();
                 return;
             }
+
             if (showEditor)
                 chart_maker.GetComponent<chartMaker>().setTime(t);
             setTime(t);
         }
     }
+
     public void setTime(float t)
     {
         this.time = t;
@@ -193,14 +211,17 @@ public class CentralController : MonoBehaviour
             display_manager.GetComponent<Test>().setTime(time, showLineId);
             chart_maker.GetComponent<chartMaker>().setTime(time);
         }
+
         front_ui.GetComponent<FrontUIManager>().setTime(time);
     }
+
     public void Play()
     {
         state = State.display;
         display_manager.GetComponent<Test>().Play(showChart, showLineId);
         chart_maker.GetComponent<chartMaker>().setVisible(showEditor);
     }
+
     public void Pause()
     {
         state = State.editor;
@@ -209,6 +230,7 @@ public class CentralController : MonoBehaviour
         float t = display_manager.GetComponent<Test>().getChartTime();
         setTime(t);
     }
+
     public void reset()
     {
         if (state == State.editor)
@@ -222,12 +244,13 @@ public class CentralController : MonoBehaviour
             setUI();
         }
     }
+
     public void record(string description = "???")
     {
         while (recordList.Count > recordIndex + 1)
             recordList.RemoveAt(recordList.Count - 1);
         string new_record = Utilities.toString(chart);
-        recordList.Add(new editorRecord(new_record,description));
+        recordList.Add(new editorRecord(new_record, description));
         while (recordList.Count > MaxRecordNum)
             recordList.RemoveAt(0);
         recordIndex = recordList.Count - 1;
@@ -235,6 +258,7 @@ public class CentralController : MonoBehaviour
         front_ui.GetComponent<FrontUIManager>().setRecord(recordIndex);
         Debug.Log("recorded num:" + recordList.Count);
     }
+
     public void Redo()
     {
         if (recordList.Count - 1 < recordIndex + 1)
@@ -247,18 +271,20 @@ public class CentralController : MonoBehaviour
         setEvent();
         garbageCollect();
     }
+
     public void Undo()
     {
         if (recordList.Count <= 1 || recordIndex == 0)
             return;
         recordIndex--;
         front_ui.GetComponent<FrontUIManager>().setRecord(recordIndex);
-        chart = Utilities.fromString<Chart>(recordList[recordIndex].value);        
+        chart = Utilities.fromString<Chart>(recordList[recordIndex].value);
         reset();
         chart_maker.GetComponent<chartMaker>().cancelSelect();
         setEvent();
         garbageCollect();
     }
+
     public void backtraceRecord(int id)
     {
         if (id >= recordList.Count || id < 0)
@@ -270,18 +296,22 @@ public class CentralController : MonoBehaviour
         setEvent();
         garbageCollect();
     }
+
     public void ShowEditor(bool b)
     {
         showEditor = b;
     }
+
     public void ShowChart(bool b)
     {
         showChart = b;
     }
+
     public void ShowLineId(bool b)
     {
         showLineId = b;
     }
+
     private Chart getTestChart()
     {
         Chart chart = new Chart();
@@ -296,6 +326,7 @@ public class CentralController : MonoBehaviour
             judgeLine.noteList.Add(new Note(Config.Type.Hold, Color.white, 1f + 2f * i, 1f, 15, 2f));
             judgeLine2.noteList.Add(new Note(Config.Type.Tap, Color.white, 0.5f * i, 0, 15, 2f));
         }
+
         List<Vector3> positions1 = new List<Vector3>();
         List<Vector3> positions2 = new List<Vector3>();
         positions1.Add(new Vector3(-0.5f, -0.5f, 0));
@@ -304,21 +335,32 @@ public class CentralController : MonoBehaviour
         positions2.Add(new Vector3(-0.5f, -0.5f, 0));
         for (int i = 0; i < 20000; i++)
         {
-            judgeLine2.eventList.moveEvents.Add(new MoveEvent(positions1, Config.PathType.Bessel, 5f * i, 5f * i + 2.5f, Config.EventType.CubicInOut));
-            judgeLine2.eventList.moveEvents.Add(new MoveEvent(positions2, Config.PathType.Bessel, 5f * i + 2.5f, 5f * i + 5f, Config.EventType.CubicInOut));
-            judgeLine.eventList.rotateEvents.Add(new RotateEvent(30 * i, 30 * i + 33, 1f * i, 1f * i + 0.3f, Config.EventType.CubicOut));
-            judgeLine.eventList.rotateEvents.Add(new RotateEvent(30 * i + 33, 30 * i + 30, 1f * i + 0.3f, 1f * i + 0.35f, Config.EventType.CubicInOut));
-            judgeLine.eventList.colorModifyEvents.Add(new ColorModifyEvent(Color.white, new Color(1, 1, 1, 0), 1f * i, 1f * i + 0.3f, Config.EventType.CubicIn));
-            judgeLine.eventList.colorModifyEvents.Add(new ColorModifyEvent(new Color(1, 1, 1, 0), Color.white, 1f * i + 0.5f, 1f * i + 0.5f, Config.EventType.CubicIn));
+            judgeLine2.eventList.moveEvents.Add(new MoveEvent(positions1, Config.PathType.Bessel, 5f * i, 5f * i + 2.5f,
+                Config.EventType.CubicInOut));
+            judgeLine2.eventList.moveEvents.Add(new MoveEvent(positions2, Config.PathType.Bessel, 5f * i + 2.5f,
+                5f * i + 5f, Config.EventType.CubicInOut));
+            judgeLine.eventList.rotateEvents.Add(new RotateEvent(30 * i, 30 * i + 33, 1f * i, 1f * i + 0.3f,
+                Config.EventType.CubicOut));
+            judgeLine.eventList.rotateEvents.Add(new RotateEvent(30 * i + 33, 30 * i + 30, 1f * i + 0.3f,
+                1f * i + 0.35f, Config.EventType.CubicInOut));
+            judgeLine.eventList.colorModifyEvents.Add(new ColorModifyEvent(Color.white, new Color(1, 1, 1, 0), 1f * i,
+                1f * i + 0.3f, Config.EventType.CubicIn));
+            judgeLine.eventList.colorModifyEvents.Add(new ColorModifyEvent(new Color(1, 1, 1, 0), Color.white,
+                1f * i + 0.5f, 1f * i + 0.5f, Config.EventType.CubicIn));
             //img.eventList.moveEvents.Add(new MoveEvent(positions1, Config.PathType.Bessel, 5f * i, 5f * i + 2.5f, Config.EventType.Uniform));
             //img.eventList.moveEvents.Add(new MoveEvent(positions2, Config.PathType.Bessel, 5f * i + 2.5f, 5f * i + 5f, Config.EventType.Uniform));
             //img2.eventList.rotateEvents.Add(new RotateEvent(30 * i, 30 * i + 30, 1f * i, 1f * i + 0.3f, Config.EventType.Deceletate));
-            img2.eventList.moveEvents.Add(new MoveEvent(positions2, Config.PathType.Bessel, 5f * i, 5f * i + 2.5f, Config.EventType.Linear));
-            img2.eventList.moveEvents.Add(new MoveEvent(positions1, Config.PathType.Bessel, 5f * i + 2.5f, 5f * i + 5f, Config.EventType.Linear));
-            img2.eventList.rotateEvents.Add(new RotateEvent(30 * i, 30 * i + 30, 1f * i, 1f * i + 0.3f, Config.EventType.CubicOut));
-            img2.eventList.scaleEvents.Add(new ScaleEvent(1.2f, 1f, 1f * i, 1f * i + 0.2f, Config.EventType.CubicIn));
+            img2.eventList.moveEvents.Add(new MoveEvent(positions2, Config.PathType.Bessel, 5f * i, 5f * i + 2.5f,
+                Config.EventType.Linear));
+            img2.eventList.moveEvents.Add(new MoveEvent(positions1, Config.PathType.Bessel, 5f * i + 2.5f, 5f * i + 5f,
+                Config.EventType.Linear));
+            img2.eventList.rotateEvents.Add(new RotateEvent(30 * i, 30 * i + 30, 1f * i, 1f * i + 0.3f,
+                Config.EventType.CubicOut));
+            img2.eventList.scaleXEvents.Add(new ScaleEvent(1.2f, 1f, 1f * i, 1f * i + 0.2f, Config.EventType.CubicIn));
+            img2.eventList.scaleYEvents.Add(new ScaleEvent(1.2f, 1f, 1f * i, 1f * i + 0.2f, Config.EventType.CubicIn));
             //img.Add(new PerformImg("Textures/ring2", Color.white, new Vector3(0.5f * Mathf.Sin(i), 0.5f * Mathf.Cos(i), 0), 2 * i, 2 * i + 20, 0, 0.3f, 50));
         }
+
         //Debug.Log(judgeLine.eventList.colorModifyEvents.Count);
         chart.noteNum = 20000;
         chart.judgelineList.Add(judgeLine);
@@ -330,6 +372,7 @@ public class CentralController : MonoBehaviour
         Chart.Show(chart);
         return chart;
     }
+
     private void testGuideLine()
     {
         if (Input.GetKeyDown(KeyCode.T))
@@ -341,16 +384,19 @@ public class CentralController : MonoBehaviour
             chart_maker.GetComponent<chartMaker>().setGuideMode(false);
         }
     }
+
     private void setSongLength(float t)
     {
         front_ui.GetComponent<FrontUIManager>().setMaxTime(t);
         chart_maker.GetComponent<chartMaker>().setFullTime(t);
     }
-    private void synchronize()// to sync audio length
+
+    private void synchronize() // to sync audio length
     {
         Debug.Log("load audio");
         StartCoroutine(_synchronize());
     }
+
     private IEnumerator _synchronize()
     {
         for (int i = 0; i < 10; i++)
@@ -360,6 +406,7 @@ public class CentralController : MonoBehaviour
                 setSongLength(display_manager.GetComponent<AudioSource>().clip.length * 1000.0f);
         }
     }
+
     public void setToSelectedTime()
     {
         if (state == State.editor)
@@ -367,16 +414,19 @@ public class CentralController : MonoBehaviour
             setTime(chart_maker.GetComponent<chartMaker>().getSelectedTime());
         }
     }
+
     private void setInfo()
     {
         front_ui.GetComponent<FrontUIManager>().setInfo(chart);
     }
+
     public void setUI()
     {
         setNote();
         setjudgeline();
         setImage();
     }
+
     private void setNote()
     {
         List<Note> notes = chart_maker.GetComponent<chartMaker>().getSelectedNote();
@@ -384,13 +434,17 @@ public class CentralController : MonoBehaviour
         {
             front_ui.GetComponent<FrontUIManager>().setNote(notes[0]);
         }
+
         front_ui.GetComponent<FrontUIManager>().setTemplateNote(template);
     }
+
     private void setjudgeline()
     {
         if (type == Config.EventlineType.Judgeline && id < chart.judgelineList.Count)
-            front_ui.GetComponent<FrontUIManager>().setJudgeline(chart.judgelineList[id], id, chart.judgelineList.Count);
+            front_ui.GetComponent<FrontUIManager>()
+                .setJudgeline(chart.judgelineList[id], id, chart.judgelineList.Count);
     }
+
     private void setImage()
     {
         if (type == Config.EventlineType.PerformImg)
@@ -400,6 +454,7 @@ public class CentralController : MonoBehaviour
                 front_ui.GetComponent<FrontUIManager>().setEmptyImage();
                 return;
             }
+
             // Debug.Log(id);
             //Debug.Log(chart.performImgList.Count);
             // string path = System.Environment.CurrentDirectory + "/Charts/" + chart_name + "/imgs/" + chart.performImgList[id].path + ".png";
@@ -407,6 +462,7 @@ public class CentralController : MonoBehaviour
             front_ui.GetComponent<FrontUIManager>().setImage(chart.performImgList[id], id, chart.performImgList.Count);
         }
     }
+
     private void reloadSprites()
     {
         List<string> paths = new List<string>();
@@ -414,31 +470,38 @@ public class CentralController : MonoBehaviour
         {
             paths.Add(imgpath);
         }
+
         foreach (string imgpath in paths)
         {
             string path = System.Environment.CurrentDirectory + "/Charts/" + chart_name + "/imgs/" + imgpath + ".png";
             Texture2D texture = Utilities.LoadTexture2D(path);
             if (texture != null)
-                Config.spriteList[imgpath] = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                Config.spriteList[imgpath] = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                    new Vector2(0.5f, 0.5f));
             else
                 Config.spriteList[imgpath] = Resources.Load<Sprite>("Textures/defaultimg");
         }
+
         setImage();
     }
+
     private void reloadSpite(string imgpath)
     {
         string path = System.Environment.CurrentDirectory + "/Charts/" + chart_name + "/imgs/" + imgpath + ".png";
         Texture2D texture = Utilities.LoadTexture2D(path);
         if (texture != null)
-            Config.spriteList[imgpath] = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+            Config.spriteList[imgpath] = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f));
         else
             Config.spriteList[imgpath] = Resources.Load<Sprite>("Textures/defaultimg");
     }
+
     private void setImageList()
     {
         if (type == Config.EventlineType.PerformImg)
             front_ui.GetComponent<FrontUIManager>().setImageList(chart.performImgList);
     }
+
     private void setEvent()
     {
         Dictionary<PerformEvent, string> _event = chart_maker.GetComponent<chartMaker>().getSelectedEvent();
@@ -448,7 +511,7 @@ public class CentralController : MonoBehaviour
         }
         else if (_event.Count == 1)
         {
-            foreach (KeyValuePair<PerformEvent, string> e in _event)// actually only one event
+            foreach (KeyValuePair<PerformEvent, string> e in _event) // actually only one event
                 front_ui.GetComponent<FrontUIManager>().setEvent(e.Value, e.Key);
         }
         else
@@ -456,26 +519,31 @@ public class CentralController : MonoBehaviour
             //todo front_ui.GetComponent<FrontUIManager>().setEvent();
         }
     }
+
     public void setName(string s)
     {
         chart.name = s;
         setInfo();
     }
+
     public void setComposer(string s)
     {
         chart.composer = s;
         setInfo();
     }
+
     public void setCharter(string s)
     {
         chart.charter = s;
         setInfo();
     }
+
     public void setIllustrator(string s)
     {
         chart.illustrator = s;
         setInfo();
     }
+
     public void setBpm(string s)
     {
         if (s == "")
@@ -484,6 +552,7 @@ public class CentralController : MonoBehaviour
         setInfo();
         reset();
     }
+
     public void setOffset(string s)
     {
         if (s == "")
@@ -492,6 +561,7 @@ public class CentralController : MonoBehaviour
         setInfo();
         reset();
     }
+
     public void setDifficulty(string s)
     {
         if (s == "")
@@ -500,16 +570,19 @@ public class CentralController : MonoBehaviour
         setInfo();
         reset();
     }
+
     public void setChartName(string s)
     {
         chart_name = s;
         display_manager.GetComponent<Test>().chart_name = chart_name;
     }
+
     public void setSongName(string s)
     {
         song_name = s;
         display_manager.GetComponent<Test>().song_name = song_name;
     }
+
     public void editJudgeline(string _id)
     {
         if (_id == "")
@@ -524,6 +597,7 @@ public class CentralController : MonoBehaviour
             setjudgeline();
         }
     }
+
     public void editImage(int id)
     {
         if (id >= 0 && id < chart.performImgList.Count)
@@ -535,6 +609,7 @@ public class CentralController : MonoBehaviour
             setImage();
         }
     }
+
     public void deleteJudgeLine()
     {
         if (state == State.editor && type == Config.EventlineType.Judgeline)
@@ -551,6 +626,7 @@ public class CentralController : MonoBehaviour
             record("delete judgeline: " + delete_id);
         }
     }
+
     public void addJudgeLine()
     {
         if (state == State.editor && type == Config.EventlineType.Judgeline)
@@ -560,6 +636,7 @@ public class CentralController : MonoBehaviour
             record("add new judgeline");
         }
     }
+
     public void deleteImage()
     {
         if (state == State.editor && type == Config.EventlineType.PerformImg)
@@ -577,6 +654,7 @@ public class CentralController : MonoBehaviour
             record("delete image, id: " + old_id);
         }
     }
+
     public void addImage()
     {
         if (state == State.editor && type == Config.EventlineType.PerformImg)
@@ -588,6 +666,7 @@ public class CentralController : MonoBehaviour
             record("add new image");
         }
     }
+
     public void editImageName(string s)
     {
         if (state == State.editor && type == Config.EventlineType.PerformImg)
@@ -601,6 +680,7 @@ public class CentralController : MonoBehaviour
             }
         }
     }
+
     public void editImagePath(string s)
     {
         if (state == State.editor && type == Config.EventlineType.PerformImg)
@@ -614,6 +694,7 @@ public class CentralController : MonoBehaviour
             }
         }
     }
+
     public void setImageSortingLayer(string s)
     {
         if (s == "")
@@ -629,6 +710,7 @@ public class CentralController : MonoBehaviour
             }
         }
     }
+
     public void setImageStarttime(string s)
     {
         if (s == "")
@@ -650,6 +732,7 @@ public class CentralController : MonoBehaviour
             }
         }
     }
+
     public void setImageEndtime(string s)
     {
         if (s == "")
@@ -666,6 +749,7 @@ public class CentralController : MonoBehaviour
             }
         }
     }
+
     public void setEventStarttime(string s)
     {
         if (s == "")
@@ -692,12 +776,14 @@ public class CentralController : MonoBehaviour
                         chart.addEvent_PerformImg(id, p.Key, p.Value);
                     }
                 }
+
                 chart_maker.GetComponent<chartMaker>().cancelSelect();
                 chart_maker.GetComponent<chartMaker>().reset(chart);
                 record("edit event start time");
             }
         }
     }
+
     public void setEventEndtime(string s)
     {
         if (s == "")
@@ -722,14 +808,17 @@ public class CentralController : MonoBehaviour
                         chart.deleteEvent_PerformImg(id, p.Key, p.Value);
                         chart.addEvent_PerformImg(id, p.Key, p.Value);
                     }
+
                     front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                 }
+
                 chart_maker.GetComponent<chartMaker>().cancelSelect();
                 chart_maker.GetComponent<chartMaker>().reset(chart);
                 record("edit event end time");
             }
         }
     }
+
     public void setEventMoveType(int t)
     {
         if (state == State.editor)
@@ -742,9 +831,11 @@ public class CentralController : MonoBehaviour
                 p.Key.type = (Config.EventType)t;
                 front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
             }
+
             record("edit event move type");
         }
     }
+
     public void addMovePosition()
     {
         if (state == State.editor)
@@ -762,10 +853,12 @@ public class CentralController : MonoBehaviour
                         front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                     }
                 }
+
                 record("add move position");
             }
         }
     }
+
     public void deleteMovePosition()
     {
         if (state == State.editor)
@@ -782,10 +875,12 @@ public class CentralController : MonoBehaviour
                         front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                     }
                 }
+
                 record("delete move position");
             }
         }
     }
+
     public void editMovePosition()
     {
         if (state == State.editor)
@@ -803,10 +898,12 @@ public class CentralController : MonoBehaviour
                         front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                     }
                 }
+
                 record("edit move position");
             }
         }
     }
+
     public void setStartPosition() // set the start position of a bunch of move events
     {
         if (state == State.editor)
@@ -826,8 +923,9 @@ public class CentralController : MonoBehaviour
                         }
                     }
                 }
+
                 if (firstMoveEvent == null)
-                    return;//not valid                
+                    return; //not valid                
                 Vector3 old_pos = (firstMoveEvent as MoveEvent).positions[0];
                 Vector3 delta_pos = front_ui.GetComponent<FrontUIManager>().startPos - old_pos;
                 foreach (KeyValuePair<PerformEvent, string> p in _event)
@@ -838,10 +936,12 @@ public class CentralController : MonoBehaviour
                         front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                     }
                 }
+
                 record("set start position");
             }
         }
     }
+
     public void setEndPosition() // set the end position of a bunch of move events
     {
         if (state == State.editor)
@@ -861,9 +961,11 @@ public class CentralController : MonoBehaviour
                         }
                     }
                 }
+
                 if (firstMoveEvent == null)
-                    return;//not valid                
-                Vector3 old_pos = (firstMoveEvent as MoveEvent).positions[(firstMoveEvent as MoveEvent).positions.Count - 1];
+                    return; //not valid                
+                Vector3 old_pos =
+                    (firstMoveEvent as MoveEvent).positions[(firstMoveEvent as MoveEvent).positions.Count - 1];
                 Vector3 delta_pos = front_ui.GetComponent<FrontUIManager>().endPos - old_pos;
                 foreach (KeyValuePair<PerformEvent, string> p in _event)
                 {
@@ -873,10 +975,12 @@ public class CentralController : MonoBehaviour
                         front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                     }
                 }
+
                 record("set end position");
             }
         }
     }
+
     public void flipPosition_X() // flip the position by X
     {
         if (state == State.editor)
@@ -892,10 +996,12 @@ public class CentralController : MonoBehaviour
                         front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                     }
                 }
+
                 record("flip position_x");
             }
         }
     }
+
     public void flipPosition_Y() // flip the position by Y
     {
         if (state == State.editor)
@@ -911,10 +1017,12 @@ public class CentralController : MonoBehaviour
                         front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                     }
                 }
+
                 record("flip position_y");
             }
         }
     }
+
     public void shiftPosition_X(int side)
     {
         if (state == State.editor)
@@ -930,6 +1038,7 @@ public class CentralController : MonoBehaviour
                         front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                     }
                 }
+
                 Debug.Log(chart_maker.GetComponent<chartMaker>().getSelectedEvent().Count);
                 reset();
                 Debug.Log(chart_maker.GetComponent<chartMaker>().getSelectedEvent().Count);
@@ -938,6 +1047,7 @@ public class CentralController : MonoBehaviour
             }
         }
     }
+
     public void shiftPosition_Y(int side)
     {
         if (state == State.editor)
@@ -953,12 +1063,14 @@ public class CentralController : MonoBehaviour
                         front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                     }
                 }
+
                 reset();
                 garbageCollect();
                 record("shift position_y");
             }
         }
     }
+
     public void editMovePathType(int type)
     {
         if (state == State.editor)
@@ -972,14 +1084,16 @@ public class CentralController : MonoBehaviour
                     {
                         MoveEvent e = p.Key as MoveEvent;
                         e.pathType = (Config.PathType)type;
+                        Debug.Log(e.pathType);
                         front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                     }
-
                 }
+
                 record("edit move type");
             }
         }
     }
+
     public void setStartAngle(string s)
     {
         if (s == "")
@@ -998,12 +1112,13 @@ public class CentralController : MonoBehaviour
                         e.startAngle = angle;
                         front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                     }
-
                 }
+
                 record("edit start angle");
             }
         }
     }
+
     public void setEndAngle(string s)
     {
         if (s == "")
@@ -1023,6 +1138,7 @@ public class CentralController : MonoBehaviour
                         front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                     }
                 }
+
                 record("edit end angle");
             }
         }
@@ -1035,6 +1151,7 @@ public class CentralController : MonoBehaviour
         chart.startTipcolor = color;
         setInfo();
     }
+
     public void setStartColor()
     {
         if (state != State.editor) return;
@@ -1051,9 +1168,11 @@ public class CentralController : MonoBehaviour
                     front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                 }
             }
+
             record("edit start color");
         }
     }
+
     public void setEndColor()
     {
         if (state != State.editor) return;
@@ -1070,9 +1189,11 @@ public class CentralController : MonoBehaviour
                     front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                 }
             }
+
             record("edit end color");
         }
     }
+
     public void setStartScale(string s)
     {
         if (s == "")
@@ -1085,17 +1206,19 @@ public class CentralController : MonoBehaviour
             {
                 foreach (KeyValuePair<PerformEvent, string> p in _event)
                 {
-                    if (p.Value == "scaleEvent")
+                    if (p.Value == "scaleXEvent" || p.Value == "scaleYEvent")
                     {
                         ScaleEvent e = p.Key as ScaleEvent;
                         e.startScale = scale;
                         front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                     }
                 }
+
                 record("edit start scale");
             }
         }
     }
+
     public void setEndScale(string s)
     {
         if (s == "")
@@ -1108,17 +1231,19 @@ public class CentralController : MonoBehaviour
             {
                 foreach (KeyValuePair<PerformEvent, string> p in _event)
                 {
-                    if (p.Value == "scaleEvent")
+                    if (p.Value == "scaleXEvent" || p.Value == "scaleYEvent")
                     {
                         ScaleEvent e = p.Key as ScaleEvent;
                         e.endScale = scale;
                         front_ui.GetComponent<FrontUIManager>().setEvent(p.Value, p.Key);
                     }
                 }
+
                 record("edit end scale");
             }
         }
     }
+
     public void addScale(int side)
     {
         float scale = side > 0 ? 1.1f : 0.9f;
@@ -1127,19 +1252,21 @@ public class CentralController : MonoBehaviour
             Dictionary<PerformEvent, string> _event = chart_maker.GetComponent<chartMaker>().getSelectedEvent();
             foreach (KeyValuePair<PerformEvent, string> p in _event)
             {
-                if (p.Value == "scaleEvent")
+                if (p.Value is "scaleXEvent" or "scaleYEvent")
                 {
                     ScaleEvent e = p.Key as ScaleEvent;
                     e.startScale *= scale;
                     e.endScale *= scale;
                 }
             }
+
             reset();
             setEvent();
             garbageCollect();
             record("multi scale by:" + scale);
         }
     }
+
     public void switchType()
     {
         if (type == Config.EventlineType.PerformImg)
@@ -1160,6 +1287,7 @@ public class CentralController : MonoBehaviour
             front_ui.GetComponent<FrontUIManager>().switchType(Config.EventlineType.PerformImg);
         }
     }
+
     public void deleteEvent()
     {
         if (state == State.editor)
@@ -1174,13 +1302,16 @@ public class CentralController : MonoBehaviour
                     else
                         chart.deleteEvent_PerformImg(id, p.Key, p.Value);
                 }
+
                 chart_maker.GetComponent<chartMaker>().cancelSelect();
                 chart_maker.GetComponent<chartMaker>().reset(chart);
                 record("delete events ,num: " + _event.Count);
             }
+
             setUI();
         }
     }
+
     public void addEvent(string type)
     {
         if (type == "")
@@ -1199,12 +1330,14 @@ public class CentralController : MonoBehaviour
                 case "colorEvent":
                     _event = new ColorModifyEvent(Color.white, Color.white);
                     break;
-                case "scaleEvent":
+                case "scaleXEvent":
+                case "scaleYEvent":
                     _event = new ScaleEvent(1, 1);
                     break;
                 default:
                     return;
             }
+
             _event.startTime = chart_maker.GetComponent<chartMaker>().gettime(guideBeats);
             _event.endTime = Mathf.Max(chart_maker.GetComponent<chartMaker>().getSelectedTime(), _event.startTime);
             if (this.type == Config.EventlineType.Judgeline)
@@ -1215,6 +1348,7 @@ public class CentralController : MonoBehaviour
             {
                 chart.addEvent_PerformImg(id, _event, type, Config.PasteTyte.Inherit);
             }
+
             setUI();
             setEvent();
             chart_maker.GetComponent<chartMaker>().cancelSelect();
@@ -1222,6 +1356,7 @@ public class CentralController : MonoBehaviour
             record("add event: " + type);
         }
     }
+
     public void deleteNote()
     {
         if (state == State.editor && type == Config.EventlineType.Judgeline)
@@ -1235,9 +1370,11 @@ public class CentralController : MonoBehaviour
                 chart_maker.GetComponent<chartMaker>().reset(chart);
                 record("delete notes on judgeline " + id + ", num: " + notes.Count);
             }
+
             setUI();
         }
     }
+
     public void addNote(Config.Type noteType = Config.Type.Tap, Config.LineType lineSide = Config.LineType.Line1)
     {
         if (state == State.editor && type == Config.EventlineType.Judgeline)
@@ -1248,7 +1385,9 @@ public class CentralController : MonoBehaviour
             {
                 duration = Mathf.Max(chart_maker.GetComponent<chartMaker>().getSelectedTime(), time) - time;
             }
-            Note note = new Note(noteType, template.color, time, duration, template.speed, template.livingTime, lineSide);
+
+            Note note = new Note(noteType, template.color, time, duration, template.speed, template.livingTime,
+                lineSide);
             chart.addNote(note, id);
             chart_maker.GetComponent<chartMaker>().cancelSelect();
             chart_maker.GetComponent<chartMaker>().reset(chart);
@@ -1256,6 +1395,7 @@ public class CentralController : MonoBehaviour
             record("add note on judgeline " + id);
         }
     }
+
     public void editNoteColor()
     {
         List<Note> notes = chart_maker.GetComponent<chartMaker>().getSelectedNote();
@@ -1266,6 +1406,7 @@ public class CentralController : MonoBehaviour
         setNote();
         record("edit note color");
     }
+
     public void editNoteType(int t)
     {
         if (state == State.editor)
@@ -1288,11 +1429,13 @@ public class CentralController : MonoBehaviour
                         break;
                 }
             }
+
             chart_maker.GetComponent<chartMaker>().reset(chart);
             setNote();
             record("change note type");
         }
     }
+
     public void editNoteTime(string t)
     {
         if (t == "")
@@ -1306,16 +1449,19 @@ public class CentralController : MonoBehaviour
             float time = float.Parse(t);
             if (time >= 0 && time < display_manager.GetComponent<AudioSource>().clip.length * 1000.0f)
             {
-                Note newnote = new Note(note.type, note.color, time, note.duration, note.speed, note.livingTime, note.lineSide, note.fake);
+                Note newnote = new Note(note.type, note.color, time, note.duration, note.speed, note.livingTime,
+                    note.lineSide, note.fake);
                 chart.deleteNote(note, id);
                 chart.addNote(newnote, id);
             }
+
             chart_maker.GetComponent<chartMaker>().cancelSelect();
             chart_maker.GetComponent<chartMaker>().reset(chart);
             setUI();
             record("edit note starttime");
         }
     }
+
     public void editNoteDuration(string t)
     {
         if (t == "")
@@ -1329,16 +1475,19 @@ public class CentralController : MonoBehaviour
             float time = float.Parse(t);
             if (note.type == Config.Type.Hold)
             {
-                Note newnote = new Note(note.type, note.color, note.time, time, note.speed, note.livingTime, note.lineSide, note.fake);
+                Note newnote = new Note(note.type, note.color, note.time, time, note.speed, note.livingTime,
+                    note.lineSide, note.fake);
                 chart.deleteNote(note, id);
                 chart.addNote(newnote, id);
             }
+
             chart_maker.GetComponent<chartMaker>().cancelSelect();
             chart_maker.GetComponent<chartMaker>().reset(chart);
             setUI();
             record("edit note duration");
         }
     }
+
     public void editNoteSpeed(string t)
     {
         if (t == "")
@@ -1351,11 +1500,13 @@ public class CentralController : MonoBehaviour
             {
                 note.speed = speed;
             }
+
             chart_maker.GetComponent<chartMaker>().reset(chart);
             setNote();
             record("edit note speed");
         }
     }
+
     public void editNoteLineside(int t)
     {
         if (state == State.editor)
@@ -1373,11 +1524,13 @@ public class CentralController : MonoBehaviour
                         break;
                 }
             }
+
             chart_maker.GetComponent<chartMaker>().reset(chart);
             setNote();
             record("edit note lineside");
         }
     }
+
     public void editNoteLivingtime(string t)
     {
         if (t == "")
@@ -1390,11 +1543,13 @@ public class CentralController : MonoBehaviour
             {
                 note.livingTime = time;
             }
+
             chart_maker.GetComponent<chartMaker>().reset(chart);
             setNote();
             record("edit note livingtime");
         }
     }
+
     public void setTemplate()
     {
         if (state == State.editor)
@@ -1404,6 +1559,7 @@ public class CentralController : MonoBehaviour
             {
                 return;
             }
+
             Note note = notes[0];
             template.livingTime = note.livingTime;
             template.speed = note.speed;
@@ -1411,14 +1567,17 @@ public class CentralController : MonoBehaviour
             setNote();
         }
     }
+
     public void editTemplateColor()
     {
         if (state == State.editor)
         {
             template.color = front_ui.GetComponent<FrontUIManager>().templateColor;
         }
+
         setNote();
     }
+
     public void editTemplateSpeed(string t)
     {
         if (t == "")
@@ -1427,8 +1586,10 @@ public class CentralController : MonoBehaviour
         {
             template.speed = float.Parse(t);
         }
+
         setNote();
     }
+
     public void editTemplateLivingtime(string t)
     {
         if (t == "")
@@ -1437,8 +1598,10 @@ public class CentralController : MonoBehaviour
         {
             template.livingTime = float.Parse(t);
         }
+
         setNote();
     }
+
     public void Copy()
     {
         if (state == State.editor)
@@ -1446,43 +1609,39 @@ public class CentralController : MonoBehaviour
             chart_maker.GetComponent<chartMaker>().copy();
         }
     }
+
     public void Paste(Config.PasteTyte pasteTyte = Config.PasteTyte.Normal)
     {
         if (state == State.editor)
         {
+            float time = chart_maker.GetComponent<chartMaker>().getSelectedTime() -
+                         chart_maker.GetComponent<chartMaker>().getCopiedTime();
+
             List<Note> notes = chart_maker.GetComponent<chartMaker>().getCopiedNote();
-            Dictionary<PerformEvent, string> events = chart_maker.GetComponent<chartMaker>().getCopiedEvent();
-            float time = chart_maker.GetComponent<chartMaker>().getSelectedTime() - chart_maker.GetComponent<chartMaker>().getCopiedTime();
             foreach (Note note in notes)
             {
-                Note newnote = new Note(note.type, note.color, note.time, note.duration, note.speed, note.livingTime, note.lineSide, note.fake);
+                Note newnote = new Note(note.type, note.color, note.time, note.duration, note.speed, note.livingTime,
+                    note.lineSide, note.fake);
                 newnote.time += time;
                 chart.addNote(newnote, id);
             }
+
+            Dictionary<PerformEvent, string> events = chart_maker.GetComponent<chartMaker>().getCopiedEvent();
             foreach (KeyValuePair<PerformEvent, string> p in events)
             {
                 PerformEvent _event;
                 switch (p.Value)
                 {
-                    case "moveEvent":
-                        MoveEvent move = p.Key as MoveEvent;
-                        _event = new MoveEvent(move.positions, move.pathType, move.startTime, move.endTime, move.type);
-                        break;
-                    case "rotateEvent":
-                        RotateEvent rotate = p.Key as RotateEvent;
-                        _event = new RotateEvent(rotate.startAngle, rotate.endAngle, rotate.startTime, rotate.endTime, rotate.type);
-                        break;
-                    case "colorEvent":
-                        ColorModifyEvent color = p.Key as ColorModifyEvent;
-                        _event = new ColorModifyEvent(color.startColor, color.endColor, color.startTime, color.endTime, color.type);
-                        break;
-                    case "scaleEvent":
+                    case "scaleXEvent":
+                    case "scaleYEvent":
                         ScaleEvent scale = p.Key as ScaleEvent;
-                        _event = new ScaleEvent(scale.startScale, scale.endScale, scale.startTime, scale.endTime, scale.type);
+                        _event = new ScaleEvent(scale.startScale, scale.endScale, scale.startTime, scale.endTime,
+                            scale.type);
                         break;
                     default:
                         return;
                 }
+
                 _event.startTime += time;
                 _event.endTime += time;
 
@@ -1495,15 +1654,61 @@ public class CentralController : MonoBehaviour
                     chart.addEvent_PerformImg(id, _event, p.Value, pasteTyte);
                 }
             }
+
             //chart_maker.GetComponent<chartMaker>().cancelSelect();
             chart_maker.GetComponent<chartMaker>().reset(chart);
             setUI();
             record("paste");
         }
     }
+
+    public void PasteSwitchScaleXY(Config.PasteTyte pasteTyte = Config.PasteTyte.Normal)
+    {
+        if (state == State.editor)
+        {
+            if (pasteTyte == Config.PasteTyte.Smart) pasteTyte = Config.PasteTyte.Normal;
+            float time = chart_maker.GetComponent<chartMaker>().getSelectedTime() -
+                         chart_maker.GetComponent<chartMaker>().getCopiedTime();
+
+            Dictionary<PerformEvent, string> events = chart_maker.GetComponent<chartMaker>().getCopiedEvent();
+            foreach (KeyValuePair<PerformEvent, string> p in events)
+            {
+                PerformEvent _event;
+                switch (p.Value)
+                {
+                    case "moveEvent":
+                    case "rotateEvent":
+                    case "colorEvent":
+                        continue;
+                    case "scaleXEvent":
+                    case "scaleYEvent":
+                        ScaleEvent scale = p.Key as ScaleEvent;
+                        _event = new ScaleEvent(scale.startScale, scale.endScale, scale.startTime, scale.endTime,
+                            scale.type);
+                        break;
+                    default:
+                        return;
+                }
+
+                _event.startTime += time;
+                _event.endTime += time;
+
+                if (type != Config.EventlineType.Judgeline)
+                {
+                    chart.addEvent_PerformImg(id, _event, p.Value == "scaleXEvent" ? "scaleYEvent" : "scaleXEvent");
+                }
+            }
+
+            //chart_maker.GetComponent<chartMaker>().cancelSelect();
+            chart_maker.GetComponent<chartMaker>().reset(chart);
+            setUI();
+            record("paste switch x y");
+        }
+    }
+
     private void addPitch(float d)
     {
-    display_manager.GetComponent<Test>().pitch += d;
+        display_manager.GetComponent<Test>().pitch += d;
         front_ui.GetComponent<FrontUIManager>().setPitch(display_manager.GetComponent<Test>().pitch);
     }
 
@@ -1523,12 +1728,14 @@ public class CentralController : MonoBehaviour
             }
         }
     }
+
     private void HideUI()
     {
         showUI = !showUI;
         chart_maker.SetActive(showUI);
         front_ui.SetActive(showUI);
     }
+
     private void garbageCollect()
     {
         GC.Collect(); //因为Unity特性，Unity内的GC需要调用至少6次才有效，8次是一般次数
@@ -1541,22 +1748,27 @@ public class CentralController : MonoBehaviour
         GC.Collect();
         Resources.UnloadUnusedAssets();
     }
+
     public void userInput()
     {
-        //ui control
-        if (Input.GetMouseButtonDown(0))
-        {
-            Debug.Log(EventSystem.current.currentSelectedGameObject);
-        }
+        chartMaker chartMaker = chart_maker.GetComponent<chartMaker>();
+        // //ui control
+        // if (Input.GetMouseButtonDown(0))
+        // {
+        //     Debug.Log(EventSystem.current.currentSelectedGameObject);
+        // }
+
         //global control
         if (EventSystem.current.currentSelectedGameObject)
         {
             return;
         }
+
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             switchType();
         }
+
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.S))
         {
             trySaveChart();
@@ -1565,119 +1777,155 @@ public class CentralController : MonoBehaviour
         {
             setToSelectedTime();
         }
+
         if (Input.GetMouseButtonDown(0))
         {
-            chart_maker.GetComponent<chartMaker>().selectTimeline();// select a timeline;
+            chartMaker.selectTimeline(); // select a timeline;
         }
+
         if (Input.GetMouseButton(1))
         {
-            if (Input.GetKey(KeyCode.LeftShift))// multi select
+            if (Input.GetKey(KeyCode.LeftShift)) // multi select
             {
-                chart_maker.GetComponent<chartMaker>().selectEventline(true);
-                chart_maker.GetComponent<chartMaker>().selectNote(true);
+                chartMaker.selectEventline(true);
+                chartMaker.selectNote(true);
             }
-            else// single select
+            else // single select
             {
-                chart_maker.GetComponent<chartMaker>().selectEventline(false);
-                chart_maker.GetComponent<chartMaker>().selectNote(false);
+                chartMaker.selectEventline(false);
+                chartMaker.selectNote(false);
             }
         }
-        if (Input.GetMouseButtonUp(1))// syncronize info
+
+        if (Input.GetMouseButtonUp(1)) // syncronize info
         {
             setUI();
             setEvent();
         }
+
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.D))
         {
-            chart_maker.GetComponent<chartMaker>().cancelSelect();
+            chartMaker.cancelSelect();
             setEvent();
         }
+
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.A))
         {
-            chart_maker.GetComponent<chartMaker>().selectAll();
+            chartMaker.selectAll();
         }
+
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Z))
         {
             Undo();
         }
+
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Y))
         {
             Redo();
         }
+
         if (Input.GetKeyDown(KeyCode.Delete))
         {
             deleteEvent();
             deleteNote();
         }
+
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            chart_maker.GetComponent<chartMaker>().setGuideMode(true, 0);
+            chartMaker.setGuideMode(true, 0);
         }
-        if (Input.GetKeyUp(KeyCode.Alpha1) && chart_maker.GetComponent<chartMaker>().guidePos == 0)// add a Tap
+
+        if (Input.GetKeyUp(KeyCode.Alpha1) && chartMaker.guidePos == 0) // add a Tap
         {
             addNote(Config.Type.Tap);
-            chart_maker.GetComponent<chartMaker>().setGuideMode(false);
+            chartMaker.setGuideMode(false);
         }
+
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            chart_maker.GetComponent<chartMaker>().setGuideMode(true, 0);
+            chartMaker.setGuideMode(true, 0);
         }
-        if (Input.GetKeyUp(KeyCode.Alpha2) && chart_maker.GetComponent<chartMaker>().guidePos == 0)// add a Drag
+
+        if (Input.GetKeyUp(KeyCode.Alpha2) && chartMaker.guidePos == 0) // add a Drag
         {
             addNote(Config.Type.Drag);
-            chart_maker.GetComponent<chartMaker>().setGuideMode(false);
+            chartMaker.setGuideMode(false);
         }
+
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            chart_maker.GetComponent<chartMaker>().setGuideMode(true, 0);
+            chartMaker.setGuideMode(true, 0);
         }
-        if (Input.GetKeyUp(KeyCode.Alpha3) && chart_maker.GetComponent<chartMaker>().guidePos == 0)// add a Hold
+
+        if (Input.GetKeyUp(KeyCode.Alpha3) && chartMaker.guidePos == 0) // add a Hold
         {
             addNote(Config.Type.Hold);
-            chart_maker.GetComponent<chartMaker>().setGuideMode(false);
+            chartMaker.setGuideMode(false);
         }
+
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            chart_maker.GetComponent<chartMaker>().setGuideMode(true, 1);
+            chartMaker.setGuideMode(true, 1);
         }
-        if (Input.GetKeyUp(KeyCode.Q) && chart_maker.GetComponent<chartMaker>().guidePos == 1)// add a moveEvent
+
+        if (Input.GetKeyUp(KeyCode.Q) && chartMaker.guidePos == 1) // add a moveEvent
         {
             addEvent("moveEvent");
             Debug.Log("add a move event");
-            chart_maker.GetComponent<chartMaker>().setGuideMode(false);
+            chartMaker.setGuideMode(false);
         }
+
         if (Input.GetKeyDown(KeyCode.W))
         {
-            chart_maker.GetComponent<chartMaker>().setGuideMode(true, 2);
+            chartMaker.setGuideMode(true, 2);
         }
-        if (Input.GetKeyUp(KeyCode.W) && chart_maker.GetComponent<chartMaker>().guidePos == 2)// add a moveEvent
+
+        if (Input.GetKeyUp(KeyCode.W) && chartMaker.guidePos == 2) // add a moveEvent
         {
             addEvent("rotateEvent");
-            chart_maker.GetComponent<chartMaker>().setGuideMode(false);
+            chartMaker.setGuideMode(false);
         }
+
         if (Input.GetKeyDown(KeyCode.E))
         {
-            chart_maker.GetComponent<chartMaker>().setGuideMode(true, 3);
+            chartMaker.setGuideMode(true, 3);
         }
-        if (Input.GetKeyUp(KeyCode.E) && chart_maker.GetComponent<chartMaker>().guidePos == 3)// add a moveEvent
+
+        if (Input.GetKeyUp(KeyCode.E) && chartMaker.guidePos == 3) // add a moveEvent
         {
             addEvent("colorEvent");
-            chart_maker.GetComponent<chartMaker>().setGuideMode(false);
+            chartMaker.setGuideMode(false);
         }
+
         if (Input.GetKeyDown(KeyCode.R))
         {
-            chart_maker.GetComponent<chartMaker>().setGuideMode(true, 4);
+            chartMaker.setGuideMode(true, 4);
         }
-        if (Input.GetKeyUp(KeyCode.R) && chart_maker.GetComponent<chartMaker>().guidePos == 4)// add a moveEvent
+
+        if (Input.GetKeyUp(KeyCode.R) && chartMaker.guidePos == 4) // add a moveEvent
         {
-            addEvent("scaleEvent");
-            chart_maker.GetComponent<chartMaker>().setGuideMode(false);
+            addEvent("scaleXEvent");
+            chartMaker.setGuideMode(false);
         }
-        if (Input.GetKey(KeyCode.LeftShift) && Mathf.Abs(Input.GetAxis("Mouse ScrollWheel")) > 0.01f)// set density
+
+        if (Input.GetKeyDown(KeyCode.T))
         {
-            chart_maker.GetComponent<chartMaker>().density = density / (Input.GetAxis("Mouse ScrollWheel") * density + 1);
+            chartMaker.setGuideMode(true, 5);
         }
-        if (!Input.GetKey(KeyCode.LeftShift) && Mathf.Abs(Input.GetAxis("Mouse ScrollWheel")) > 0.01f)// move the chart view
+
+        if (Input.GetKeyUp(KeyCode.T) && chartMaker.guidePos == 5) // add a moveEvent
+        {
+            addEvent("scaleYEvent");
+            chartMaker.setGuideMode(false);
+        }
+
+        if (Input.GetKey(KeyCode.LeftShift) && Mathf.Abs(Input.GetAxis("Mouse ScrollWheel")) > 0.01f) // set density
+        {
+            chartMaker.density = density / (Input.GetAxis("Mouse ScrollWheel") * density + 1);
+        }
+
+        if (!Input.GetKey(KeyCode.LeftShift) &&
+            Mathf.Abs(Input.GetAxis("Mouse ScrollWheel")) > 0.01f) // move the chart view
         {
             time += Input.GetAxis("Mouse ScrollWheel") * density * 10f * 1000.0f;
             setTime(time);
@@ -1694,26 +1942,31 @@ public class CentralController : MonoBehaviour
             {
                 Play();
             }
+
             if (Input.GetKeyUp(KeyCode.Space))
             {
                 Pause();
             }
         }
+
         if (Input.GetKeyUp(KeyCode.F))
         {
             reset();
             garbageCollect();
         }
+
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.C))
         {
             Copy();
         }
+
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.X))
         {
             Copy();
             deleteEvent();
             deleteNote();
         }
+
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.V))
         {
             if (Input.GetKey(KeyCode.LeftShift)) //smart paste
@@ -1721,54 +1974,72 @@ public class CentralController : MonoBehaviour
             else
                 Paste();
         }
+        
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.B))
+        {
+            PasteSwitchScaleXY();
+        }
+
         if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.RightArrow))
         {
             fastShift(1);
         }
+
         if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.LeftArrow))
         {
             fastShift(-1);
         }
+
         if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.UpArrow))
         {
             addPitch(0.1f);
         }
+
         if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.DownArrow))
         {
             addPitch(-0.1f);
         }
+
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.RightArrow))
         {
             shiftPosition_X(1);
         }
+
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.LeftArrow))
         {
             shiftPosition_X(-1);
         }
+
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.UpArrow))
         {
             shiftPosition_Y(1);
         }
+
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.DownArrow))
         {
             shiftPosition_Y(-1);
         }
+
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Equals))
         {
             addScale(1);
         }
+
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Minus))
         {
             addScale(-1);
         }
+
         if (Input.GetKeyDown(KeyCode.H))
         {
             HideUI();
         }
+
         if (Input.GetKeyDown(KeyCode.O))
         {
             garbageCollect();
         }
+
         if (Input.GetKeyDown(KeyCode.I))
         {
             reset();

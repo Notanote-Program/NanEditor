@@ -1,13 +1,16 @@
+using System;
 using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using ColorUtility = UnityEngine.ColorUtility;
 
 public class Chart
 {
-    public const int LatestVersion = 1;
+    public const int LatestVersion = 2;
     public int formatVersion = 0;
     public string name;
     public string composer;
@@ -20,52 +23,69 @@ public class Chart
     public int noteNum;
     public List<JudgeLine> judgelineList;
     public List<PerformImg> performImgList;
+
     public string _startTipcolor
     {
         get => ColorUtility.ToHtmlStringRGBA(startTipcolor);
-        set => startTipcolor = ColorUtility.TryParseHtmlString("#" + value, out Color outcolor) ? outcolor : Color.white;
+        set => startTipcolor =
+            ColorUtility.TryParseHtmlString("#" + value, out Color outcolor) ? outcolor : Color.white;
     }
-    [JsonIgnore]
-    public Color startTipcolor = Color.white;
+
+    [JsonIgnore] public Color startTipcolor = Color.white;
+
     public Chart()
     {
         formatVersion = LatestVersion;
         offset = 0;
-        bpm = 120;// default;
+        bpm = 120; // default;
         bpmList = new List<ModifyBpm>();
         judgelineList = new List<JudgeLine>();
         performImgList = new List<PerformImg>();
     }
+
     public static Chart LoadChart(string path, Config.LoadType type = Config.LoadType.External)
     {
         if (type == Config.LoadType.External && !File.Exists(path)) return null;
         return UpdateChartVersion(Utilities.LoadFromJson<Chart>(path, type));
     }
-    
+
     private static Chart UpdateChartVersion(Chart oldChart)
     {
         while (oldChart.formatVersion < LatestVersion)
         {
-            if (oldChart.formatVersion == 0)
+            switch (oldChart.formatVersion)
             {
-                foreach (JudgeLine judgeLine in oldChart.judgelineList)
-                {
-                    judgeLine.eventList.moveEvents.ForEach(ConvertType);
-                    judgeLine.eventList.rotateEvents.ForEach(ConvertType);
-                    judgeLine.eventList.scaleEvents.ForEach(ConvertType);
-                    judgeLine.eventList.colorModifyEvents.ForEach(ConvertType);
-                }
+                case 0:
+                    foreach (JudgeLine judgeLine in oldChart.judgelineList)
+                    {
+                        judgeLine.eventList.moveEvents.ForEach(ConvertType);
+                        judgeLine.eventList.rotateEvents.ForEach(ConvertType);
+                        judgeLine.eventList.scaleEvents.ForEach(ConvertType);
+                        judgeLine.eventList.colorModifyEvents.ForEach(ConvertType);
+                    }
 
-                foreach (PerformImg performImg in oldChart.performImgList)
-                {
-                    performImg.eventList.moveEvents.ForEach(ConvertType);
-                    performImg.eventList.rotateEvents.ForEach(ConvertType);
-                    performImg.eventList.scaleEvents.ForEach(ConvertType);
-                    performImg.eventList.colorModifyEvents.ForEach(ConvertType);
-                }
+                    foreach (PerformImg performImg in oldChart.performImgList)
+                    {
+                        performImg.eventList.moveEvents.ForEach(ConvertType);
+                        performImg.eventList.rotateEvents.ForEach(ConvertType);
+                        performImg.eventList.scaleEvents.ForEach(ConvertType);
+                        performImg.eventList.colorModifyEvents.ForEach(ConvertType);
+                    }
+
+                    break;
+                case 1:
+                    foreach (PerformImg performImg in oldChart.performImgList)
+                    {
+                        performImg.eventList.scaleXEvents.AddRange(performImg.eventList.scaleEvents.Select(e => e.Clone()));
+                        performImg.eventList.scaleYEvents.AddRange(performImg.eventList.scaleEvents.Select(e => e.Clone()));
+                        performImg.eventList.scaleEvents.Clear();
+                    }
+                    break;
             }
+
             oldChart.formatVersion++;
         }
+
         return oldChart;
 
         void ConvertType(PerformEvent performEvent)
@@ -101,7 +121,7 @@ public class Chart
             }
         }
     }
-    
+
     // public static IEnumerator LoadChartAsync(AsyncRequest<Chart> ar, string path, Config.LoadType type = Config.LoadType.External)
     // {
     //     if (type == Config.LoadType.External)
@@ -127,28 +147,32 @@ public class Chart
     {
         Utilities.SaveJson(chart, path);
     }
+
     public static void Show(Chart chart)
     {
         Debug.Log(JsonUtility.ToJson(chart));
     }
+
     public void addBpmlist(float time, float bpm)
     {
-
     }
+
     public void deleteBpmlist(float time, float bpm)
     {
-
     }
+
     public void addJudgeline()
     {
         JudgeLine judgeline = new JudgeLine(new Color(1, 1, 1, 0), Vector3.zero);
         judgelineList.Add(judgeline);
     }
+
     public void deleteJudgeline(int id)
     {
         if (judgelineList.Count > 1)
             judgelineList.RemoveAt(id);
     }
+
     public void addNote(Note note, int lineId)
     {
         if (lineId < 0 || lineId > judgelineList.Count)
@@ -158,34 +182,42 @@ public class Chart
         {
             notelist.Add(note);
         }
+
         int id = notelist.BinarySearch(note, new noteComparer());
         if (id < 0)
             id = -id - 1;
         if (id == notelist.Count)
         {
-            if (note.time >= notelist[id - 1].time + notelist[id - 1].duration && !(notelist[id - 1].duration == 0 && note.time == notelist[id - 1].time + notelist[id - 1].duration))
+            if (note.time >= notelist[id - 1].time + notelist[id - 1].duration && !(notelist[id - 1].duration == 0 &&
+                    note.time == notelist[id - 1].time + notelist[id - 1].duration))
                 notelist.Add(note);
         }
         else if (id == 0)
         {
-            if (notelist[id].time >= note.time + note.duration && !(note.duration == 0 && notelist[id].time == note.time + note.duration))
+            if (notelist[id].time >= note.time + note.duration &&
+                !(note.duration == 0 && notelist[id].time == note.time + note.duration))
                 notelist.Insert(id, note);
         }
         else
         {
-            if (note.duration > 0)// duration > 0
+            if (note.duration > 0) // duration > 0
             {
-                if (notelist[id].time >= note.time + note.duration && notelist[id - 1].duration + notelist[id - 1].time <= note.time)
+                if (notelist[id].time >= note.time + note.duration &&
+                    notelist[id - 1].duration + notelist[id - 1].time <= note.time)
                     notelist.Insert(id, note);
             }
-            else if (note.duration == 0)// duration = 0
+            else if (note.duration == 0) // duration = 0
             {
-                if (notelist[id].time >= note.time + note.duration && notelist[id - 1].time + notelist[id - 1].duration <= note.time && !(notelist[id - 1].duration == 0 && notelist[id - 1].time + notelist[id - 1].duration == note.time) && !(notelist[id].time == note.time + note.duration))
+                if (notelist[id].time >= note.time + note.duration &&
+                    notelist[id - 1].time + notelist[id - 1].duration <= note.time &&
+                    !(notelist[id - 1].duration == 0 &&
+                      notelist[id - 1].time + notelist[id - 1].duration == note.time) &&
+                    !(notelist[id].time == note.time + note.duration))
                     notelist.Insert(id, note);
             }
         }
-
     }
+
     public void deleteNote(Note note, int lineId)
     {
         if (lineId < 0 || lineId > judgelineList.Count)
@@ -194,16 +226,19 @@ public class Chart
         if (notelist.Contains(note))
             notelist.Remove(note);
     }
+
     public void addPerformImg()
     {
         PerformImg img = new PerformImg("", new Color(1, 1, 1, 0), Vector3.zero, 0);
         performImgList.Insert(0, img);
     }
+
     public void deletePerformImg(int id)
     {
         if (performImgList.Count > 0)
             performImgList.RemoveAt(id);
     }
+
     public int resetPerformImg(int id)
     {
         if (id < 0 || id >= performImgList.Count)
@@ -219,7 +254,9 @@ public class Chart
         performImgList.Insert(_id, img);
         return _id;
     }
-    public int addEvent_Judgeline(int id, PerformEvent _event, string type, Config.PasteTyte pasteTyte = Config.PasteTyte.Normal)
+
+    public int addEvent_Judgeline(int id, PerformEvent _event, string type,
+        Config.PasteTyte pasteTyte = Config.PasteTyte.Normal)
     {
         Debug.Log("Add event");
         if (id < 0 || id >= this.judgelineList.Count)
@@ -228,17 +265,21 @@ public class Chart
         {
             case "moveEvent":
                 return addmoveEvent(_event as MoveEvent, this.judgelineList[id].eventList.moveEvents, pasteTyte);
-                break;
             case "rotateEvent":
-                return addrotateEvent(_event as RotateEvent, this.judgelineList[id].eventList.rotateEvents, pasteTyte);
-                break;
+                return AddRotateEvent(_event as RotateEvent, this.judgelineList[id].eventList.rotateEvents, pasteTyte);
             case "colorEvent":
-                return addcolorEvent(_event as ColorModifyEvent, this.judgelineList[id].eventList.colorModifyEvents, pasteTyte);
-                break;
+                return AddColorEvent(_event as ColorModifyEvent, this.judgelineList[id].eventList.colorModifyEvents,
+                    pasteTyte);
+            case "scaleXEvent":
+            case "scaleYEvent":
+                return 1;
         }
+
         return -1;
     }
-    public int addEvent_PerformImg(int id, PerformEvent _event, string type, Config.PasteTyte pasteTyte = Config.PasteTyte.Normal)
+
+    public int addEvent_PerformImg(int id, PerformEvent _event, string type,
+        Config.PasteTyte pasteTyte = Config.PasteTyte.Normal)
     {
         if (id < 0 || id >= this.performImgList.Count)
             return -1;
@@ -246,19 +287,19 @@ public class Chart
         {
             case "moveEvent":
                 return addmoveEvent(_event as MoveEvent, this.performImgList[id].eventList.moveEvents, pasteTyte);
-                break;
             case "rotateEvent":
-                return addrotateEvent(_event as RotateEvent, this.performImgList[id].eventList.rotateEvents, pasteTyte);
-                break;
+                return AddRotateEvent(_event as RotateEvent, this.performImgList[id].eventList.rotateEvents, pasteTyte);
             case "colorEvent":
-                return addcolorEvent(_event as ColorModifyEvent, this.performImgList[id].eventList.colorModifyEvents, pasteTyte);
-                break;
-            case "scaleEvent":
-                return addscaleEvent(_event as ScaleEvent, this.performImgList[id].eventList.scaleEvents, pasteTyte);
-                break;
+                return AddColorEvent(_event as ColorModifyEvent, this.performImgList[id].eventList.colorModifyEvents, pasteTyte);
+            case "scaleXEvent":
+                return AddScaleEvent(_event as ScaleEvent, this.performImgList[id].eventList.scaleXEvents, pasteTyte);
+            case "scaleYEvent":
+                return AddScaleEvent(_event as ScaleEvent, this.performImgList[id].eventList.scaleYEvents, pasteTyte);
         }
+
         return -1;
     }
+
     public void deleteEvent_Judgeline(int id, PerformEvent _event, string type)
     {
         if (id < 0 || id >= this.judgelineList.Count)
@@ -266,16 +307,17 @@ public class Chart
         switch (type)
         {
             case "moveEvent":
-                deletemoveEvent(_event as MoveEvent, this.judgelineList[id].eventList.moveEvents);
+                deleteEvent(_event as MoveEvent, this.judgelineList[id].eventList.moveEvents);
                 break;
             case "rotateEvent":
-                deleterotateEvent(_event as RotateEvent, this.judgelineList[id].eventList.rotateEvents);
+                deleteEvent(_event as RotateEvent, this.judgelineList[id].eventList.rotateEvents);
                 break;
             case "colorEvent":
-                deletecolorEvent(_event as ColorModifyEvent, this.judgelineList[id].eventList.colorModifyEvents);
+                deleteEvent(_event as ColorModifyEvent, this.judgelineList[id].eventList.colorModifyEvents);
                 break;
         }
     }
+
     public void deleteEvent_PerformImg(int id, PerformEvent _event, string type)
     {
         if (id < 0 || id >= this.performImgList.Count)
@@ -283,20 +325,25 @@ public class Chart
         switch (type)
         {
             case "moveEvent":
-                deletemoveEvent(_event as MoveEvent, this.performImgList[id].eventList.moveEvents);
+                deleteEvent(_event as MoveEvent, this.performImgList[id].eventList.moveEvents);
                 break;
             case "rotateEvent":
-                deleterotateEvent(_event as RotateEvent, this.performImgList[id].eventList.rotateEvents);
+                deleteEvent(_event as RotateEvent, this.performImgList[id].eventList.rotateEvents);
                 break;
             case "colorEvent":
-                deletecolorEvent(_event as ColorModifyEvent, this.performImgList[id].eventList.colorModifyEvents);
+                deleteEvent(_event as ColorModifyEvent, this.performImgList[id].eventList.colorModifyEvents);
                 break;
-            case "scaleEvent":
-                deletescaleEvent(_event as ScaleEvent, this.performImgList[id].eventList.scaleEvents);
+            case "scaleXEvent":
+                deleteEvent(_event as ScaleEvent, this.performImgList[id].eventList.scaleXEvents);
+                break;
+            case "scaleYEvent":
+                deleteEvent(_event as ScaleEvent, this.performImgList[id].eventList.scaleYEvents);
                 break;
         }
     }
-    private int addmoveEvent(MoveEvent _event, List<MoveEvent> events, Config.PasteTyte pasteTyte = Config.PasteTyte.Normal)
+
+    private int addmoveEvent(MoveEvent _event, List<MoveEvent> events,
+        Config.PasteTyte pasteTyte = Config.PasteTyte.Normal)
     {
         if (events.Count == 0)
         {
@@ -310,7 +357,8 @@ public class Chart
 
         if (id == events.Count)
         {
-            if (_event.startTime >= events[id - 1].endTime && !(events[id - 1].startTime == events[id - 1].endTime && _event.startTime == events[id - 1].endTime))
+            if (_event.startTime >= events[id - 1].endTime && !(events[id - 1].startTime == events[id - 1].endTime &&
+                                                                _event.startTime == events[id - 1].endTime))
             {
                 if (pasteTyte == Config.PasteTyte.Inherit)
                 {
@@ -322,34 +370,37 @@ public class Chart
                         _event.positions[_event.positions.Count - 1] = next_event.positions[0];
                     }
                 }
-                else if(pasteTyte == Config.PasteTyte.Smart)
+                else if (pasteTyte == Config.PasteTyte.Smart)
                 {
                     MoveEvent prev_event = events[id - 1];
                     Vector3 delta_pos = -_event.positions[0] + prev_event.positions[prev_event.positions.Count - 1];
-                    for(int i=0;i<_event.positions.Count;i++)
+                    for (int i = 0; i < _event.positions.Count; i++)
                     {
                         _event.positions[i] += delta_pos;
                     }
                 }
+
                 events.Add(_event);
                 return id;
             }
         }
         else if (id == 0)
         {
-            if (events[id].startTime >= _event.endTime && !(_event.startTime == _event.endTime && events[id].startTime == _event.endTime))
+            if (events[id].startTime >= _event.endTime &&
+                !(_event.startTime == _event.endTime && events[id].startTime == _event.endTime))
             {
                 if (pasteTyte == Config.PasteTyte.Inherit)
                 {
                     _event.positions[_event.positions.Count - 1] = events[0].positions[0];
                 }
+
                 events.Insert(id, _event);
                 return id;
             }
         }
         else
         {
-            if (_event.endTime - _event.startTime > 0)// duration > 0
+            if (_event.endTime - _event.startTime > 0) // duration > 0
             {
                 if (events[id].startTime >= _event.endTime && events[id - 1].endTime <= _event.startTime)
                 {
@@ -372,13 +423,16 @@ public class Chart
                             _event.positions[i] += delta_pos;
                         }
                     }
+
                     events.Insert(id, _event);
                     return id;
                 }
             }
-            else if (_event.endTime == _event.startTime)// duration = 0
+            else if (_event.endTime == _event.startTime) // duration = 0
             {
-                if (events[id].startTime >= _event.endTime && events[id - 1].endTime <= _event.startTime && !(events[id - 1].endTime - events[id - 1].startTime == 0 && events[id - 1].endTime == _event.startTime) && !(events[id].startTime == _event.endTime))
+                if (events[id].startTime >= _event.endTime && events[id - 1].endTime <= _event.startTime &&
+                    !(events[id - 1].endTime - events[id - 1].startTime == 0 &&
+                      events[id - 1].endTime == _event.startTime) && !(events[id].startTime == _event.endTime))
                 {
                     if (pasteTyte == Config.PasteTyte.Inherit)
                     {
@@ -399,14 +453,18 @@ public class Chart
                             _event.positions[i] += delta_pos;
                         }
                     }
+
                     events.Insert(id, _event);
                     return id;
                 }
             }
         }
+
         return -1;
     }
-    private int addrotateEvent(RotateEvent _event, List<RotateEvent> events, Config.PasteTyte pasteTyte = Config.PasteTyte.Normal)
+
+    private int AddRotateEvent(RotateEvent _event, List<RotateEvent> events,
+        Config.PasteTyte pasteTyte = Config.PasteTyte.Normal)
     {
         if (events.Count == 0)
         {
@@ -420,7 +478,8 @@ public class Chart
 
         if (id == events.Count)
         {
-            if (_event.startTime >= events[id - 1].endTime && !(events[id - 1].startTime == events[id - 1].endTime && _event.startTime == events[id - 1].endTime))
+            if (_event.startTime >= events[id - 1].endTime && !(events[id - 1].startTime == events[id - 1].endTime &&
+                                                                _event.startTime == events[id - 1].endTime))
             {
                 if (pasteTyte == Config.PasteTyte.Inherit)
                 {
@@ -431,32 +490,35 @@ public class Chart
                         _event.endAngle = events[id].startAngle;
                     }
                 }
-                else if(pasteTyte == Config.PasteTyte.Smart)
+                else if (pasteTyte == Config.PasteTyte.Smart)
                 {
                     RotateEvent prev_event = events[id - 1];
                     float delta_angle = prev_event.endAngle - _event.startAngle;
                     _event.startAngle += delta_angle;
                     _event.endAngle += delta_angle;
                 }
+
                 events.Add(_event);
                 return id;
             }
         }
         else if (id == 0)
         {
-            if (events[id].startTime >= _event.endTime && !(_event.startTime == _event.endTime && events[id].startTime == _event.endTime))
+            if (events[id].startTime >= _event.endTime &&
+                !(_event.startTime == _event.endTime && events[id].startTime == _event.endTime))
             {
                 if (pasteTyte == Config.PasteTyte.Inherit)
                 {
                     _event.endAngle = events[0].startAngle;
                 }
+
                 events.Insert(id, _event);
                 return id;
             }
         }
         else
         {
-            if (_event.endTime - _event.startTime > 0)// duration > 0
+            if (_event.endTime - _event.startTime > 0) // duration > 0
             {
                 if (events[id].startTime >= _event.endTime && events[id - 1].endTime <= _event.startTime)
                 {
@@ -476,13 +538,16 @@ public class Chart
                         _event.startAngle += delta_angle;
                         _event.endAngle += delta_angle;
                     }
+
                     events.Insert(id, _event);
                     return id;
                 }
             }
-            else if (_event.endTime == _event.startTime)// duration = 0
+            else if (_event.endTime == _event.startTime) // duration = 0
             {
-                if (events[id].startTime >= _event.endTime && events[id - 1].endTime <= _event.startTime && !(events[id - 1].endTime - events[id - 1].startTime == 0 && events[id - 1].endTime == _event.startTime) && !(events[id].startTime == _event.endTime))
+                if (events[id].startTime >= _event.endTime && events[id - 1].endTime <= _event.startTime &&
+                    !(events[id - 1].endTime - events[id - 1].startTime == 0 &&
+                      events[id - 1].endTime == _event.startTime) && !(events[id].startTime == _event.endTime))
                 {
                     if (pasteTyte == Config.PasteTyte.Inherit)
                     {
@@ -500,14 +565,18 @@ public class Chart
                         _event.startAngle += delta_angle;
                         _event.endAngle += delta_angle;
                     }
+
                     events.Insert(id, _event);
                     return id;
                 }
             }
         }
+
         return -1;
     }
-    private int addscaleEvent(ScaleEvent _event, List<ScaleEvent> events, Config.PasteTyte pasteTyte = Config.PasteTyte.Normal)
+    
+    private int AddScaleEvent(ScaleEvent _event, List<ScaleEvent> events,
+        Config.PasteTyte pasteTyte = Config.PasteTyte.Normal)
     {
         if (events.Count == 0)
         {
@@ -519,48 +588,53 @@ public class Chart
         if (id < 0)
             id = -id - 1;
 
+
         if (id == events.Count)
         {
-            if (_event.startTime >= events[id - 1].endTime && !(events[id - 1].startTime == events[id - 1].endTime && _event.startTime == events[id - 1].endTime))
+            if (_event.startTime >= events[id - 1].endTime && !(events[id - 1].startTime == events[id - 1].endTime &&
+                                                                _event.startTime == events[id - 1].endTime))
             {
                 if (pasteTyte == Config.PasteTyte.Inherit)
                 {
                     _event.startScale = events[id - 1].endScale;
                 }
-                else if(pasteTyte == Config.PasteTyte.Smart)
+                else if (pasteTyte == Config.PasteTyte.Smart)
                 {
-                    float delta_scale = events[id-1].endScale - _event.startScale;
+                    float delta_scale = events[id - 1].endScale - _event.startScale;
                     _event.startScale += delta_scale;
                     _event.endScale += delta_scale;
-                    _event.startScale = Mathf.Max(0, _event.startScale);
-                    _event.endScale = Mathf.Max(0, _event.endScale);
+                    // _event.startScale = Mathf.Max(0, _event.startScale);
+                    // _event.endScale = Mathf.Max(0, _event.endScale);
                 }
+
                 events.Add(_event);
                 return id;
             }
         }
         else if (id == 0)
         {
-            if (events[id].startTime >= _event.endTime && !(_event.startTime == _event.endTime && events[id].startTime == _event.endTime))
+            if (events[id].startTime >= _event.endTime &&
+                !(_event.startTime == _event.endTime && events[id].startTime == _event.endTime))
             {
                 if (pasteTyte == Config.PasteTyte.Inherit)
                 {
                     _event.endScale = events[0].startScale;
                 }
+
                 events.Insert(id, _event);
                 return id;
             }
         }
         else
         {
-            if (_event.endTime - _event.startTime > 0)// duration > 0
+            if (_event.endTime - _event.startTime > 0) // duration > 0
             {
                 if (events[id].startTime >= _event.endTime && events[id - 1].endTime <= _event.startTime)
                 {
                     if (pasteTyte == Config.PasteTyte.Inherit)
                     {
                         _event.startScale = events[id - 1].endScale;
-                        if(id < events.Count)
+                        if (id < events.Count)
                         {
                             _event.endScale = events[id].startScale;
                         }
@@ -570,16 +644,19 @@ public class Chart
                         float delta_scale = events[id - 1].endScale - _event.startScale;
                         _event.startScale += delta_scale;
                         _event.endScale += delta_scale;
-                        _event.startScale = Mathf.Max(0, _event.startScale);
-                        _event.endScale = Mathf.Max(0, _event.endScale);
+                        // _event.startScale = Mathf.Max(0, _event.startScale);
+                        // _event.endScale = Mathf.Max(0, _event.endScale);
                     }
+
                     events.Insert(id, _event);
                     return id;
                 }
             }
-            else if (_event.endTime == _event.startTime)// duration = 0
+            else if (_event.endTime == _event.startTime) // duration = 0
             {
-                if (events[id].startTime >= _event.endTime && events[id - 1].endTime <= _event.startTime && !(events[id - 1].endTime - events[id - 1].startTime == 0 && events[id - 1].endTime == _event.startTime) && !(events[id].startTime == _event.endTime))
+                if (events[id].startTime >= _event.endTime && events[id - 1].endTime <= _event.startTime &&
+                    !(events[id - 1].endTime - events[id - 1].startTime == 0 &&
+                      events[id - 1].endTime == _event.startTime) && !(events[id].startTime == _event.endTime))
                 {
                     if (pasteTyte == Config.PasteTyte.Inherit)
                     {
@@ -597,14 +674,18 @@ public class Chart
                         _event.startScale = Mathf.Max(0, _event.startScale);
                         _event.endScale = Mathf.Max(0, _event.endScale);
                     }
+
                     events.Insert(id, _event);
                     return id;
                 }
             }
         }
+
         return -1;
     }
-    private int addcolorEvent(ColorModifyEvent _event, List<ColorModifyEvent> events, Config.PasteTyte pasteTyte = Config.PasteTyte.Normal)
+
+    private int AddColorEvent(ColorModifyEvent _event, List<ColorModifyEvent> events,
+        Config.PasteTyte pasteTyte = Config.PasteTyte.Normal)
     {
         if (events.Count == 0)
         {
@@ -618,49 +699,37 @@ public class Chart
 
         if (id == events.Count)
         {
-            if (_event.startTime >= events[id - 1].endTime && !(events[id - 1].startTime == events[id - 1].endTime && _event.startTime == events[id - 1].endTime))
+            if (_event.startTime >= events[id - 1].endTime && !(events[id - 1].startTime == events[id - 1].endTime &&
+                                                                _event.startTime == events[id - 1].endTime))
             {
                 if (pasteTyte == Config.PasteTyte.Inherit)
                 {
                     _event.startColor = events[id - 1].endColor;
                 }
+
                 events.Add(_event);
                 return id;
             }
         }
         else if (id == 0)
         {
-            if (events[id].startTime >= _event.endTime && !(_event.startTime == _event.endTime && events[id].startTime == _event.endTime))
+            if (events[id].startTime >= _event.endTime &&
+                !(_event.startTime == _event.endTime && events[id].startTime == _event.endTime))
             {
                 if (pasteTyte == Config.PasteTyte.Inherit)
                 {
                     _event.endColor = events[0].startColor;
                 }
+
                 events.Insert(id, _event);
                 return id;
             }
         }
         else
         {
-            if (_event.endTime - _event.startTime > 0)// duration > 0
+            if (_event.endTime - _event.startTime > 0) // duration > 0
             {
                 if (events[id].startTime >= _event.endTime && events[id - 1].endTime <= _event.startTime)
-                {
-                    if (pasteTyte == Config.PasteTyte.Inherit)
-                    {
-                        _event.startColor = events[id - 1].endColor;
-                        if(id < events.Count)
-                        {
-                            _event.endColor = events[id].startColor;
-                        }
-                    }
-                    events.Insert(id, _event);
-                    return id;
-                }
-            }
-            else if (_event.endTime == _event.startTime)// duration = 0
-            {
-                if (events[id].startTime >= _event.endTime && events[id - 1].endTime <= _event.startTime && !(events[id - 1].endTime - events[id - 1].startTime == 0 && events[id - 1].endTime == _event.startTime) && !(events[id].startTime == _event.endTime))
                 {
                     if (pasteTyte == Config.PasteTyte.Inherit)
                     {
@@ -670,84 +739,107 @@ public class Chart
                             _event.endColor = events[id].startColor;
                         }
                     }
+
+                    events.Insert(id, _event);
+                    return id;
+                }
+            }
+            else if (_event.endTime == _event.startTime) // duration = 0
+            {
+                if (events[id].startTime >= _event.endTime && events[id - 1].endTime <= _event.startTime &&
+                    !(events[id - 1].endTime - events[id - 1].startTime == 0 &&
+                      events[id - 1].endTime == _event.startTime) && !(events[id].startTime == _event.endTime))
+                {
+                    if (pasteTyte == Config.PasteTyte.Inherit)
+                    {
+                        _event.startColor = events[id - 1].endColor;
+                        if (id < events.Count)
+                        {
+                            _event.endColor = events[id].startColor;
+                        }
+                    }
+
                     events.Insert(id, _event);
                     return id;
                 }
             }
         }
+
         return -1;
     }
-    private void deletemoveEvent(MoveEvent _event, List<MoveEvent> events)
+
+    private void deleteEvent<T>(T _event, List<T> events) where T : PerformEvent
     {
         if (events.Contains(_event))
             events.Remove(_event);
     }
-    private void deleterotateEvent(RotateEvent _event, List<RotateEvent> events)
-    {
-        if (events.Contains(_event))
-            events.Remove(_event);
-    }
-    private void deletescaleEvent(ScaleEvent _event, List<ScaleEvent> events)
-    {
-        if (events.Contains(_event))
-            events.Remove(_event);
-    }
-    private void deletecolorEvent(ColorModifyEvent _event, List<ColorModifyEvent> events)
-    {
-        if (events.Contains(_event))
-            events.Remove(_event);
-    }
+
     public void addMovePosition(MoveEvent _event, int id, Vector3 pos)
     {
         if (id >= 0 && id < _event.positions.Count)
             _event.positions.Insert(id + 1, pos);
     }
+
     public void deleteMovePosition(MoveEvent _event, int id)
     {
         if (_event.positions.Count > 2)
             _event.positions.RemoveAt(id);
     }
+
     public void editMovePosition(MoveEvent _event, int id, Vector3 pos)
     {
         if (id >= 0 && id < _event.positions.Count)
             _event.positions[id] = pos;
     }
+
     public void movePositionAddDelta(MoveEvent _event, Vector3 delta_pos)
     {
-        for(int i = 0;i < _event.positions.Count;i++)
+        for (int i = 0; i < _event.positions.Count; i++)
             _event.positions[i] += delta_pos;
     }
+
     public void flipPositionX(MoveEvent _event)
     {
         for (int i = 0; i < _event.positions.Count; i++)
             _event.positions[i] = new Vector3(-_event.positions[i].x, _event.positions[i].y, _event.positions[i].z);
     }
+
     public void flipPositionY(MoveEvent _event)
     {
         for (int i = 0; i < _event.positions.Count; i++)
             _event.positions[i] = new Vector3(_event.positions[i].x, -_event.positions[i].y, _event.positions[i].z);
     }
 }
+
 public class JudgeLine
 {
     public List<Note> noteList;
     public EventList eventList;
+
     public string _color
     {
         get { return ColorUtility.ToHtmlStringRGBA(color); }
-        set { ColorUtility.TryParseHtmlString("#" + value, out Color outcolor); color = outcolor; }
+        set
+        {
+            ColorUtility.TryParseHtmlString("#" + value, out Color outcolor);
+            color = outcolor;
+        }
     }
+
     public string _pos
     {
         get { return "(" + position.x + "," + position.y + "," + position.z + ")"; }
-        set { if (value.Length >= 4) position = Utilities.string2vector(value); }
+        set
+        {
+            if (value.Length >= 4) position = Utilities.string2vector(value);
+        }
     }
-    [JsonIgnore]
-    public Color color;
-    [JsonIgnore]
-    public Vector3 position;
+
+    [JsonIgnore] public Color color;
+    [JsonIgnore] public Vector3 position;
     public float angle;
     public float scale;
+
     public JudgeLine(Color color, Vector3 position, float angle = 0, float scale = 1)
     {
         this.noteList = new List<Note>();
@@ -758,6 +850,7 @@ public class JudgeLine
         this.scale = scale;
     }
 }
+
 public class Note
 {
     public Config.Type type;
@@ -768,14 +861,21 @@ public class Note
     public int lineId;
     public Config.LineType lineSide;
     public bool fake;
+
     public string _color
     {
         get { return ColorUtility.ToHtmlStringRGBA(color); }
-        set { ColorUtility.TryParseHtmlString("#" + value, out Color outcolor); color = outcolor; }
+        set
+        {
+            ColorUtility.TryParseHtmlString("#" + value, out Color outcolor);
+            color = outcolor;
+        }
     }
-    [JsonIgnore]
-    public Color color;
-    public Note(Config.Type type, Color color, float time, float duration = 0, float speed = 1, float livingTime = 5, Config.LineType lineSide = Config.LineType.Line1, bool fake = false)
+
+    [JsonIgnore] public Color color;
+
+    public Note(Config.Type type, Color color, float time, float duration = 0, float speed = 1, float livingTime = 5,
+        Config.LineType lineSide = Config.LineType.Line1, bool fake = false)
     {
         this.type = type;
         this.time = time;
@@ -788,31 +888,44 @@ public class Note
         this.duration = duration;
     }
 }
+
 public class PerformImg
 {
     public string path;
     public string name;
     public EventList eventList;
+
     public string _color
     {
         get { return ColorUtility.ToHtmlStringRGBA(color); }
-        set { ColorUtility.TryParseHtmlString("#" + value, out Color outcolor); color = outcolor; }
+        set
+        {
+            ColorUtility.TryParseHtmlString("#" + value, out Color outcolor);
+            color = outcolor;
+        }
     }
+
     public string _pos
     {
         get { return "(" + position.x + "," + position.y + "," + position.z + ")"; }
-        set { if (value.Length >= 4) position = Utilities.string2vector(value); }
+        set
+        {
+            if (value.Length >= 4) position = Utilities.string2vector(value);
+        }
     }
-    [JsonIgnore]
-    public Color color;
-    [JsonIgnore]
-    public Vector3 position;
+
+    [JsonIgnore] public Color color;
+    [JsonIgnore] public Vector3 position;
     public float angle;
     public float scale;
+    public float scaleX;
+    public float scaleY;
     public float startTime;
     public float endTime;
     public int sortingOrder;
-    public PerformImg(string path, Color color, Vector3 position, float startTime = 0, float endTime = 1000, float angle = 0, float scale = 1, int sortingOrder = 500)
+
+    public PerformImg(string path, Color color, Vector3 position, float startTime = 0, float endTime = 1000,
+        float angle = 0, float scale = 1, int sortingOrder = 500)
     {
         this.name = "";
         this.path = path;
@@ -826,21 +939,25 @@ public class PerformImg
         this.sortingOrder = sortingOrder;
     }
 }
+
 public class ModifyBpm
 {
     public float time;
     public float bpm;
+
     public ModifyBpm(float time, float bpm)
     {
         this.time = time;
         this.bpm = bpm;
     }
 }
+
 public class PerformEvent
 {
     public float startTime;
     public float endTime;
     public Config.EventType type;
+
     public PerformEvent(float startTime = 0, float endTime = 0, Config.EventType type = Config.EventType.Linear)
     {
         this.startTime = startTime;
@@ -848,6 +965,7 @@ public class PerformEvent
         this.type = type;
     }
 }
+
 public class MoveEvent : PerformEvent
 {
     public string _pos
@@ -859,6 +977,7 @@ public class MoveEvent : PerformEvent
             {
                 s = s + "(" + pos.x + "," + pos.y + "," + pos.z + ") ";
             }
+
             return s;
         }
         set
@@ -875,10 +994,13 @@ public class MoveEvent : PerformEvent
             }
         }
     }
-    [JsonIgnore]
-    public List<Vector3> positions;
+
+    [JsonIgnore] public List<Vector3> positions;
     public Config.PathType pathType;
-    public MoveEvent(List<Vector3> positions = null, Config.PathType pathType = Config.PathType.Bessel, float startTime = 0, float endTime = 0, Config.EventType type = Config.EventType.Linear) : base(startTime, endTime, type)
+
+    public MoveEvent(List<Vector3> positions = null, Config.PathType pathType = Config.PathType.Bessel,
+        float startTime = 0, float endTime = 0, Config.EventType type = Config.EventType.Linear) : base(startTime,
+        endTime, type)
     {
         if (positions == null)
         {
@@ -886,29 +1008,42 @@ public class MoveEvent : PerformEvent
         }
         else
             this.positions = new List<Vector3>(positions);
+
         this.pathType = pathType;
     }
 }
+
 public class RotateEvent : PerformEvent
 {
     public float startAngle;
     public float endAngle;
-    public RotateEvent(float startAngle = 0, float endAngle = 0, float startTime = 0, float endTime = 0, Config.EventType type = Config.EventType.Linear) : base(startTime, endTime, type)
+
+    public RotateEvent(float startAngle = 0, float endAngle = 0, float startTime = 0, float endTime = 0,
+        Config.EventType type = Config.EventType.Linear) : base(startTime, endTime, type)
     {
         this.startAngle = startAngle;
         this.endAngle = endAngle;
     }
 }
+
 public class ScaleEvent : PerformEvent
 {
     public float startScale;
     public float endScale;
-    public ScaleEvent(float startScale = 0, float endScale = 0, float startTime = 0, float endTime = 0, Config.EventType type = Config.EventType.Linear) : base(startTime, endTime, type)
+
+    public ScaleEvent(float startScale = 0, float endScale = 0, float startTime = 0, float endTime = 0,
+        Config.EventType type = Config.EventType.Linear) : base(startTime, endTime, type)
     {
         this.startScale = startScale;
         this.endScale = endScale;
     }
+
+    public ScaleEvent Clone()
+    {
+        return new ScaleEvent(startScale, endScale, startTime, endTime, type);
+    }
 }
+
 public class ColorModifyEvent : PerformEvent
 {
     public string _startcolor
@@ -920,47 +1055,53 @@ public class ColorModifyEvent : PerformEvent
             startColor = outcolor;
         }
     }
+
     public string _endcolor
     {
         get { return ColorUtility.ToHtmlStringRGBA(endColor); }
-        set { ColorUtility.TryParseHtmlString("#" + value, out Color outcolor); endColor = outcolor; }
+        set
+        {
+            ColorUtility.TryParseHtmlString("#" + value, out Color outcolor);
+            endColor = outcolor;
+        }
     }
-    [JsonIgnore]
-    public Color startColor;
-    [JsonIgnore]
-    public Color endColor;
-    public ColorModifyEvent(Color startColor, Color endColor, float startTime = 0, float endTime = 0, Config.EventType type = Config.EventType.Linear) : base(startTime, endTime, type)
+
+    [JsonIgnore] public Color startColor;
+    [JsonIgnore] public Color endColor;
+
+    public ColorModifyEvent(Color startColor, Color endColor, float startTime = 0, float endTime = 0,
+        Config.EventType type = Config.EventType.Linear) : base(startTime, endTime, type)
     {
         this.startColor = startColor;
         this.endColor = endColor;
     }
 }
+
 public class EventList
 {
     public List<MoveEvent> moveEvents;
     public List<RotateEvent> rotateEvents;
     public List<ColorModifyEvent> colorModifyEvents;
     public List<ScaleEvent> scaleEvents;
-    public EventList(List<MoveEvent> moveEvents = null, List<RotateEvent> rotateEvents = null, List<ColorModifyEvent> colorModifyEvents = null, List<ScaleEvent> scaleEvents = null)
+    public List<ScaleEvent> scaleXEvents;
+    public List<ScaleEvent> scaleYEvents;
+    
+    public EventList(List<MoveEvent> moveEvents = null, List<RotateEvent> rotateEvents = null,
+        List<ColorModifyEvent> colorModifyEvents = null, List<ScaleEvent> scaleXEvents = null, List<ScaleEvent> scaleYEvents = null)
     {
-        if (moveEvents == null)
-            this.moveEvents = new List<MoveEvent>();
-        else
-            this.moveEvents = new List<MoveEvent>(moveEvents);
-        if (rotateEvents == null)
-            this.rotateEvents = new List<RotateEvent>();
-        else
-            this.rotateEvents = new List<RotateEvent>(rotateEvents);
-        if (colorModifyEvents == null)
-            this.colorModifyEvents = new List<ColorModifyEvent>();
-        else
-            this.colorModifyEvents = new List<ColorModifyEvent>(colorModifyEvents);
-        if (scaleEvents == null)
-            this.scaleEvents = new List<ScaleEvent>();
-        else
-            this.scaleEvents = new List<ScaleEvent>(scaleEvents);
+        this.moveEvents = moveEvents == null ? new List<MoveEvent>() : new List<MoveEvent>(moveEvents);
+        this.rotateEvents = rotateEvents == null ? new List<RotateEvent>() : new List<RotateEvent>(rotateEvents);
+        this.colorModifyEvents = colorModifyEvents == null ? new List<ColorModifyEvent>() : new List<ColorModifyEvent>(colorModifyEvents);
+        this.scaleXEvents = scaleXEvents == null ? new List<ScaleEvent>() : new List<ScaleEvent>(scaleXEvents);
+        this.scaleYEvents = scaleYEvents == null ? new List<ScaleEvent>() : new List<ScaleEvent>(scaleYEvents);
+    }
+
+    public EventList Clone()
+    {
+        return new EventList(moveEvents, rotateEvents, colorModifyEvents, scaleXEvents, scaleYEvents);
     }
 }
+
 public class noteComparer : IComparer<Note>
 {
     public int Compare(Note x, Note y)
@@ -968,6 +1109,7 @@ public class noteComparer : IComparer<Note>
         return x.time.CompareTo(y.time);
     }
 }
+
 public class imgComparer : IComparer<PerformImg>
 {
     public int Compare(PerformImg x, PerformImg y)
@@ -975,6 +1117,7 @@ public class imgComparer : IComparer<PerformImg>
         return x.startTime.CompareTo(y.startTime);
     }
 }
+
 public class moveEventComparer : IComparer<MoveEvent>
 {
     public int Compare(MoveEvent x, MoveEvent y)
@@ -982,6 +1125,7 @@ public class moveEventComparer : IComparer<MoveEvent>
         return x.startTime.CompareTo(y.startTime);
     }
 }
+
 public class rotateEventComparer : IComparer<RotateEvent>
 {
     public int Compare(RotateEvent x, RotateEvent y)
@@ -989,6 +1133,7 @@ public class rotateEventComparer : IComparer<RotateEvent>
         return x.startTime.CompareTo(y.startTime);
     }
 }
+
 public class scaleEventComparer : IComparer<ScaleEvent>
 {
     public int Compare(ScaleEvent x, ScaleEvent y)
@@ -996,6 +1141,7 @@ public class scaleEventComparer : IComparer<ScaleEvent>
         return x.startTime.CompareTo(y.startTime);
     }
 }
+
 public class colorEventComparer : IComparer<ColorModifyEvent>
 {
     public int Compare(ColorModifyEvent x, ColorModifyEvent y)
@@ -1003,4 +1149,3 @@ public class colorEventComparer : IComparer<ColorModifyEvent>
         return x.startTime.CompareTo(y.startTime);
     }
 }
-

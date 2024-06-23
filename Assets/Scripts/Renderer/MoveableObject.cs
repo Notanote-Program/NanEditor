@@ -14,14 +14,9 @@ public class MoveableObject : MonoBehaviour
     {
         get { return transform.position; }
     }
-    public float scale
+    public void SetScaleRespectively(float x, float y)
     {
-        get { return transform.localScale.x; }
-        set 
-        {
-            float _scale = Mathf.Max(0, value);
-            transform.localScale = new Vector3(_scale, _scale, 1); 
-        }
+        transform.localScale = new Vector3(x, y, 1); 
     }
     private float _angle = 0;
     public float angle

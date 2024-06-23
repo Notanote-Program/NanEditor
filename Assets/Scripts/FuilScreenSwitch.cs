@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class FuilScreenSwitch : MonoBehaviour
@@ -9,7 +10,26 @@ public class FuilScreenSwitch : MonoBehaviour
         get => Screen.fullScreen;
         set
         {
-            Resolution newRes = Screen.resolutions[^1];
+            Resolution newRes = Utilities.GetFullScreenResolution();
+            float ratio = newRes.width * 1f / newRes.height;
+            if (Mathf.Abs(ratio - 16f / 9f) < 0.001)
+            {
+            }
+            else if (ratio > 16f / 9f)
+            {
+                newRes.width = Mathf.RoundToInt(newRes.height * 16f / 9f);
+            }
+            else
+            {
+                newRes.height = Mathf.RoundToInt(newRes.width * 9f / 16f);
+            }
+
+            if (!value)
+            {
+                newRes.width = (int) (newRes.width / 1.5f);
+                newRes.height = (int) (newRes.height / 1.5f);
+            }
+
             Screen.SetResolution(newRes.width, newRes.height, value);
             Screen.fullScreen = value;
         }

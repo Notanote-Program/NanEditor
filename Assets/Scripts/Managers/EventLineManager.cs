@@ -155,11 +155,18 @@ public class EventLineManager : BaseManager
                     addEventline(colorEvent, i, 3, "colorEvent");
                 }
 
-                id_below = getScaleEventidBelow(img.eventList.scaleEvents, curTime);
-                for (int i = Mathf.Max(0, id_below - defaultNum / 2); i < Mathf.Min(img.eventList.scaleEvents.Count, id_below + defaultNum / 2); i++)
+                id_below = getScaleEventidBelow(img.eventList.scaleXEvents, curTime);
+                for (int i = Mathf.Max(0, id_below - defaultNum / 2); i < Mathf.Min(img.eventList.scaleXEvents.Count, id_below + defaultNum / 2); i++)
                 {
-                    ScaleEvent scaleEvent = img.eventList.scaleEvents[i];
-                    addEventline(scaleEvent, i, 4, "scaleEvent");
+                    ScaleEvent scaleEvent = img.eventList.scaleXEvents[i];
+                    addEventline(scaleEvent, i, 4, "scaleXEvent");
+                }
+                
+                id_below = getScaleEventidBelow(img.eventList.scaleYEvents, curTime);
+                for (int i = Mathf.Max(0, id_below - defaultNum / 2); i < Mathf.Min(img.eventList.scaleYEvents.Count, id_below + defaultNum / 2); i++)
+                {
+                    ScaleEvent scaleEvent = img.eventList.scaleYEvents[i];
+                    addEventline(scaleEvent, i, 5, "scaleYEvent");
                 }
             }
         }
@@ -229,7 +236,8 @@ public class EventLineManager : BaseManager
                         ColorModifyEvent color = p.Key as ColorModifyEvent;
                         newEvent = new ColorModifyEvent(color.startColor, color.endColor, color.startTime, color.endTime, color.type);
                         break;
-                    case "scaleEvent":
+                    case "scaleXEvent":
+                    case "scaleYEvent":
                         ScaleEvent scale = p.Key as ScaleEvent;
                         newEvent = new ScaleEvent(scale.startScale, scale.endScale, scale.startTime, scale.endTime, scale.type);
                         break;
@@ -279,8 +287,11 @@ public class EventLineManager : BaseManager
                 case "rotateEvent":
                     selectedEvents.Add(eventList.rotateEvents[obj.GetComponent<EventLineRenderer>().id], "rotateEvent");
                     break;
-                case "scaleEvent":
-                    selectedEvents.Add(eventList.scaleEvents[obj.GetComponent<EventLineRenderer>().id], "scaleEvent");
+                case "scaleXEvent":
+                    selectedEvents.Add(eventList.scaleXEvents[obj.GetComponent<EventLineRenderer>().id], "scaleXEvent");
+                    break;
+                case "scaleYEvent":
+                    selectedEvents.Add(eventList.scaleYEvents[obj.GetComponent<EventLineRenderer>().id], "scaleYEvent");
                     break;
                 case "colorEvent":
                     selectedEvents.Add(eventList.colorModifyEvents[obj.GetComponent<EventLineRenderer>().id], "colorEvent");
@@ -311,8 +322,11 @@ public class EventLineManager : BaseManager
                 case "rotateEvent":
                     _event = eventList.rotateEvents[obj.GetComponent<EventLineRenderer>().id];
                     break;
-                case "scaleEvent":
-                    _event = eventList.scaleEvents[obj.GetComponent<EventLineRenderer>().id];
+                case "scaleXEvent":
+                    _event = eventList.scaleXEvents[obj.GetComponent<EventLineRenderer>().id];
+                    break;
+                case "scaleYEvent":
+                    _event = eventList.scaleYEvents[obj.GetComponent<EventLineRenderer>().id];
                     break;
                 case "colorEvent":
                     _event = eventList.colorModifyEvents[obj.GetComponent<EventLineRenderer>().id];
@@ -346,9 +360,13 @@ public class EventLineManager : BaseManager
         {
             selectedEvents.Add(_event, "colorEvent");
         }
-        foreach (PerformEvent _event in eventList.scaleEvents)
+        foreach (PerformEvent _event in eventList.scaleXEvents)
         {
-            selectedEvents.Add(_event, "scaleEvent");
+            selectedEvents.Add(_event, "scaleXEvent");
+        }
+        foreach (PerformEvent _event in eventList.scaleYEvents)
+        {
+            selectedEvents.Add(_event, "scaleYEvent");
         }
         resetEventlines();
     }

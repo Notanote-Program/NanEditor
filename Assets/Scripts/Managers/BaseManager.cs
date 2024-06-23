@@ -10,7 +10,8 @@ public class BaseManager : MonoBehaviour
     protected List<int> presentMoveEventNum;
     protected List<int> presentRotateEventNum;
     protected List<int> presentColorEventNum;
-    protected List<int> presentScaleEventNum;
+    protected List<int> presentScaleXEventNum;
+    protected List<int> presentScaleYEventNum;
     protected void initPool(string path, int num, GameObject parent = null)
     {
         pool = new itempool();

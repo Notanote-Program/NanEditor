@@ -10,14 +10,22 @@ public class FrontUIManager : MonoBehaviour
     // main slider
     Slider slider;
     Text time;
-    Text pitch;// music speed
+    Text pitch; // music speed
 
     // saveconfirm ui
     public GameObject saveConfirmUI;
 
     // Views
-    public GameObject baseView, infoView, noteView, eventView, playView, timelineView, judgelineView, imageView, recordView;
- 
+    public GameObject baseView,
+        infoView,
+        noteView,
+        eventView,
+        playView,
+        timelineView,
+        judgelineView,
+        imageView,
+        recordView;
+
     //infoView
     InputField info_songname;
     InputField info_composer;
@@ -95,22 +103,27 @@ public class FrontUIManager : MonoBehaviour
     {
         get { return note_color_selector.color; }
     }
+
     public Color templateColor
     {
         get { return template_note_color_selector.color; }
     }
+
     public int posId
     {
         get { return move_poslist.selectedId; }
     }
+
     public Vector3 pos
     {
         get { return move_poslist.selectedPos; }
     }
+
     public Vector3 startPos
     {
         get { return move_poslist.startPos; }
     }
+
     public Vector3 endPos
     {
         get { return move_poslist.endPos; }
@@ -120,14 +133,17 @@ public class FrontUIManager : MonoBehaviour
     {
         get { return color_start_tips.color; }
     }
+
     public Color startColor
     {
         get { return color_start.color; }
     }
+
     public Color endColor
     {
         get { return color_end.color; }
     }
+
     public void init()
     {
         slider = transform.Find("Slider").gameObject.GetComponent<Slider>();
@@ -141,12 +157,14 @@ public class FrontUIManager : MonoBehaviour
         initEventView();
         initRecordView();
     }
+
     private void initInfoView()
     {
         info_songname = infoView.transform.Find("songName").transform.Find("InputField").GetComponent<InputField>();
         info_composer = infoView.transform.Find("composer").transform.Find("InputField").GetComponent<InputField>();
         info_charter = infoView.transform.Find("charter").transform.Find("InputField").GetComponent<InputField>();
-        info_illustrator = infoView.transform.Find("illustrator").transform.Find("InputField").GetComponent<InputField>();
+        info_illustrator = infoView.transform.Find("illustrator").transform.Find("InputField")
+            .GetComponent<InputField>();
         info_bpm = infoView.transform.Find("bpm").transform.Find("InputField").GetComponent<InputField>();
         info_offset = infoView.transform.Find("offset").transform.Find("InputField").GetComponent<InputField>();
         info_difficulty = infoView.transform.Find("difficulty").transform.Find("InputField").GetComponent<InputField>();
@@ -154,6 +172,7 @@ public class FrontUIManager : MonoBehaviour
         color_start_tips = infoView.transform.Find("colorStartTips").GetComponent<ColorSelector>();
         color_start_tips.init();
     }
+
     private void initEventView()
     {
         event_type = eventView.transform.Find("eventType").transform.Find("InputField").GetComponent<InputField>();
@@ -165,6 +184,7 @@ public class FrontUIManager : MonoBehaviour
         initColorEvent();
         initScaleEvent();
     }
+
     private void initMoveEvent()
     {
         moveEventView = eventView.transform.Find("moveEvent").gameObject;
@@ -172,12 +192,16 @@ public class FrontUIManager : MonoBehaviour
         move_poslist.init();
         move_pathtype = moveEventView.transform.Find("pathType").transform.Find("Dropdown").GetComponent<Dropdown>();
     }
+
     private void initRotateEvent()
     {
         rotateEventView = eventView.transform.Find("rotateEvent").gameObject;
-        rotate_endangle = rotateEventView.transform.Find("endAngle").transform.Find("InputField").GetComponent<InputField>();
-        rotate_startangle = rotateEventView.transform.Find("startAngle").transform.Find("InputField").GetComponent<InputField>();
+        rotate_endangle = rotateEventView.transform.Find("endAngle").transform.Find("InputField")
+            .GetComponent<InputField>();
+        rotate_startangle = rotateEventView.transform.Find("startAngle").transform.Find("InputField")
+            .GetComponent<InputField>();
     }
+
     private void initColorEvent()
     {
         colorEventView = eventView.transform.Find("colorEvent").gameObject;
@@ -186,17 +210,21 @@ public class FrontUIManager : MonoBehaviour
         color_end = colorEventView.transform.Find("endColor").GetComponent<ColorSelector>();
         color_end.init();
     }
+
     private void initScaleEvent()
     {
         scaleEventView = eventView.transform.Find("scaleEvent").gameObject;
-        scale_start = scaleEventView.transform.Find("startScale").transform.Find("InputField").GetComponent<InputField>();
+        scale_start = scaleEventView.transform.Find("startScale").transform.Find("InputField")
+            .GetComponent<InputField>();
         scale_end = scaleEventView.transform.Find("endScale").transform.Find("InputField").GetComponent<InputField>();
     }
+
     private void initBaseView()
     {
         base_Title = baseView.transform.parent.parent.parent.Find("Title").GetComponent<Text>();
         base_Title.text = "编辑判定线";
     }
+
     private void initNoteView()
     {
         note_type = noteView.transform.Find("type").transform.Find("Dropdown").GetComponent<Dropdown>();
@@ -208,18 +236,24 @@ public class FrontUIManager : MonoBehaviour
         note_color_selector = noteView.transform.Find("colorSelector").GetComponent<ColorSelector>();
         note_color_selector.init();
 
-        template_note_speed = noteView.transform.Find("speed_template").transform.Find("InputField").GetComponent<InputField>();
-        template_note_livingtime = noteView.transform.Find("livingTime_template").transform.Find("InputField").GetComponent<InputField>();
+        template_note_speed = noteView.transform.Find("speed_template").transform.Find("InputField")
+            .GetComponent<InputField>();
+        template_note_livingtime = noteView.transform.Find("livingTime_template").transform.Find("InputField")
+            .GetComponent<InputField>();
         template_note_color_selector = noteView.transform.Find("colorSelector_template").GetComponent<ColorSelector>();
         template_note_color_selector.init();
     }
+
     private void initJudgelineView()
     {
         judgeline_num = judgelineView.transform.Find("lineNum").transform.Find("InputField").GetComponent<InputField>();
         judgeline_id = judgelineView.transform.Find("lineId").transform.Find("InputField").GetComponent<InputField>();
-        judgeline_eventnum = judgelineView.transform.Find("eventNum").transform.Find("InputField").GetComponent<InputField>();
-        judgeline_notenum = judgelineView.transform.Find("noteNum").transform.Find("InputField").GetComponent<InputField>();
+        judgeline_eventnum = judgelineView.transform.Find("eventNum").transform.Find("InputField")
+            .GetComponent<InputField>();
+        judgeline_notenum = judgelineView.transform.Find("noteNum").transform.Find("InputField")
+            .GetComponent<InputField>();
     }
+
     private void initImageView()
     {
         img_num = imageView.transform.Find("imgNum").transform.Find("InputField").GetComponent<InputField>();
@@ -237,20 +271,24 @@ public class FrontUIManager : MonoBehaviour
     {
         record_list = recordView.transform.Find("record").GetComponent<Dropdown>();
     }
+
     public void setMaxTime(float t)
     {
         slider.maxValue = Mathf.Max(0.01f, t);
-        time.text = Utilities.round(slider.value / 1000.0f,2) + "/" +  Utilities.round(slider.maxValue / 1000.0f,2);
-    }
-    public void setTime(float t)
-    {
-        slider.SetValueWithoutNotify(Mathf.Clamp(t,slider.minValue,slider.maxValue));
         time.text = Utilities.round(slider.value / 1000.0f, 2) + "/" + Utilities.round(slider.maxValue / 1000.0f, 2);
     }
+
+    public void setTime(float t)
+    {
+        slider.SetValueWithoutNotify(Mathf.Clamp(t, slider.minValue, slider.maxValue));
+        time.text = Utilities.round(slider.value / 1000.0f, 2) + "/" + Utilities.round(slider.maxValue / 1000.0f, 2);
+    }
+
     public void setPitch(float t)
     {
-        pitch.text = "播放倍速：" + Utilities.round(t,1).ToString();
+        pitch.text = "播放倍速：" + Utilities.round(t, 1).ToString();
     }
+
     public void setInfo(Chart chart)
     {
         info_songname.text = chart.name;
@@ -263,11 +301,12 @@ public class FrontUIManager : MonoBehaviour
         info_notenum.text = chart.noteNum.ToString();
         color_start_tips.setColor(chart.startTipcolor);
     }
+
     public void setNote(Note note)
     {
         activateView(noteView, true);
         activateView(eventView, false);
-        switch(note.type)
+        switch (note.type)
         {
             case Config.Type.Tap:
                 note_type.SetValueWithoutNotify(0);
@@ -279,11 +318,12 @@ public class FrontUIManager : MonoBehaviour
                 note_type.SetValueWithoutNotify(2);
                 break;
         }
+
         note_starttime.text = note.time.ToString();
         note_duration.text = note.duration.ToString();
         note_livingtime.text = note.livingTime.ToString();
         note_speed.text = note.speed.ToString();
-        switch(note.lineSide)
+        switch (note.lineSide)
         {
             case Config.LineType.Line1:
                 note_lineside.SetValueWithoutNotify(0);
@@ -292,22 +332,27 @@ public class FrontUIManager : MonoBehaviour
                 note_lineside.SetValueWithoutNotify(1);
                 break;
         }
+
         note_color_selector.setColor(note.color);
     }
+
     public void setTemplateNote(Note note)
     {
         template_note_livingtime.text = note.livingTime.ToString();
         template_note_speed.text = note.speed.ToString();
         template_note_color_selector.setColor(note.color);
     }
+
     public void setJudgeline(JudgeLine judgeline, int id, int num)
     {
         judgeline_id.text = id.ToString();
         judgeline_num.text = num.ToString();
-        int eventnum = judgeline.eventList.moveEvents.Count + judgeline.eventList.rotateEvents.Count + judgeline.eventList.colorModifyEvents.Count;
+        int eventnum = judgeline.eventList.moveEvents.Count + judgeline.eventList.rotateEvents.Count +
+                       judgeline.eventList.colorModifyEvents.Count;
         judgeline_eventnum.text = eventnum.ToString();
         judgeline_notenum.text = judgeline.noteList.Count.ToString();
     }
+
     public void setImage(PerformImg img, int id, int num, Texture2D texture = null)
     {
         img_num.text = num.ToString();
@@ -318,11 +363,13 @@ public class FrontUIManager : MonoBehaviour
         img_sortlayer.text = img.sortingOrder.ToString();
         img_starttime.text = img.startTime.ToString();
         img_endtime.text = img.endTime.ToString();
-        int eventnum = img.eventList.moveEvents.Count + img.eventList.rotateEvents.Count + img.eventList.scaleEvents.Count + img.eventList.colorModifyEvents.Count;
+        int eventnum = img.eventList.moveEvents.Count + img.eventList.rotateEvents.Count +
+                       img.eventList.scaleXEvents.Count + img.eventList.scaleYEvents.Count +
+                       img.eventList.colorModifyEvents.Count;
         img_eventnum.text = eventnum.ToString();
         if (img.path == null)
             img.path = "";
-        if(Config.spriteList.ContainsKey(img.path))
+        if (Config.spriteList.ContainsKey(img.path))
         {
             img_sprite.sprite = Config.spriteList[img.path];
         }
@@ -339,6 +386,7 @@ public class FrontUIManager : MonoBehaviour
             img_sprite.sprite = Resources.Load<Sprite>("Textures/defaultimg");
         */
     }
+
     public void setEmptyImage()
     {
         img_num.text = "0";
@@ -351,17 +399,20 @@ public class FrontUIManager : MonoBehaviour
         img_eventnum.text = "";
         img_sprite.sprite = null;
     }
+
     public void setImageList(List<PerformImg> imgList)
     {
         img_list.ClearOptions();
         List<Dropdown.OptionData> newOptions = new List<Dropdown.OptionData>();
-        foreach(PerformImg img in imgList)
+        foreach (PerformImg img in imgList)
         {
             Debug.Log(img.name);
             newOptions.Add(new Dropdown.OptionData(img.name));
         }
+
         img_list.AddOptions(newOptions);
     }
+
     public void setEvent(string type, PerformEvent _event)
     {
         activateView(noteView, false);
@@ -380,9 +431,13 @@ public class FrontUIManager : MonoBehaviour
                 rotateEventView.SetActive(true);
                 setRotateEvent(_event as RotateEvent);
                 break;
-            case "scaleEvent":
+            case "scaleXEvent":
                 scaleEventView.SetActive(true);
-                setScaleEvent(_event as ScaleEvent);
+                setScaleEvent(_event as ScaleEvent, false);
+                break;
+            case "scaleYEvent":
+                scaleEventView.SetActive(true);
+                setScaleEvent(_event as ScaleEvent, true);
                 break;
             case "colorEvent":
                 colorEventView.SetActive(true);
@@ -390,30 +445,35 @@ public class FrontUIManager : MonoBehaviour
                 break;
         }
     }
+
     private void setMoveEvent(MoveEvent _event)
     {
-        event_type.text = "移动事件";        
+        event_type.text = "移动事件";
         move_pathtype.SetValueWithoutNotify((int)_event.pathType);
-        move_poslist.setPosList(_event.positions,_event.pathType);
+        move_poslist.setPosList(_event.positions, _event.pathType);
     }
+
     private void setRotateEvent(RotateEvent _event)
     {
         event_type.text = "旋转事件";
         rotate_startangle.text = _event.startAngle.ToString();
         rotate_endangle.text = _event.endAngle.ToString();
     }
+
     private void setColorEvent(ColorModifyEvent _event)
     {
         event_type.text = "颜色事件";
         color_start.setColor(_event.startColor);
         color_end.setColor(_event.endColor);
     }
-    private void setScaleEvent(ScaleEvent _event)
+
+    private void setScaleEvent(ScaleEvent _event, bool isY)
     {
-        event_type.text = "大小事件";
+        event_type.text = (isY ? "Y" : "X") + "大小事件";
         scale_start.text = _event.startScale.ToString();
         scale_end.text = _event.endScale.ToString();
     }
+
     public void setEmptyEvent()
     {
         moveEventView.SetActive(false);
@@ -422,9 +482,10 @@ public class FrontUIManager : MonoBehaviour
         scaleEventView.SetActive(false);
         event_type.text = "";
     }
+
     public void switchType(Config.EventlineType type)
     {
-        if(type == Config.EventlineType.Judgeline)
+        if (type == Config.EventlineType.Judgeline)
         {
             judgelineView.SetActive(true);
             imageView.SetActive(false);
@@ -437,6 +498,7 @@ public class FrontUIManager : MonoBehaviour
             base_Title.text = "编辑图像";
         }
     }
+
     public void setRecordList(List<editorRecord> records)
     {
         record_list.ClearOptions();
@@ -445,12 +507,15 @@ public class FrontUIManager : MonoBehaviour
         {
             newOptions.Add(new Dropdown.OptionData(record.description));
         }
+
         record_list.AddOptions(newOptions);
     }
+
     public void setRecord(int id)
     {
         record_list.SetValueWithoutNotify(id);
     }
+
     public void hideUI(bool b)
     {
         baseView.SetActive(b);
@@ -462,6 +527,7 @@ public class FrontUIManager : MonoBehaviour
         judgelineView.SetActive(b);
         imageView.SetActive(b);
     }
+
     public void setSaveUI(bool b)
     {
         saveConfirmUI.SetActive(b);

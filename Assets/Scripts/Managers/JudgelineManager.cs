@@ -20,7 +20,7 @@ public class JudgelineManager : BaseManager
 
         for (int i = 0; i < judgelinelist.Count; i++)
         {
-            EventList.Add(new EventList(judgelinelist[i].eventList.moveEvents, judgelinelist[i].eventList.rotateEvents, judgelinelist[i].eventList.colorModifyEvents));
+            EventList.Add(judgelinelist[i].eventList.Clone());
             judgelineObjectList.Add(pool.get_item());
             JudgeLine line = judgelinelist[i];
             judgelineObjectList[i].GetComponent<JudgeLineRenderer>().init(line.color, line.position, line.scale, line.angle);
