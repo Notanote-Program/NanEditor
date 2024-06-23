@@ -11,6 +11,7 @@ using Milthm.BuildScript.Input;
 using Milthm.BuildScript.Reporting;
 using Milthm.BuildScript.System;
 using Milthm.BuildScript.Versioning;
+using Notanote.Others;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEditor.VersionControl;
@@ -138,8 +139,19 @@ namespace Milthm.BuildScript
 
             // Perform build
             BuildReport buildReport = BuildPipeline.BuildPlayer(buildPlayerOptions);
-
-            // open build path
+            
+            // Summary
+            BuildSummary summary = buildReport.summary;
+            StdOutReporter.ReportSummary(summary);
+            
+            // Write static files
+            if (summary.result == BuildResult.Succeeded)
+            {
+                FileHelper.CopyFileAndDir(Application.dataPath + "/Static", buildPath);
+                Directory.CreateDirectory(buildPath + "/Charts");
+            }
+            
+            // Open build folder
             bool openBuildPath = false;
             if (ctx.OptionsTryGet("openBuildFolder", out var t))
             {
@@ -152,10 +164,9 @@ namespace Milthm.BuildScript
                     Debug.LogWarning("Failed to parse openBuildFolder option, set to default value False");
                 }
             }
-
-            if (openBuildPath)
+            
+            if (openBuildPath && summary.result == BuildResult.Succeeded)
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(buildPath));
                 Process process = new Process();
                 
 #if UNITY_EDITOR_WIN
@@ -179,10 +190,6 @@ namespace Milthm.BuildScript
                 process.StandardInput.WriteLine("exit");
                 process.WaitForExit();
             }
-            
-            // Summary
-            BuildSummary summary = buildReport.summary;
-            StdOutReporter.ReportSummary(summary);
 
             // Result
             bool quitAfterBuild = true;
@@ -200,8 +207,7 @@ namespace Milthm.BuildScript
 
             if (quitAfterBuild)
             {
-                BuildResult result = summary.result;
-                StdOutReporter.ExitWithResult(result);
+                StdOutReporter.ExitWithResult(summary.result);
             }
         }
     }
