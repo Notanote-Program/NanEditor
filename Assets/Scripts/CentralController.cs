@@ -1646,6 +1646,18 @@ public class CentralController : MonoBehaviour
                 PerformEvent _event;
                 switch (p.Value)
                 {
+                    case "moveEvent":
+                        MoveEvent move = p.Key as MoveEvent;
+                        _event = new MoveEvent(move.positions, move.pathType, move.startTime, move.endTime, move.type);
+                        break;
+                    case "rotateEvent":
+                        RotateEvent rotate = p.Key as RotateEvent;
+                        _event = new RotateEvent(rotate.startAngle, rotate.endAngle, rotate.startTime, rotate.endTime, rotate.type);
+                        break;
+                    case "colorEvent":
+                        ColorModifyEvent color = p.Key as ColorModifyEvent;
+                        _event = new ColorModifyEvent(color.startColor, color.endColor, color.startTime, color.endTime, color.type);
+                        break;
                     case "scaleXEvent":
                     case "scaleYEvent":
                         ScaleEvent scale = p.Key as ScaleEvent;
@@ -1709,7 +1721,7 @@ public class CentralController : MonoBehaviour
 
                 if (type != Config.EventlineType.Judgeline)
                 {
-                    chart.addEvent_PerformImg(id, _event, p.Value == "scaleXEvent" ? "scaleYEvent" : "scaleXEvent");
+                    chart.addEvent_PerformImg(id, _event, p.Value == "scaleXEvent" ? "scaleYEvent" : "scaleXEvent", pasteTyte);
                 }
             }
 
