@@ -14,10 +14,6 @@ public class MoveableObject : MonoBehaviour
     {
         get { return transform.position; }
     }
-    public void SetScaleRespectively(float x, float y)
-    {
-        transform.localScale = new Vector3(x, y, 1); 
-    }
     private float _angle = 0;
     public float angle
     {

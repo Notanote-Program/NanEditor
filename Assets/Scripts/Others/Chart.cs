@@ -75,10 +75,13 @@ public class Chart
                 case 1:
                     foreach (PerformImg performImg in oldChart.performImgList)
                     {
-                        performImg.eventList.scaleXEvents.AddRange(performImg.eventList.scaleEvents.Select(e => e.Clone()));
-                        performImg.eventList.scaleYEvents.AddRange(performImg.eventList.scaleEvents.Select(e => e.Clone()));
+                        performImg.eventList.scaleXEvents.AddRange(
+                            performImg.eventList.scaleEvents.Select(e => e.Clone()));
+                        performImg.eventList.scaleYEvents.AddRange(
+                            performImg.eventList.scaleEvents.Select(e => e.Clone()));
                         performImg.eventList.scaleEvents.Clear();
                     }
+
                     break;
             }
 
@@ -289,7 +292,8 @@ public class Chart
             case "rotateEvent":
                 return AddRotateEvent(_event as RotateEvent, this.performImgList[id].eventList.rotateEvents, pasteTyte);
             case "colorEvent":
-                return AddColorEvent(_event as ColorModifyEvent, this.performImgList[id].eventList.colorModifyEvents, pasteTyte);
+                return AddColorEvent(_event as ColorModifyEvent, this.performImgList[id].eventList.colorModifyEvents,
+                    pasteTyte);
             case "scaleXEvent":
                 return AddScaleEvent(_event as ScaleEvent, this.performImgList[id].eventList.scaleXEvents, pasteTyte);
             case "scaleYEvent":
@@ -573,7 +577,7 @@ public class Chart
 
         return -1;
     }
-    
+
     private int AddScaleEvent(ScaleEvent _event, List<ScaleEvent> events,
         Config.PasteTyte pasteTyte = Config.PasteTyte.Normal)
     {
@@ -916,7 +920,6 @@ public class PerformImg
     [JsonIgnore] public Color color;
     [JsonIgnore] public Vector3 position;
     public float angle;
-    public float scale;
     public float scaleX;
     public float scaleY;
     public float startTime;
@@ -925,7 +928,8 @@ public class PerformImg
     public int sortingOrder;
 
     public PerformImg(string path, Color color, Vector3 position, float startTime = 0, float endTime = 1000,
-        float angle = 0, float scale = 1, Config.PerformImgLayer layer = Config.PerformImgLayer.Background, int sortingOrder = 500)
+        float angle = 0, float scaleX = 1, float scaleY = 1, Config.PerformImgLayer layer = Config.PerformImgLayer.Background,
+        int sortingOrder = 500)
     {
         this.name = "";
         this.path = path;
@@ -935,7 +939,8 @@ public class PerformImg
         this.startTime = startTime;
         this.endTime = endTime;
         this.angle = angle;
-        this.scale = scale;
+        this.scaleX = scaleX;
+        this.scaleY = scaleY;
         this.layer = layer;
         this.sortingOrder = sortingOrder;
     }
@@ -1086,13 +1091,16 @@ public class EventList
     public List<ScaleEvent> scaleEvents;
     public List<ScaleEvent> scaleXEvents;
     public List<ScaleEvent> scaleYEvents;
-    
+
     public EventList(List<MoveEvent> moveEvents = null, List<RotateEvent> rotateEvents = null,
-        List<ColorModifyEvent> colorModifyEvents = null, List<ScaleEvent> scaleXEvents = null, List<ScaleEvent> scaleYEvents = null)
+        List<ColorModifyEvent> colorModifyEvents = null, List<ScaleEvent> scaleXEvents = null,
+        List<ScaleEvent> scaleYEvents = null)
     {
         this.moveEvents = moveEvents == null ? new List<MoveEvent>() : new List<MoveEvent>(moveEvents);
         this.rotateEvents = rotateEvents == null ? new List<RotateEvent>() : new List<RotateEvent>(rotateEvents);
-        this.colorModifyEvents = colorModifyEvents == null ? new List<ColorModifyEvent>() : new List<ColorModifyEvent>(colorModifyEvents);
+        this.colorModifyEvents = colorModifyEvents == null
+            ? new List<ColorModifyEvent>()
+            : new List<ColorModifyEvent>(colorModifyEvents);
         this.scaleXEvents = scaleXEvents == null ? new List<ScaleEvent>() : new List<ScaleEvent>(scaleXEvents);
         this.scaleYEvents = scaleYEvents == null ? new List<ScaleEvent>() : new List<ScaleEvent>(scaleYEvents);
     }

@@ -25,12 +25,16 @@ public class PerformImgRenderer : MoveableObject
             transform.localScale = new Vector3(transform.localScale.x, value, 1); 
         }
     }
+    public void SetScaleRespectively(float x, float y)
+    {
+        transform.localScale = new Vector3(x, y, 1); 
+    }
     public Color color
     {
         get { return img.GetComponent<SpriteRenderer>().color; }
         set { img.GetComponent<SpriteRenderer>().color = value; }
     }
-    public void init(Sprite _sprite, Color _color, Vector3 _position, float _scaleX = 1, float _scaleY = 1, float _angle = 0, Config.PerformImgLayer layer = Config.PerformImgLayer.Background, int sortingOrder = 500, Config.LoadType loadType = Config.LoadType.Resource)
+    public void init(Sprite _sprite, Color _color, Vector3 _position, float _scaleX = 1, float _scaleY = 1, Config.PerformImgLayer layer = Config.PerformImgLayer.Background, float _angle = 0, int sortingOrder = 500, Config.LoadType loadType = Config.LoadType.Resource)
     {
         //Debug.Log(path);
         img = this.transform.gameObject;
