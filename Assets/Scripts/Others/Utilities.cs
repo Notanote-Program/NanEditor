@@ -7,6 +7,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using System.Runtime.Serialization.Formatters.Binary;
 using JetBrains.Annotations;
+using Unity.Burst;
 using UnityEngine.SceneManagement;
 
 public class Utilities
@@ -109,130 +110,130 @@ public class Utilities
         return info;
     }
 
+    [BurstCompile]
     public static float getPartition(float t, Config.EventType type)
     {
         t = Mathf.Clamp01(t);
-        float v = t;
         switch (type)
         {
             case Config.EventType.Linear:
                 // Linear, do nothing
                 break;
             case Config.EventType.SineIn:
-                v = 1 - Mathf.Cos(t * Mathf.PI / 2);
+                t = 1 - Mathf.Cos(t * Mathf.PI / 2);
                 break;
             case Config.EventType.SineOut:
-                v = Mathf.Sin(t * Mathf.PI / 2);
+                t = Mathf.Sin(t * Mathf.PI / 2);
                 break;
             case Config.EventType.SineInOut:
-                v = (1 - Mathf.Cos(Mathf.PI * t)) / 2;
+                t = (1 - Mathf.Cos(Mathf.PI * t)) / 2;
                 break;
             case Config.EventType.CubicIn:
-                v = Mathf.Pow(t, 3f);
+                t = Mathf.Pow(t, 3f);
                 break;
             case Config.EventType.CubicOut:
-                v = Mathf.Pow(t - 1, 3f) + 1;
+                t = Mathf.Pow(t - 1, 3f) + 1;
                 break;
             case Config.EventType.CubicInOut:
-                v = t < 0.5f ? Mathf.Pow(t, 3f) * 4 : 1 + Mathf.Pow(t - 1, 3f) * 4;
+                t = t < 0.5f ? Mathf.Pow(t, 3f) * 4 : 1 + Mathf.Pow(t - 1, 3f) * 4;
                 break;
             case Config.EventType.QuadIn:
-                v = Mathf.Pow(t, 2f);
+                t = Mathf.Pow(t, 2f);
                 break;
             case Config.EventType.QuadOut:
-                v = -Mathf.Pow(t - 1, 2f) + 1;
+                t = -Mathf.Pow(t - 1, 2f) + 1;
                 break;
             case Config.EventType.QuadInOut:
-                v = t < 0.5f ? Mathf.Pow(t, 2f) * 2 : 1 - Mathf.Pow(t - 1, 2f) * 2;
+                t = t < 0.5f ? Mathf.Pow(t, 2f) * 2 : 1 - Mathf.Pow(t - 1, 2f) * 2;
                 break;
             case Config.EventType.QuartIn:
-                v = Mathf.Pow(t, 4f);
+                t = Mathf.Pow(t, 4f);
                 break;
             case Config.EventType.QuartOut:
-                v = -Mathf.Pow(t - 1, 4f) + 1;
+                t = -Mathf.Pow(t - 1, 4f) + 1;
                 break;
             case Config.EventType.QuartInOut:
-                v = t < 0.5f ? Mathf.Pow(t, 4f) * 8 : 1 - Mathf.Pow(t - 1, 4f) * 8;
+                t = t < 0.5f ? Mathf.Pow(t, 4f) * 8 : 1 - Mathf.Pow(t - 1, 4f) * 8;
                 break;
             case Config.EventType.QuintIn:
-                v = t * t * t * t * t;
+                t = (float) ((double) t * t * t * t * t);
                 break;
             case Config.EventType.QuintOut:
-                v = 1 - t;
-                v = 1 - v * v * v * v * v;
+                t = 1 - t;
+                t = 1 - (float) ((double) t * t * t * t * t);
                 break;
             case Config.EventType.QuintInOut:
                 if (t < 0.5f)
                 {
-                    v = 16 * t * t * t * t * t;
+                    t = 16 * t * t * t * t * t;
                 }
                 else
                 {
-                    v = 1 - t;
-                    v *= 2;
-                    v = 1 - v * v * v * v * v / 2;
+                    t = 1 - t;
+                    t *= 2;
+                    t = 1 - t * t * t * t * t / 2;
                 }
 
                 break;
             case Config.EventType.ExpoIn:
-                v = Math.Abs(t) < 0.001f ? 0 : Mathf.Pow(2, 10 * t - 10);
+                t = Math.Abs(t) < 0.001f ? 0 : Mathf.Pow(2, 10 * t - 10);
                 break;
             case Config.EventType.ExpoOut:
-                v = Math.Abs(t - 1f) < 0.001f ? 1 : 1 - Mathf.Pow(2, -10 * t);
+                t = Math.Abs(t - 1f) < 0.001f ? 1 : 1 - Mathf.Pow(2, -10 * t);
                 break;
             case Config.EventType.ExpoInOut:
-                v = Math.Abs(t) < 0.001f ? 0 :
+                t = Math.Abs(t) < 0.001f ? 0 :
                     Math.Abs(t - 1f) < 0.001f ? 1 :
                     t < 0.5 ? Mathf.Pow(2, 20 * t - 10) / 2 : (2 - Mathf.Pow(2, -20 * t + 10)) / 2;
                 break;
             case Config.EventType.CircIn:
-                v = 1 - Mathf.Sqrt(1 - t * t);
+                t = 1 - Mathf.Sqrt(1 - t * t);
                 break;
             case Config.EventType.CircOut:
-                v -= 1f;
-                v = Mathf.Sqrt(1 - v * v);
+                t -= 1f;
+                t = Mathf.Sqrt(1 - t * t);
                 break;
             case Config.EventType.CircInOut:
                 if (t < 0.5)
                 {
-                    v = (1 - Mathf.Sqrt(1 - 4 * t * t)) / 2;
+                    t = (1 - Mathf.Sqrt(1 - 4 * t * t)) / 2;
                 }
                 else
                 {
-                    v = 1 - t;
-                    v = (Mathf.Sqrt(1 - 4 * v * v) + 1) / 2;
+                    t = 1 - t;
+                    t = (Mathf.Sqrt(1 - 4 * t * t) + 1) / 2;
                 }
 
                 break;
             case Config.EventType.BackIn:
-                v = Math.Abs(t) < 0.001f ? 0 :
+                t = Math.Abs(t) < 0.001f ? 0 :
                     Math.Abs(t - 1f) < 0.001f ? 1 :
                     -Mathf.Pow(2, 10 * t - 10) * Mathf.Sin((t * 10 - 10.75f) * 2 / 3 * Mathf.PI);
                 break;
             case Config.EventType.BackOut:
-                v = Math.Abs(t) < 0.001f ? 0 :
+                t = Math.Abs(t) < 0.001f ? 0 :
                     Math.Abs(t - 1f) < 0.001f ? 1 :
                     Mathf.Pow(2, -10 * t) * Mathf.Sin((t * 10 - 0.75f) * 2 / 3 * Mathf.PI) + 1;
                 break;
             case Config.EventType.BackInOut:
-                v = Math.Abs(t) < 0.001f ? 0 :
+                t = Math.Abs(t) < 0.001f ? 0 :
                     Math.Abs(t - 1f) < 0.001f ? 1 :
                     t < 0.5 ? -(Mathf.Pow(2, 20 * t - 10) * Mathf.Sin((20 * t - 11.125f) * 4 / 9 * Mathf.PI)) / 2 :
                     (Mathf.Pow(2, -20 * t + 10) * Mathf.Sin((20 * t - 11.125f) * 4 / 9 * Mathf.PI)) / 2 + 1;
                 break;
             case Config.EventType.ElasticIn:
-                v = Math.Abs(t) < 0.001f ? 0 :
+                t = Math.Abs(t) < 0.001f ? 0 :
                     Math.Abs(t - 1f) < 0.001f ? 1 :
                     -Mathf.Pow(2, 10 * t - 10) * Mathf.Sin((t * 10 - 10.75f) * 2 / 3 * Mathf.PI);
 
                 break;
             case Config.EventType.ElasticOut:
-                v = Math.Abs(t) < 0.001f ? 0 :
+                t = Math.Abs(t) < 0.001f ? 0 :
                     Math.Abs(t - 1f) < 0.001f ? 1 :
                     Mathf.Pow(2, -10 * t) * Mathf.Sin((t * 10 - 0.75f) * 2 / 3 * Mathf.PI) + 1;
                 break;
             case Config.EventType.ElasticInOut:
-                v = Math.Abs(t) < 0.001f
+                t = Math.Abs(t) < 0.001f
                     ? 0
                     : Math.Abs(t - 1f) < 0.001f
                         ? 1
@@ -241,19 +242,19 @@ public class Utilities
                             : (Mathf.Pow(2, -20 * t + 10) * Mathf.Sin((20 * t - 11.125f) * 4 / 9 * Mathf.PI)) / 2 + 1;
                 break;
             case Config.EventType.BounceIn:
-                v = (float)(1 - EaseOutBounce(1 - t));
+                t = (float)(1 - EaseOutBounce(1 - t));
                 break;
             case Config.EventType.BounceOut:
-                v = (float)EaseOutBounce(t);
+                t = (float)EaseOutBounce(t);
                 break;
             case Config.EventType.BounceInOut:
-                v = (float)(t < 0.5
+                t = (float)(t < 0.5
                     ? (1 - EaseOutBounce(1 - 2 * t)) / 2
                     : (1 + EaseOutBounce(2 * t - 1)) / 2);
                 break;
         }
 
-        return v;
+        return t;
 
         static double EaseOutBounce(double x)
         {
