@@ -695,7 +695,21 @@ public class CentralController : MonoBehaviour
         }
     }
 
-    public void setImageSortingLayer(string s)
+    public void setImageSortingLayer(int i)
+    {
+        Config.PerformImgLayer layer = (Config.PerformImgLayer) i;
+        if (state == State.editor && type == Config.EventlineType.PerformImg)
+        {
+            if (id >= 0 && id < chart.performImgList.Count)
+            {
+                chart.performImgList[id].layer = layer;
+                setImage();
+                record("edit sorting layer");
+            }
+        }
+    }
+
+    public void setImageSortingOrder(string s)
     {
         if (s == "")
             return;
@@ -706,7 +720,7 @@ public class CentralController : MonoBehaviour
             {
                 chart.performImgList[id].sortingOrder = order;
                 setImage();
-                record("edit sorting layer");
+                record("edit sorting order");
             }
         }
     }

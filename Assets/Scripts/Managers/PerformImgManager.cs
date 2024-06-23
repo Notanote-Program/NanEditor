@@ -76,7 +76,7 @@ public class PerformImgManager : BaseManager
             GameObject newImg = pool.get_item();
             //Debug.Log(img.path);
 
-            newImg.GetComponent<PerformImgRenderer>().init(Config.spriteList[img.path], img.color, img.position, img.scaleX, img.scaleY, img.angle, img.sortingOrder,loadType);
+            newImg.GetComponent<PerformImgRenderer>().init(Config.spriteList[img.path], img.color, img.position, img.scaleX, img.scaleY, img.angle, img.layer, img.sortingOrder,loadType);
             imgObjectList.Add(nextImgId, newImg);
             nextImgId++;
         }

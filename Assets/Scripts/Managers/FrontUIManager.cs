@@ -64,7 +64,8 @@ public class FrontUIManager : MonoBehaviour
     InputField img_name;
     InputField img_path;
     Image img_sprite;
-    InputField img_sortlayer;
+    Dropdown img_sortingLayer;
+    InputField img_sortingOrder;
     InputField img_starttime;
     InputField img_endtime;
     InputField img_eventnum;
@@ -261,7 +262,8 @@ public class FrontUIManager : MonoBehaviour
         img_path = imageView.transform.Find("imgPath").transform.Find("InputField").GetComponent<InputField>();
         img_list = imageView.transform.Find("imgId").transform.Find("Dropdown").GetComponent<Dropdown>();
         img_sprite = imageView.transform.Find("Image").GetComponent<Image>();
-        img_sortlayer = imageView.transform.Find("sortLayer").transform.Find("InputField").GetComponent<InputField>();
+        img_sortingLayer = imageView.transform.Find("sortLayer").transform.Find("Dropdown").GetComponent<Dropdown>();
+        img_sortingOrder = imageView.transform.Find("sortOrder").transform.Find("InputField").GetComponent<InputField>();
         img_starttime = imageView.transform.Find("startTime").transform.Find("InputField").GetComponent<InputField>();
         img_endtime = imageView.transform.Find("endTime").transform.Find("InputField").GetComponent<InputField>();
         img_eventnum = imageView.transform.Find("eventNum").transform.Find("InputField").GetComponent<InputField>();
@@ -360,7 +362,8 @@ public class FrontUIManager : MonoBehaviour
         img_list.options[id].text = img.name;
         img_name.text = img.name;
         img_path.text = img.path;
-        img_sortlayer.text = img.sortingOrder.ToString();
+        img_sortingLayer.value = (int) img.layer;
+        img_sortingOrder.text = img.sortingOrder.ToString();
         img_starttime.text = img.startTime.ToString();
         img_endtime.text = img.endTime.ToString();
         int eventnum = img.eventList.moveEvents.Count + img.eventList.rotateEvents.Count +
@@ -393,7 +396,8 @@ public class FrontUIManager : MonoBehaviour
         img_list.SetValueWithoutNotify(0);
         img_name.text = "";
         img_path.text = "";
-        img_sortlayer.text = "";
+        img_sortingLayer.value = 0;
+        img_sortingOrder.text = "";
         img_starttime.text = "";
         img_endtime.text = "";
         img_eventnum.text = "";

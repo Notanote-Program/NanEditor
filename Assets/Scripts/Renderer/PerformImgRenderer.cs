@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -29,7 +30,7 @@ public class PerformImgRenderer : MoveableObject
         get { return img.GetComponent<SpriteRenderer>().color; }
         set { img.GetComponent<SpriteRenderer>().color = value; }
     }
-    public void init(Sprite _sprite, Color _color, Vector3 _position, float _scaleX = 1, float _scaleY = 1, float _angle = 0, int sortingOrder = 500, Config.LoadType loadType = Config.LoadType.Resource)
+    public void init(Sprite _sprite, Color _color, Vector3 _position, float _scaleX = 1, float _scaleY = 1, float _angle = 0, Config.PerformImgLayer layer = Config.PerformImgLayer.Background, int sortingOrder = 500, Config.LoadType loadType = Config.LoadType.Resource)
     {
         //Debug.Log(path);
         img = this.transform.gameObject;
@@ -37,10 +38,19 @@ public class PerformImgRenderer : MoveableObject
         this.position = _position;
         this.SetScaleRespectively(_scaleX, _scaleY);
         this.angle = _angle;
+        SpriteRenderer spriteRenderer = img.GetComponent<SpriteRenderer>();
         if (_sprite != null)
-            img.GetComponent<SpriteRenderer>().sprite = _sprite;
+            spriteRenderer.sprite = _sprite;
         else
-            img.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Textures/defaultimg");
-        img.GetComponent<SpriteRenderer>().sortingOrder = sortingOrder;        
+            spriteRenderer.sprite = Resources.Load<Sprite>("Textures/defaultimg");
+        spriteRenderer.sortingLayerName = layer switch
+        {
+            Config.PerformImgLayer.Background => "background",
+            Config.PerformImgLayer.AboveJudgementLine => "aboveJudgementLine",
+            Config.PerformImgLayer.AboveNote => "aboveNote",
+            Config.PerformImgLayer.AboveUI => "aboveUI",
+            _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, null)
+        };
+        spriteRenderer.sortingOrder = sortingOrder;        
     }
 }

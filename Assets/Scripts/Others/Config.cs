@@ -334,6 +334,14 @@ public class Config
         Inherit,
         Smart
     }
+
+    public enum PerformImgLayer
+    {
+        Background,
+        AboveJudgementLine,
+        AboveNote,
+        AboveUI
+    }
     static public Vector3 myposition2world(Vector3 mypos)
     {
         Vector3 screenpos = new Vector3((mypos.x + 1) / 2 * Screen.width, (mypos.y + 1) / 2 * Screen.height, mypos.z);

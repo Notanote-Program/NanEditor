@@ -55,9 +55,21 @@ TagManager:
   - name: judgeline
     uniqueID: 570412431
     locked: 0
+  - name: aboveJudgementLine
+    uniqueID: 3943941783
+    locked: 0
   - name: note
     uniqueID: 4143745159
     locked: 0
+  - name: aboveNote
+    uniqueID: 4040740155
+    locked: 0
   - name: UI
     uniqueID: 1339587971
+    locked: 0
+  - name: aboveUI
+    uniqueID: 2584696295
+    locked: 0
+  - name: topUI
+    uniqueID: 702256957
     locked: 0

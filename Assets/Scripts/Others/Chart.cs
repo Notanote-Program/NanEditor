@@ -1,10 +1,8 @@
-using System;
 using Newtonsoft.Json;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Unity.VisualScripting;
+using JetBrains.Annotations;
 using UnityEngine;
 using ColorUtility = UnityEngine.ColorUtility;
 
@@ -24,6 +22,7 @@ public class Chart
     public List<JudgeLine> judgelineList;
     public List<PerformImg> performImgList;
 
+    [UsedImplicitly]
     public string _startTipcolor
     {
         get => ColorUtility.ToHtmlStringRGBA(startTipcolor);
@@ -229,7 +228,7 @@ public class Chart
 
     public void addPerformImg()
     {
-        PerformImg img = new PerformImg("", new Color(1, 1, 1, 0), Vector3.zero, 0);
+        PerformImg img = new PerformImg("", new Color(1, 1, 1, 0), Vector3.zero);
         performImgList.Insert(0, img);
     }
 
@@ -922,10 +921,11 @@ public class PerformImg
     public float scaleY;
     public float startTime;
     public float endTime;
+    public Config.PerformImgLayer layer = Config.PerformImgLayer.Background;
     public int sortingOrder;
 
     public PerformImg(string path, Color color, Vector3 position, float startTime = 0, float endTime = 1000,
-        float angle = 0, float scale = 1, int sortingOrder = 500)
+        float angle = 0, float scale = 1, Config.PerformImgLayer layer = Config.PerformImgLayer.Background, int sortingOrder = 500)
     {
         this.name = "";
         this.path = path;
@@ -936,6 +936,7 @@ public class PerformImg
         this.endTime = endTime;
         this.angle = angle;
         this.scale = scale;
+        this.layer = layer;
         this.sortingOrder = sortingOrder;
     }
 }
