@@ -147,8 +147,8 @@ namespace Milthm.BuildScript
             // Write static files
             if (summary.result == BuildResult.Succeeded)
             {
-                FileHelper.CopyFileAndDir(Application.dataPath + "/Static", buildPath);
-                Directory.CreateDirectory(buildPath + "/Charts");
+                FileHelper.CopyFileAndDir(Application.dataPath + "/../Static", Path.GetDirectoryName(buildPath));
+                Directory.CreateDirectory(Path.GetDirectoryName(buildPath) + "/Charts");
             }
             
             // Open build folder

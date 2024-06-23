@@ -14,7 +14,7 @@ namespace Milthm.UnityExtension
     {
         private static readonly string ProjectPath = Path.Join(Application.dataPath, "..");
 
-        private static readonly string BuildPath = Path.Join(ProjectPath, "build");
+        private static readonly string BuildPath = Path.Join(ProjectPath, "Build");
         private static readonly string SecretsPath = Path.Join(ProjectPath, "Secrets");
 
         private const string GameName = "Notanote";
