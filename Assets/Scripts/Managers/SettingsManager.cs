@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class SettingsManager : MonoBehaviour
 {
-    [SerializeField] private GameObject settingsPanel;
+    public GameObject settingsPanel;
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button closeButton;
     [SerializeField] private Dropdown resolutionDropdown;

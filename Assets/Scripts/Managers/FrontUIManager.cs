@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(SettingsManager))]
 public class FrontUIManager : MonoBehaviour
 {
     // main slider
@@ -23,8 +24,7 @@ public class FrontUIManager : MonoBehaviour
         playView,
         timelineView,
         judgelineView,
-        imageView,
-        recordView;
+        imageView;
 
     //infoView
     InputField info_songname;
@@ -271,7 +271,7 @@ public class FrontUIManager : MonoBehaviour
 
     private void initRecordView()
     {
-        record_list = recordView.transform.Find("record").GetComponent<Dropdown>();
+        record_list = GetComponent<SettingsManager>().settingsPanel.transform.Find("Scroll View").GetComponent<ScrollRect>().content.Find("record").GetComponent<Dropdown>();
     }
 
     public void setMaxTime(float t)
