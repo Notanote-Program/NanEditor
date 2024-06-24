@@ -169,8 +169,8 @@ PlayerSettings:
     Android: com.zzzProject.Notanote
     Standalone: com.zzzProject.NanEditor
   buildNumber:
-    Standalone: 1719182800
-    iPhone: 1719182800
+    Standalone: 1719203048
+    iPhone: 1719203048
     tvOS: 0
   overrideDefaultApplicationIdentifier: 0
   AndroidBundleVersionCode: 50010011

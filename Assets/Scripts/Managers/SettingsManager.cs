@@ -35,7 +35,7 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.SetInt("resolution", 0);
         PlayerPrefs.Save();
 #else
-        RefreshResolution(resolutionDropdown.value);
+        resolutionDropdown.onValueChanged.Invoke(resolutionDropdown.value);
 #endif
     }
 
