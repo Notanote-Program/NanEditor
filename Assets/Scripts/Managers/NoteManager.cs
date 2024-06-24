@@ -21,11 +21,12 @@ public class NoteManager : BaseManager
     private List<Note> selectedNoteList;// selected notes
     public ScoreManager scoreManager;
     public GameObject playUI_manager;
+    private JudgelineManager _judgelineManager;
     public List<Note> NoteList
     {
         get { return selectedNoteList; }
     }
-    public void init(List<GameObject> lines, List<Note> notes, int num, GameObject parent = null)
+    public void init(JudgelineManager _judgelineManager, List<GameObject> lines, List<Note> notes, int num, GameObject parent = null)
     {
         if (lines == null)
             this.lineObjects = new List<GameObject>();
@@ -51,8 +52,8 @@ public class NoteManager : BaseManager
 
         scoreManager = new ScoreManager();
         scoreManager.init(notes.Count);
-
         playUI_manager = GameObject.Find("playUI").gameObject;
+        this._judgelineManager = _judgelineManager;
     }
     public void reset()
     {
@@ -206,11 +207,11 @@ public class NoteManager : BaseManager
         {
             return Vector3.zero;
         }
-        else
-        {
-            //return noteObjectList[note].transform.position;
-            return lineObjects[note.lineId].GetComponent<JudgeLineRenderer>().worldPosition;
-        }
+
+        //return noteObjectList[note].transform.position;
+        Vector3? judgeRingPosition = _judgelineManager.getJudgeRingPosition(note.lineId, note.time);
+        if (judgeRingPosition == null) return lineObjects[note.lineId].GetComponent<JudgeLineRenderer>().worldPosition;
+        return Config.myposition2world((Vector3) judgeRingPosition);
     }
     private void fade(Note note, float time)
     {

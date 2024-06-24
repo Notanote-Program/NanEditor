@@ -81,6 +81,43 @@ public class JudgelineManager : BaseManager
             judgelineObjectList[Id].GetComponent<JudgeLineRenderer>().setposition(lastpos);
         }
     }
+    
+    public Vector3? getJudgeRingPosition(int Id, float time)
+    {
+        List<MoveEvent> events = EventList[Id].moveEvents;
+        if (events.Count == 0) return null;
+        int qwq = 0;
+        while (qwq < events.Count && events[qwq].endTime <= time)
+        {
+            qwq++;
+        }
+
+        if (qwq >= events.Count && events.Count > 0)
+        {
+            return events[^1].positions[^1];
+        }
+
+        if (events[qwq].positions.Count < 2)
+        {
+            Debug.LogError(
+                "error: not enough positions in Object " + Id + " , MoveEvent " + qwq);
+            return null;
+        }
+
+        if (events[qwq].startTime <= time)
+        {
+            Vector3 position = getPosition(events[qwq], time);
+            return new Vector3(position.x, position.y, 0.0f);
+        }
+
+        if (qwq > 0)
+        {
+            return events[qwq - 1].positions[^1];
+        }
+
+        return null;
+    }
+    
     private void updateRotateEvents(int Id, float time)
     {
         List<RotateEvent> events = EventList[Id].rotateEvents;

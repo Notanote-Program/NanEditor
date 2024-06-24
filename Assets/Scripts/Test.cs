@@ -222,7 +222,7 @@ public class Test : MonoBehaviour
                 notes.Add(note);
             }
         }
-        note_manager.GetComponent<NoteManager>().init(judgeline_manager.GetComponent<JudgelineManager>().judgelineObjectList, notes, chart.noteNum, note_manager);
+        note_manager.GetComponent<NoteManager>().init(judgeline_manager.GetComponent<JudgelineManager>(), judgeline_manager.GetComponent<JudgelineManager>().judgelineObjectList, notes, chart.noteNum, note_manager);
     }
     private void initInputManager()
     {
