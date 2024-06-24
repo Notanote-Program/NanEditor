@@ -308,6 +308,7 @@ public class Config
         BounceOut,
         BounceInOut
     }
+    
     public enum PathType
     {
         Straight,

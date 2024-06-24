@@ -1,120 +1,148 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
+using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class SettingsManager : MonoBehaviour
 {
-    public int d_delay = 10;
-    public int max_dalay = 500;
-    public int min_dalay = -500;
-    public Animator UI_anim,BG_anim;
+    [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private Button settingsButton;
+    [SerializeField] private Button closeButton;
+    [SerializeField] private Dropdown resolutionDropdown;
+    private bool _isOn;
 
-    public Slider keyVolume, MusicVolume, AALevel, graphicLevel, dspBuffer;
-    public Text delay;
-    public Toggle autoplay;
+    private void Awake()
+    {
+        settingsButton.onClick.AddListener(OpenSettingsPanel);
+        closeButton.onClick.AddListener(PlayerPrefs.Save);
+        closeButton.onClick.AddListener(CloseSettingsPanel);
+        resolutionDropdown.AddOptions(new List<string>
+        {
+            "х╚фа (16:9)",
+            "2560*1440",
+            "1920*1080",
+            "1600*900",
+            "1280*720",
+            "960*540"
+        });
+        resolutionDropdown.value = PlayerPrefs.GetInt("resolution", 0);
+        resolutionDropdown.onValueChanged.AddListener(i => PlayerPrefs.SetInt("resolution", i));
+        resolutionDropdown.onValueChanged.AddListener(RefreshResolution);
+#if UNITY_EDITOR
+        resolutionDropdown.interactable = false;
+        PlayerPrefs.SetInt("resolution", 0);
+        PlayerPrefs.Save();
+#else
+        RefreshResolution(resolutionDropdown.value);
+#endif
+    }
 
-    public AudioSource quit_audio;
-    private AudioSource audio_source;
-    MutexLock input_lock;
     // Start is called before the first frame update
     void Start()
     {
-        init();
-        
+        CloseSettingsPanel();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OpenSettingsPanel()
     {
-        userInput();
+        if (_isOn) return;
+        settingsPanel.SetActive(_isOn = true);
     }
-    private void init()
+
+    private void CloseSettingsPanel()
     {
-        audio_source = GetComponent<AudioSource>();
-        audio_source.volume = Config.defaultMusicVolume * Config.musicVolume;
-        input_lock = new MutexLock();
-        input_lock.Lock();
-        StartCoroutine(enter());
-        setUI();
+        if (!_isOn) return;
+        settingsPanel.SetActive(_isOn = false);
     }
-    private IEnumerator enter()// enter this scene
+
+    [UsedImplicitly] 
+    private static Resolution _originalResolution = new Resolution()
     {
-        UI_anim.SetTrigger("enter");
-        BG_anim.SetTrigger("enter");
-        float delay = Utilities.getAnimTime(UI_anim, "enter").length;
-        yield return new WaitForSeconds(delay);
-        input_lock.Unlock();
-    }
-    private void setUI()
+        width = -1,
+        height = -1
+    };
+    
+    private static void RefreshResolution(int resolution)
     {
-        keyVolume.value = Config.keyVolume;
-        MusicVolume.value = Config.musicVolume;
-        AALevel.value = QualitySettings.antiAliasing;
-        graphicLevel.value = QualitySettings.GetQualityLevel();
-        delay.text = Config.delay.ToString();
-        dspBuffer.value = Mathf.Log(Config.dspBufferSize,2);
-        autoplay.isOn = Config.autoplay;
-        Debug.Log(Config.dspBufferSize);
-    }
-    public void userInput()
-    {
-        if(Input.GetKeyDown(KeyCode.Escape))
-            quit();
-    }
-    public void quit()
-    {
-        if (!input_lock.islocked)
+        Resolution newRes;
+        bool fullScreen;
+        switch (resolution)
         {
-            input_lock.Lock();
-            quit_audio.Play();
-            UI_anim.SetTrigger("quit");
-            BG_anim.SetTrigger("quit");
-            float time1 = Utilities.getAnimTime(UI_anim, "quit").length;
-            float time2 = Utilities.getAnimTime(BG_anim, "quit").length;
-            StartCoroutine(enterScene(Config.lastSceneId, Mathf.Max(time1, time2)));//return to last scene
+            case 0: //full screen (16:9)
+                fullScreen = true;
+                newRes = Utilities.GetFullScreenResolution();
+                float ratio = newRes.width * 1f / newRes.height;
+                if (Mathf.Abs(ratio - 16f / 9f) < 0.001)
+                {
+                }
+                else if (ratio > 16f / 9f)
+                {
+                    newRes.width = Mathf.RoundToInt(newRes.height * 16f / 9f);
+                }
+                else
+                {
+                    newRes.height = Mathf.RoundToInt(newRes.width * 9f / 16f);
+                }
+
+                break;
+            case 1:
+                fullScreen = false;
+                newRes = new Resolution()
+                {
+                    width = 2560,
+                    height = 1440
+                };
+                break;
+            case 2:
+                fullScreen = false;
+                newRes = new Resolution()
+                {
+                    width = 1920,
+                    height = 1080
+                };
+                break;
+            case 3:
+                fullScreen = false;
+                newRes = new Resolution()
+                {
+                    width = 1600,
+                    height = 900
+                };
+                break;
+            case 4:
+                fullScreen = false;
+                newRes = new Resolution()
+                {
+                    width = 1280,
+                    height = 720
+                };
+                break;
+            case 5:
+                fullScreen = false;
+                newRes = new Resolution()
+                {
+                    width = 960,
+                    height = 540
+                };
+                break;
+            default:
+                fullScreen = false;
+                newRes = new Resolution()
+                {
+                    width = 1920,
+                    height = 1080
+                };
+                break;
         }
-    }
-    private IEnumerator enterScene(int id,float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        SceneManager.LoadScene(id);
-    }
-    public void setMusicVolume(float t)
-    {
-        Config.musicVolume = Mathf.Clamp01(t);
-        audio_source.volume = Config.defaultMusicVolume * Config.musicVolume;
-    }
-    public void setKeyVolume(float t)
-    {
-        Config.keyVolume = Mathf.Clamp01(t);
-    }
-    public void addDelay()
-    {
-        Config.delay = Mathf.Clamp(Config.delay + d_delay, min_dalay, max_dalay);
-        delay.text = Config.delay.ToString();
-    }
-    public void subDelay()
-    {
-        Config.delay = Mathf.Clamp(Config.delay - d_delay,min_dalay,max_dalay);
-        delay.text = Config.delay.ToString();
-    }
-    public void setAntiAlias(float t)
-    {
-        Config.antiAliasing = (int)Mathf.Pow(2, t);
-    }
-    public void setGraphicQuality(float t)
-    {
-        Config.GraphicQuality = (int)t;
-    }
-    public void setDspBuffer(float t)
-    {
-        Config.dspBufferSize = (int)Mathf.Pow(2, t);
-    }
-    public void setAutoplay(bool b)
-    {
-        Config.autoplay = b;
+        // if (halfResolution)
+        // {
+        //     newRes.width /= 2;
+        //     newRes.height /= 2;
+        // }
+
+        Screen.fullScreen = fullScreen;
+        Screen.SetResolution(newRes.width, newRes.height, fullScreen, Screen.currentResolution.refreshRate);
     }
 }

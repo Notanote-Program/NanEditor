@@ -23,14 +23,14 @@ public class positionCeil : MonoBehaviour
     }
     public void setPosX(string s)
     {
-        if (s == "")
+        if (s == "" || !float.TryParse(s, out var f))
             return;
-        pos.x = float.Parse(s);
+        pos.x = f;
     }
     public void setPosY(string s)
     {
-        if (s == "")
+        if (s == "" || !float.TryParse(s, out var f))
             return;
-        pos.y = float.Parse(s);
+        pos.y = f;
     }
 }

@@ -114,6 +114,7 @@ public class Utilities
     public static float getPartition(float t, Config.EventType type)
     {
         t = Mathf.Clamp01(t);
+        Debug.Log(type);
         switch (type)
         {
             case Config.EventType.Linear:
@@ -252,6 +253,8 @@ public class Utilities
                     ? (1 - EaseOutBounce(1 - 2 * t)) / 2
                     : (1 + EaseOutBounce(2 * t - 1)) / 2);
                 break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
 
         return t;
