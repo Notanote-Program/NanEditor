@@ -74,3 +74,4 @@ crashlytics-build.properties
 /Output/
 /Charts/
 ProjectSettings/BurstAotSettings_StandaloneOSX.json
+.DS_Store
