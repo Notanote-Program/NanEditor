@@ -55,6 +55,12 @@ namespace Milthm.UnityExtension
         [MenuItem("构建工具/构建/构建 Windows 可执行程序", false, 0)]
         public static void BuildForWindows()
         {
+            // 笑点解析：Unity没做Linux交叉编译Windows il2cpp，导致只能在Windows编译游戏
+            if (Application.platform != RuntimePlatform.WindowsEditor)
+            {
+                Debug.LogError("当前平台不是 Windows");
+                return;
+            }
             Builder.BuildProjectWithArgs(
                 "customBuildName", GameName,
                 "buildTarget", BuildTarget.StandaloneWindows64.ToString(),
@@ -83,6 +89,12 @@ namespace Milthm.UnityExtension
         [MenuItem("构建工具/构建/构建 MacOS 应用", false, 2)]
         public static void BuildForMacOS()
         {
+            // Apple nmsl
+            if (Application.platform != RuntimePlatform.OSXEditor)
+            {
+                EditorUtility.DisplayDialog("错误", "当前平台不是 MacOS", "确定");
+                return;
+            }
             Builder.BuildProjectWithArgs(
                 "customBuildName", GameName,
                 "buildTarget", BuildTarget.StandaloneOSX.ToString(),
