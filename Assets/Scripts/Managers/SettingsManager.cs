@@ -20,7 +20,7 @@ public class SettingsManager : MonoBehaviour
         closeButton.onClick.AddListener(CloseSettingsPanel);
         resolutionDropdown.AddOptions(new List<string>
         {
-            "»´∆¡ (16:9)",
+            "ÂÖ®Â±è (16:9)",
             "2560*1440",
             "1920*1080",
             "1600*900",
