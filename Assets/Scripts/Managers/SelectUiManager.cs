@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.IO;
-using UnityEditor.Rendering;
 
 public class SelectUiManager : MonoBehaviour
 {
