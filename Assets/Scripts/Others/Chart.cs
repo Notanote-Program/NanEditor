@@ -9,7 +9,7 @@ using ColorUtility = UnityEngine.ColorUtility;
 public class Chart
 {
     public const int LatestVersion = 2;
-    public int formatVersion = 0;
+    public int formatVersion = -1;
     public string name;
     public string composer;
     public string charter;
@@ -34,7 +34,8 @@ public class Chart
 
     public Chart()
     {
-        formatVersion = LatestVersion;
+        if (formatVersion < 0) formatVersion = 0;
+        else formatVersion = LatestVersion;
         offset = 0;
         bpm = 120; // default;
         bpmList = new List<ModifyBpm>();
