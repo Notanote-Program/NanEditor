@@ -44,8 +44,8 @@ public class PlayUiManager : MonoBehaviour
     }
     public void setBias(Note note, float time)
     {
-        Debug.Log(time);
-        Debug.Log(note.time);
+        // Debug.Log(time);
+        // Debug.Log(note.time);
         float delta_time = time - note.time;
         if (note.type == Config.Type.Drag && Mathf.Abs(delta_time) <= Config.range_normal.bad_duration)// drag is always perfect
             delta_time = 0;

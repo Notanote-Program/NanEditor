@@ -1423,8 +1423,7 @@ public class CentralController : MonoBehaviour
                 duration = Mathf.Max(chart_maker.GetComponent<chartMaker>().getSelectedTime(), time) - time;
             }
 
-            Note note = new Note(noteType, template.color, time, duration, template.speed, template.livingTime,
-                lineSide);
+            Note note = new Note(noteType, template.color, time, duration, template.speed, template.livingTime, lineSide, template.fake);
             chart.addNote(note, id);
             chart_maker.GetComponent<chartMaker>().cancelSelect();
             chart_maker.GetComponent<chartMaker>().reset(chart);
@@ -1568,6 +1567,22 @@ public class CentralController : MonoBehaviour
         }
     }
 
+    public void editNoteFake(bool b)
+    {
+        if (state == State.editor)
+        {
+            List<Note> notes = chart_maker.GetComponent<chartMaker>().getSelectedNote();
+            foreach (Note note in notes)
+            {
+                note.fake = b;
+            }
+
+            chart_maker.GetComponent<chartMaker>().reset(chart);
+            setNote();
+            record("edit note fake");
+        }
+    }
+
     public void editNoteLivingtime(string t)
     {
         if (t == "")
@@ -1601,8 +1616,19 @@ public class CentralController : MonoBehaviour
             template.livingTime = note.livingTime;
             template.speed = note.speed;
             template.color = note.color;
+            template.fake = note.fake;
             setNote();
         }
+    }
+
+    public void editTemplateFake()
+    {
+        if (state == State.editor)
+        {
+            template.fake = front_ui.GetComponent<FrontUIManager>().templateNoteFake;
+        }
+
+        setNote();
     }
 
     public void editTemplateColor()

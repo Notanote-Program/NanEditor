@@ -356,7 +356,6 @@ public class Utilities
     {
         if (!File.Exists(path))
             return null;
-        Debug.Log(path);
         Texture2D texture2D = new Texture2D(0, 0);
         if (!texture2D.LoadImage(File.ReadAllBytes(path), false))
         {
@@ -488,6 +487,87 @@ public class Utilities
         );
 
         return stringBuilder.ToString();
+    }
+
+    public static (Resolution, bool) GetResolution(int resolutionId)
+    {
+        Resolution newRes;
+        bool fullScreen;
+        switch (resolutionId)
+        {
+            case 0: //full screen (16:9)
+                fullScreen = true;
+                newRes = Utilities.GetFullScreenResolution();
+                float ratio = newRes.width * 1f / newRes.height;
+                if (Mathf.Abs(ratio - 16f / 9f) < 0.001)
+                {
+                }
+                else if (ratio > 16f / 9f)
+                {
+                    newRes.width = Mathf.RoundToInt(newRes.height * 16f / 9f);
+                }
+                else
+                {
+                    newRes.height = Mathf.RoundToInt(newRes.width * 9f / 16f);
+                }
+
+                break;
+            case 1:
+                fullScreen = false;
+                newRes = new Resolution()
+                {
+                    width = 2560,
+                    height = 1440
+                };
+                break;
+            case 2:
+                fullScreen = false;
+                newRes = new Resolution()
+                {
+                    width = 1920,
+                    height = 1080
+                };
+                break;
+            case 3:
+                fullScreen = false;
+                newRes = new Resolution()
+                {
+                    width = 1600,
+                    height = 900
+                };
+                break;
+            case 4:
+                fullScreen = false;
+                newRes = new Resolution()
+                {
+                    width = 1280,
+                    height = 720
+                };
+                break;
+            case 5:
+                fullScreen = false;
+                newRes = new Resolution()
+                {
+                    width = 960,
+                    height = 540
+                };
+                break;
+            default:
+                fullScreen = false;
+                newRes = new Resolution()
+                {
+                    width = 1920,
+                    height = 1080
+                };
+                break;
+        }
+        // if (halfResolution)
+        // {
+        //     newRes.width /= 2;
+        //     newRes.height /= 2;
+        // }
+
+        return (newRes, fullScreen);
     }
 }
 

@@ -44,10 +44,12 @@ public class FrontUIManager : MonoBehaviour
     InputField note_livingtime;
     InputField note_speed;
     Dropdown note_lineside;
+    Toggle note_fake_toggle;
     ColorSelector note_color_selector;
     InputField template_note_livingtime;
     InputField template_note_speed;
     ColorSelector template_note_color_selector;
+    Toggle template_note_fake_toggle;
 
     // baseView
     Text base_Title;
@@ -100,50 +102,27 @@ public class FrontUIManager : MonoBehaviour
     Dropdown record_list;
 
     // public values
-    public Color noteColor
-    {
-        get { return note_color_selector.color; }
-    }
+    public Color noteColor => note_color_selector.color;
 
-    public Color templateColor
-    {
-        get { return template_note_color_selector.color; }
-    }
+    public Color templateColor => template_note_color_selector.color;
 
-    public int posId
-    {
-        get { return move_poslist.selectedId; }
-    }
+    public bool noteFake => note_fake_toggle.isOn;
+    
+    public bool templateNoteFake => template_note_fake_toggle.isOn;
 
-    public Vector3 pos
-    {
-        get { return move_poslist.selectedPos; }
-    }
+    public int posId => move_poslist.selectedId;
 
-    public Vector3 startPos
-    {
-        get { return move_poslist.startPos; }
-    }
+    public Vector3 pos => move_poslist.selectedPos;
 
-    public Vector3 endPos
-    {
-        get { return move_poslist.endPos; }
-    }
+    public Vector3 startPos => move_poslist.startPos;
 
-    public Color startTipsColor
-    {
-        get { return color_start_tips.color; }
-    }
+    public Vector3 endPos => move_poslist.endPos;
 
-    public Color startColor
-    {
-        get { return color_start.color; }
-    }
+    public Color startTipsColor => color_start_tips.color;
 
-    public Color endColor
-    {
-        get { return color_end.color; }
-    }
+    public Color startColor => color_start.color;
+
+    public Color endColor => color_end.color;
 
     public void init()
     {
@@ -234,6 +213,7 @@ public class FrontUIManager : MonoBehaviour
         note_livingtime = noteView.transform.Find("livingTime").transform.Find("InputField").GetComponent<InputField>();
         note_speed = noteView.transform.Find("speed").transform.Find("InputField").GetComponent<InputField>();
         note_lineside = noteView.transform.Find("lineSide").transform.Find("Dropdown").GetComponent<Dropdown>();
+        note_fake_toggle = noteView.transform.Find("fake").transform.Find("Toggle").GetComponent<Toggle>();
         note_color_selector = noteView.transform.Find("colorSelector").GetComponent<ColorSelector>();
         note_color_selector.init();
 
@@ -241,6 +221,7 @@ public class FrontUIManager : MonoBehaviour
             .GetComponent<InputField>();
         template_note_livingtime = noteView.transform.Find("livingTime_template").transform.Find("InputField")
             .GetComponent<InputField>();
+        template_note_fake_toggle = noteView.transform.Find("fake_template").transform.Find("Toggle").GetComponent<Toggle>();
         template_note_color_selector = noteView.transform.Find("colorSelector_template").GetComponent<ColorSelector>();
         template_note_color_selector.init();
     }
@@ -334,6 +315,7 @@ public class FrontUIManager : MonoBehaviour
                 note_lineside.SetValueWithoutNotify(1);
                 break;
         }
+        note_fake_toggle.isOn = note.fake;
 
         note_color_selector.setColor(note.color);
     }
@@ -343,6 +325,7 @@ public class FrontUIManager : MonoBehaviour
         template_note_livingtime.text = note.livingTime.ToString();
         template_note_speed.text = note.speed.ToString();
         template_note_color_selector.setColor(note.color);
+        template_note_fake_toggle.isOn = note.fake;
     }
 
     public void setJudgeline(JudgeLine judgeline, int id, int num)
