@@ -145,7 +145,7 @@ PlayerSettings:
     16:10: 0
     16:9: 1
     Others: 0
-  bundleVersion: 1.0.13
+  bundleVersion: 1.0.14
   preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -169,11 +169,11 @@ PlayerSettings:
     Android: com.zzzProject.Notanote
     Standalone: com.zzzProject.NanEditor
   buildNumber:
-    Standalone: 1719211986
-    iPhone: 1719211986
+    Standalone: 1719382398
+    iPhone: 1719382398
     tvOS: 0
   overrideDefaultApplicationIdentifier: 0
-  AndroidBundleVersionCode: 50010013
+  AndroidBundleVersionCode: 50010014
   AndroidMinSdkVersion: 22
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
