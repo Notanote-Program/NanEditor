@@ -15,10 +15,10 @@ public class Test : MonoBehaviour
     public bool auto;
     public string chart_name, song_name;
     // Start is called before the first frame update
-    GameObject judgeline_manager;
-    GameObject effect_manager;
-    GameObject note_manager;
-    GameObject img_manager;
+    public GameObject judgeline_manager;
+    public GameObject effect_manager;
+    public GameObject note_manager;
+    public GameObject img_manager;
     private AudioSource songAudio;
     public float pitch// audio speed
     {

@@ -16524,7 +16524,6 @@ MonoBehaviour:
   timelineView: {fileID: 1203802725}
   judgelineView: {fileID: 191023551}
   imageView: {fileID: 1726379424}
-  recordView: {fileID: 0}
 --- !u!114 &1488374026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17471,7 +17470,7 @@ MonoBehaviour:
       - m_Target: {fileID: 279233832}
         m_TargetAssemblyTypeName: CentralController, Assembly-CSharp
         m_MethodName: reset
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

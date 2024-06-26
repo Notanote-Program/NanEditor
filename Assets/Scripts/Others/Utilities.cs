@@ -6,6 +6,8 @@ using System;
 using System.Linq;
 using Newtonsoft.Json;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
+using System.Text;
 using JetBrains.Annotations;
 using Unity.Burst;
 using UnityEngine.SceneManagement;
@@ -114,7 +116,6 @@ public class Utilities
     public static float getPartition(float t, Config.EventType type)
     {
         t = Mathf.Clamp01(t);
-        Debug.Log(type);
         switch (type)
         {
             case Config.EventType.Linear:
@@ -476,6 +477,17 @@ public class Utilities
         }
 
         return newRes;
+    }
+    
+    public static string GetFileMD5(byte[] data)
+    {
+        using MD5 md5 = MD5.Create();
+        StringBuilder stringBuilder = new StringBuilder();
+        md5.ComputeHash(data).ToList().ForEach(b =>
+            stringBuilder.Append(Convert.ToString(b, 16).PadLeft(2, '0').ToLowerInvariant())
+        );
+
+        return stringBuilder.ToString();
     }
 }
 

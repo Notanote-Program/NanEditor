@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Windows;
 
 public class PerformImgManager : BaseManager
 {
@@ -36,13 +37,18 @@ public class PerformImgManager : BaseManager
         {
             path = System.Environment.CurrentDirectory + "/Charts/" + chartName + "/imgs/";
         }
-        for (int i = 0; i < imgList.Count; i++)
+        
+        foreach (var performImg in imgList)
         {
-            EventList.Add(imgList[i].eventList.Clone());
-            if (imgList[i].path == null)
-                imgList[i].path = "";
-            if (!Config.spriteList.ContainsKey(imgList[i].path))
-                Config.spriteList[imgList[i].path] = Utilities.loadSprite(path + imgList[i].path,loadType);
+            EventList.Add(performImg.eventList.Clone());
+            if (performImg.path == null)
+                performImg.path = "";
+            if (!Config.spriteList.ContainsKey(performImg.path))
+            {
+                Config.spriteList[performImg.path] = Utilities.loadSprite(path + performImg.path, loadType);
+                Config.spriteList[performImg.path].name = performImg.path;
+            }
+
             presentMoveEventNum.Add(0);
             presentRotateEventNum.Add(0);
             presentColorEventNum.Add(0);

@@ -43,7 +43,7 @@ public class EventLineManager : BaseManager
         }
         else
         {
-            this.chart = new Chart();
+            this.chart = Chart.InitNewChart();
         }
         initGuideLine();
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -78,7 +79,9 @@ public class CentralController : MonoBehaviour
         // todo
         Config.spriteList.Clear(); //reload textures at begining
 
-        string path = System.Environment.CurrentDirectory + "/Charts/" + chart_name + "/" + chart_name + ".json";
+        string chartFolder = System.Environment.CurrentDirectory + "/Charts/" + chart_name;
+        if (Directory.Exists(chartFolder)) Directory.CreateDirectory(chartFolder + "/Autosave");
+        string path = chartFolder + "/" + chart_name + ".json";
         Chart newChart = Chart.LoadChart(path, Config.LoadType.External);
         if (newChart != null)
         {
@@ -88,7 +91,7 @@ public class CentralController : MonoBehaviour
                 StartCoroutine(autoSave());
         }
 
-        reset();
+        reset(true);
         synchronize();
         setInfo();
         if (type == Config.EventlineType.Judgeline)
@@ -121,8 +124,26 @@ public class CentralController : MonoBehaviour
 
         chart.noteNum = num;
         string path = System.Environment.CurrentDirectory + "/Charts/" + chart_name + "/" + chart_name + ".json";
-        Chart.SaveChart(chart, path);
+        SaveChartInternal(path);
         setInfo();
+    }
+
+    private void SaveChartInternal(string path)
+    {
+        Dictionary<string, string> imgHashs = new Dictionary<string, string>();
+        foreach (PerformImg img in chart.performImgList)
+        {
+            if (!imgHashs.ContainsKey(img.path))
+            {
+                imgHashs.Add(img.path,
+                    Utilities.GetFileMD5(File.ReadAllBytes(
+                        $"{System.Environment.CurrentDirectory}/Charts/{chart_name}/imgs/{img.path}.png")));
+            }
+
+            img.hash = imgHashs[img.path];
+        }
+
+        Chart.SaveChart(chart, path);
     }
 
     public void trySaveChart()
@@ -142,15 +163,16 @@ public class CentralController : MonoBehaviour
             }
 
             chart.noteNum = num;
-            string path = System.Environment.CurrentDirectory + "/Charts/" + chart_name + "/" + chart_name +
-                          "_autosaved.json";
-            Chart.SaveChart(chart, path);
+            string time = System.DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss");
+            string path =
+                $"{System.Environment.CurrentDirectory}/Charts/{chart_name}/Autosave/{chart_name}_{time}_autosaved.json";
+            SaveChartInternal(path);
         }
     }
 
     private void init()
     {
-        chart = new Chart();
+        chart = Chart.InitNewChart();
         chart.judgelineList.Add(new JudgeLine(Color.white, Vector3.zero));
 
         recordList = new List<editorRecord>();
@@ -231,7 +253,7 @@ public class CentralController : MonoBehaviour
         setTime(t);
     }
 
-    public void reset()
+    public void reset(bool isInit = false)
     {
         if (state == State.editor)
         {
@@ -241,6 +263,7 @@ public class CentralController : MonoBehaviour
             chart_maker.GetComponent<chartMaker>().reset(chart);
             float t = display_manager.GetComponent<Test>().getChartTime();
             chart_maker.GetComponent<chartMaker>().setTime(t);
+            if (isInit) setImageList();
             setUI();
         }
     }
@@ -314,7 +337,7 @@ public class CentralController : MonoBehaviour
 
     private Chart getTestChart()
     {
-        Chart chart = new Chart();
+        Chart chart = Chart.InitNewChart();
         chart.bpm = 120;
         chart.offset = 2;
         JudgeLine judgeLine = new JudgeLine(Color.white, new Vector3(0.2f, 0f, 0));
@@ -697,7 +720,7 @@ public class CentralController : MonoBehaviour
 
     public void setImageSortingLayer(int i)
     {
-        Config.PerformImgLayer layer = (Config.PerformImgLayer) i;
+        Config.PerformImgLayer layer = (Config.PerformImgLayer)i;
         if (state == State.editor && type == Config.EventlineType.PerformImg)
         {
             if (id >= 0 && id < chart.performImgList.Count)
@@ -1652,11 +1675,13 @@ public class CentralController : MonoBehaviour
                         break;
                     case "rotateEvent":
                         RotateEvent rotate = p.Key as RotateEvent;
-                        _event = new RotateEvent(rotate.startAngle, rotate.endAngle, rotate.startTime, rotate.endTime, rotate.type);
+                        _event = new RotateEvent(rotate.startAngle, rotate.endAngle, rotate.startTime, rotate.endTime,
+                            rotate.type);
                         break;
                     case "colorEvent":
                         ColorModifyEvent color = p.Key as ColorModifyEvent;
-                        _event = new ColorModifyEvent(color.startColor, color.endColor, color.startTime, color.endTime, color.type);
+                        _event = new ColorModifyEvent(color.startColor, color.endColor, color.startTime, color.endTime,
+                            color.type);
                         break;
                     case "scaleXEvent":
                     case "scaleYEvent":
@@ -1721,7 +1746,8 @@ public class CentralController : MonoBehaviour
 
                 if (type != Config.EventlineType.Judgeline)
                 {
-                    chart.addEvent_PerformImg(id, _event, p.Value == "scaleXEvent" ? "scaleYEvent" : "scaleXEvent", pasteTyte);
+                    chart.addEvent_PerformImg(id, _event, p.Value == "scaleXEvent" ? "scaleYEvent" : "scaleXEvent",
+                        pasteTyte);
                 }
             }
 
@@ -2000,7 +2026,7 @@ public class CentralController : MonoBehaviour
             else
                 Paste();
         }
-        
+
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.B))
         {
             PasteSwitchScaleXY();

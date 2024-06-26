@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +9,7 @@ using ColorUtility = UnityEngine.ColorUtility;
 
 public class Chart
 {
-    public const int LatestVersion = 2;
+    public const int LatestVersion = 3;
     public int formatVersion = -1;
     public string name;
     public string composer;
@@ -32,15 +33,18 @@ public class Chart
 
     [JsonIgnore] public Color startTipcolor = Color.white;
 
-    public Chart()
+    public static Chart InitNewChart() // JsonConvert.DeserializeObject<>()会调用ctor，所以不能在ctor里初始化变量
     {
-        if (formatVersion < 0) formatVersion = 0;
-        else formatVersion = LatestVersion;
-        offset = 0;
-        bpm = 120; // default;
-        bpmList = new List<ModifyBpm>();
-        judgelineList = new List<JudgeLine>();
-        performImgList = new List<PerformImg>();
+        Chart chart = new Chart
+        {
+            formatVersion = LatestVersion,
+            offset = 0,
+            bpm = 120, // default;
+            bpmList = new List<ModifyBpm>(),
+            judgelineList = new List<JudgeLine>(),
+            performImgList = new List<PerformImg>()
+        };
+        return chart;
     }
 
     public static Chart LoadChart(string path, Config.LoadType type = Config.LoadType.External)
@@ -82,8 +86,11 @@ public class Chart
                             performImg.eventList.scaleEvents.Select(e => e.Clone()));
                         performImg.eventList.scaleEvents.Clear();
                     }
-
                     break;
+                case 2: // 用于标记谱面是否给图片上了hash
+                break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(oldChart.formatVersion), oldChart.formatVersion, "Unknown format version");
             }
 
             oldChart.formatVersion++;
@@ -896,6 +903,7 @@ public class Note
 public class PerformImg
 {
     public string path;
+    public string hash;
     public string name;
     public EventList eventList;
 
@@ -929,7 +937,8 @@ public class PerformImg
     public int sortingOrder;
 
     public PerformImg(string path, Color color, Vector3 position, float startTime = 0, float endTime = 1000,
-        float angle = 0, float scaleX = 1, float scaleY = 1, Config.PerformImgLayer layer = Config.PerformImgLayer.Background,
+        float angle = 0, float scaleX = 1, float scaleY = 1,
+        Config.PerformImgLayer layer = Config.PerformImgLayer.Background,
         int sortingOrder = 500)
     {
         this.name = "";
