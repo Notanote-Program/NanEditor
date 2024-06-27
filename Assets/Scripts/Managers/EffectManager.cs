@@ -13,11 +13,11 @@ public class EffectManager : BaseManager
     {
         initPool(judgeline_prefab_path, num, parent);
     }
-    public void show(int type, Vector3 position, Color color, float delay = 0, GameObject parent = null)
+    public void show(Vector3 position, Color color, float delay = 0, GameObject parent = null, string type = "perfect", int audioType = 0)
     {
         //Debug.Log("showeffect");
         delay = Mathf.Max(0, delay)/1000.0f;
-        StartCoroutine(showeffect(type, position, color, delay, parent));
+        StartCoroutine(showeffect(audioType, position, color, delay, parent));
     } 
     private IEnumerator showeffect(int type, Vector3 position, Color color, float delay = 0, GameObject parent = null)
     {

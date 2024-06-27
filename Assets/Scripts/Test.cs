@@ -250,82 +250,203 @@ public class Test : MonoBehaviour
         AudioLoader loader = GetComponent<AudioLoader>();
         loader.LoadAudio(songAudio, path, song_name, loadType);
     }
-    private void judge(float time)
-    {
-        List<Note> notes = note_manager.GetComponent<NoteManager>().NoteList;
-        notes.Sort((x, y) => -x.time.CompareTo(y.time));
-        for (int i = notes.Count - 1; i >= 0; i--)
+        private void judge(float time)
         {
-            Note note = notes[i];
-            switch (note.type)
+            List<Note> notes = note_manager.GetComponent<NoteManager>().NoteList;
+            notes.Sort((x, y) => -x.time.CompareTo(y.time));
+            for (int i = notes.Count - 1; i >= 0; i--)
             {
-                case Config.Type.Tap:
-                    if (Mathf.Abs(note.time - time) < Config.range_normal.bad_duration)
-                    {
-                        if (input_manager.keyDown.Count > 0)
+                Note note = notes[i];
+                if (note.fake)
+                {
+                    judgeFake(note);
+                }
+                else
+                {
+                    judgeReal(note);
+                }
+            }
+
+            return;
+
+            void judgeReal(Note note)
+            {
+                float deltaTime = note.time - time;
+                switch (note.type)
+                {
+                    case Config.Type.Tap:
+                        if (Mathf.Abs(deltaTime) <= Config.range_normal.bad_duration)
                         {
-                            input_manager.keyDown.Remove(input_manager.keyDown[0]);
-                            effect_manager.GetComponent<EffectManager>().show(0, note_manager.GetComponent<NoteManager>().getPosition(note), note.color, 0);
+                            if (input_manager.keyDown.Count > 0)
+                            {
+                                input_manager.keyDown.RemoveAt(0);
+                                if (Mathf.Abs(deltaTime) < Config.range_normal.perfect_duration)
+                                {
+                                    effect_manager.GetComponent<EffectManager>().show(
+                                        note_manager.GetComponent<NoteManager>().getPosition(note), note.color, 0, null,
+                                        "perfect");
+                                }
+                                else if (Mathf.Abs(deltaTime) < Config.range_normal.good_duration)
+                                {
+                                    effect_manager.GetComponent<EffectManager>().show(
+                                        note_manager.GetComponent<NoteManager>().getPosition(note), note.color, 0, null,
+                                        "good");
+                                }
+                                else
+                                {
+                                    effect_manager.GetComponent<EffectManager>().show(
+                                        note_manager.GetComponent<NoteManager>().getPosition(note), note.color, 0, null,
+                                        "bad");
+                                }
+
+                                note_manager.GetComponent<NoteManager>().releaseNote(note);
+                                note_manager.GetComponent<NoteManager>().startNoteRanking(note, time);
+                                note_manager.GetComponent<NoteManager>().endNoteRanking(note);
+                            }
+                        }
+
+                        break;
+                    case Config.Type.Drag:
+                        if (state(note) != Config.ControlState.init)
+                        {
+                            break;
+                        }
+
+                        if (Mathf.Abs(deltaTime) < Config.range_normal.bad_duration)
+                        {
+                            if (input_manager.keyPress.Count > 0)
+                            {
+                                float delayTime = Mathf.Max(0, deltaTime);
+                                effect_manager.GetComponent<EffectManager>().show(
+                                    note_manager.GetComponent<NoteManager>().getPosition(note), note.color, delayTime, null,
+                                    "perfect", 1);
+                                note_manager.GetComponent<NoteManager>().noteStateList[note] = Config.ControlState.detach;
+                                note_manager.GetComponent<NoteManager>().releaseNote(note, delayTime);
+                                note_manager.GetComponent<NoteManager>().startNoteRanking(note, time);
+                                note_manager.GetComponent<NoteManager>().endNoteRanking(note);
+                            }
+                        }
+                        else if (time > note.time)
+                        {
+                            note_manager.GetComponent<NoteManager>().noteStateList[note] = Config.ControlState.detach;
                             note_manager.GetComponent<NoteManager>().releaseNote(note);
-                            note_manager.GetComponent<NoteManager>().startNoteRanking(note, time);
+                            note_manager.GetComponent<NoteManager>().startNoteRanking(note, Single.PositiveInfinity);
                             note_manager.GetComponent<NoteManager>().endNoteRanking(note);
                         }
-                    }
-                    break;
-                case Config.Type.Drag:
-                    if (Mathf.Abs(note.time - time) < Config.range_normal.bad_duration && state(note) == Config.ControlState.init && input_manager.keyPress.Count > 0)
-                    {
-                        float delayTime = Mathf.Max(0, note.time - time);
-                        effect_manager.GetComponent<EffectManager>().show(1, note_manager.GetComponent<NoteManager>().getPosition(note), note.color, delayTime);
-                        note_manager.GetComponent<NoteManager>().noteStateList[note] = Config.ControlState.detach;
-                        note_manager.GetComponent<NoteManager>().releaseNote(note, delayTime);
-                        note_manager.GetComponent<NoteManager>().startNoteRanking(note, time);
-                        note_manager.GetComponent<NoteManager>().endNoteRanking(note);
-                    }
-                    break;
-                case Config.Type.Hold:
+
+                        break;
+                    case Config.Type.Hold:
+                        if (state(note) == Config.ControlState.detach)
+                        {
+                            note_manager.GetComponent<NoteManager>().releaseNote(note, note.time + note.duration - time);
+                        }
+
+                        if (state(note) == Config.ControlState.init)
+                        {
+                            if (Mathf.Abs(deltaTime) < Config.range_normal.bad_duration &&
+                                input_manager.keyDown.Count > 0)
+                            {
+                                //input_manager.bindingKey.Add(note, input_manager.keyDown[0]);
+                                input_manager.keyDown.RemoveAt(0);
+                                if (Mathf.Abs(deltaTime) < Config.range_normal.perfect_duration)
+                                {
+                                    effect_manager.GetComponent<EffectManager>().show(
+                                        note_manager.GetComponent<NoteManager>().getPosition(note), note.color, 0, null,
+                                        "perfect");
+                                }
+                                // else if (Mathf.Abs(note.time - time) < Config.range_normal.good_duration)
+                                // {
+                                //     _effectManager.show(
+                                //         note_manager.GetComponent<NoteManager>().getPosition(note), note.color, 0, null,
+                                //         "good");
+                                // }
+                                // else
+                                // {
+                                //     _effectManager.show(
+                                //         note_manager.GetComponent<NoteManager>().getPosition(note), note.color, 0, null,
+                                //         "bad");
+                                // }
+                                else
+                                {
+                                    effect_manager.GetComponent<EffectManager>().show(
+                                        note_manager.GetComponent<NoteManager>().getPosition(note), note.color, 0, null,
+                                        "good");
+                                }
+
+                                note_manager.GetComponent<NoteManager>().noteStateList[note] = Config.ControlState.holding;
+                                note_manager.GetComponent<NoteManager>().startNoteRanking(note, time);
+                            }
+                            else if (note.time + Config.range_normal.bad_duration < time)
+                            {
+                                note_manager.GetComponent<NoteManager>().noteStateList[note] = Config.ControlState.detach;
+                                note_manager.GetComponent<NoteManager>().startNoteRanking(note, float.PositiveInfinity);
+                                note_manager.GetComponent<NoteManager>().endNoteRanking(note);
+                            }
+                        }
+                        else if (time < note.time + note.duration - Config.range_normal.bad_duration &&
+                                 state(note) == Config.ControlState.holding)
+                        {
+                            //if(input_manager.bindingKey.ContainsKey(note) && input_manager.keyPress.Contains(input_manager.bindingKey[note]))
+                            if (input_manager.keyPress.Count > 0)
+                            {
+                                //Debug.Log(input_manager.bindingKey[note]);
+                            }
+                            else
+                            {
+                                //input_manager.bindingKey.Remove(note);
+                                note_manager.GetComponent<NoteManager>().noteStateList[note] = Config.ControlState.detach;
+                                note_manager.GetComponent<NoteManager>().startNoteRanking(note, float.PositiveInfinity);
+                                note_manager.GetComponent<NoteManager>().endNoteRanking(note);
+                                note_manager.GetComponent<NoteManager>().releaseNote(note, note.time + note.duration - time);
+                            }
+                        }
+                        else if (time >= note.time + note.duration - Config.range_normal.bad_duration &&
+                                 state(note) == Config.ControlState.holding)
+                        {
+                            //_effectManager.show(_note_manager.GetComponent<NoteManager>().getPosition(note), note.color, 0);
+                            note_manager.GetComponent<NoteManager>().endNoteRanking(note);
+                            note_manager.GetComponent<NoteManager>().releaseNote(note, note.time + note.duration - time);
+                        }
+
+                        break;
+                }
+            }
+
+            void judgeFake(Note note)
+            {
+                float deltaTime = MathF.Max(Config.deltaTime, Time.deltaTime) * 1000.0f * pitch;
+                if (note.type == Config.Type.Hold)
+                {
                     if (state(note) == Config.ControlState.detach)
                     {
                         note_manager.GetComponent<NoteManager>().releaseNote(note, note.time + note.duration - time);
                     }
-                    if (Mathf.Abs(note.time - time) < Config.range_normal.bad_duration && state(note) == Config.ControlState.init)
+
+                    if (note.time < time + deltaTime && state(note) == Config.ControlState.init)
                     {
-                        if (input_manager.keyDown.Count > 0)
-                        {
-                            //input_manager.bindingKey.Add(note, input_manager.keyDown[0]);
-                            input_manager.keyDown.Remove(input_manager.keyDown[0]);
-                            effect_manager.GetComponent<EffectManager>().show(0, note_manager.GetComponent<NoteManager>().getPosition(note), note.color, 0);
-                            note_manager.GetComponent<NoteManager>().noteStateList[note] = Config.ControlState.holding;
-                            note_manager.GetComponent<NoteManager>().startNoteRanking(note, time);
-                        }
+                        //Debug.Log("on holding");
+                        // float delayTime = time + deltaTime - note.time;
+                        note_manager.GetComponent<NoteManager>().noteStateList[note] = Config.ControlState.holding;
                     }
-                    else if (time < note.time + note.duration - Config.range_normal.bad_duration && state(note) == Config.ControlState.holding)
+
+                    if (note.time + note.duration <= time && state(note) == Config.ControlState.holding)
                     {
-                        //if(input_manager.bindingKey.ContainsKey(note) && input_manager.keyPress.Contains(input_manager.bindingKey[note]))
-                        if (input_manager.keyPress.Count > 0)
-                        {
-                            //Debug.Log(input_manager.bindingKey[note]);
-                        }
-                        else
-                        {
-                            //input_manager.bindingKey.Remove(note);
-                            note_manager.GetComponent<NoteManager>().noteStateList[note] = Config.ControlState.detach;
-                            note_manager.GetComponent<NoteManager>().startNoteRanking(note,float.PositiveInfinity);
-                            note_manager.GetComponent<NoteManager>().endNoteRanking(note);
-                            note_manager.GetComponent<NoteManager>().releaseNote(note, note.time + note.duration - time);
-                        }
+                        // float delayTime = time + deltaTime - note.time - note.duration;
+                        // _effectManager.show(_note_manager.GetComponent<NoteManager>().getPosition(note), note.color, delayTime);
+                        note_manager.GetComponent<NoteManager>().releaseNote(note, 0);
                     }
-                    else if (time >= note.time + note.duration - Config.range_normal.bad_duration && state(note) == Config.ControlState.holding)
-                    {
-                        //effect_manager.GetComponent<EffectManager>().show(note_manager.GetComponent<NoteManager>().getPosition(note), note.color, 0);
-                        note_manager.GetComponent<NoteManager>().endNoteRanking(note);
-                        note_manager.GetComponent<NoteManager>().releaseNote(note);
-                        note_manager.GetComponent<NoteManager>().endNoteRanking(note);
-                    }
-                    break;
+                }
+                else if (note.time < (time + deltaTime) && state(note) == Config.ControlState.init)
+                {
+                    // float delayTime = time + deltaTime - note.time;
+                    // int audioType = 0; // default: tap sound
+                    // if (note.type == Config.Type.Drag)
+                    //     audioType = 1;
+                    note_manager.GetComponent<NoteManager>().noteStateList[note] = Config.ControlState.detach;
+                    note_manager.GetComponent<NoteManager>().releaseNote(note, 0);
+                }
             }
         }
-    }
     private void autoPlay(float time)
     {
         for (int i = note_manager.GetComponent<NoteManager>().NoteList.Count - 1; i >= 0; i--)
@@ -343,7 +464,7 @@ public class Test : MonoBehaviour
                     //Debug.Log("on holding");
                     float delayTime = time + delta_time - note.time;
                     note_manager.GetComponent<NoteManager>().noteStateList[note] = Config.ControlState.holding;
-                    effect_manager.GetComponent<EffectManager>().show(0, note_manager.GetComponent<NoteManager>().getPosition(note), note.color, delayTime);
+                    effect_manager.GetComponent<EffectManager>().show(note_manager.GetComponent<NoteManager>().getPosition(note), note.color, delayTime);
                     note_manager.GetComponent<NoteManager>().startNoteRanking(note, time);
                 }
                 if (note.time + note.duration <= time && state(note) == Config.ControlState.holding)
@@ -357,7 +478,9 @@ public class Test : MonoBehaviour
             else if (note.time < (time + delta_time) && state(note) == Config.ControlState.init)
             {
                 float delayTime = time + delta_time - note.time;
-                effect_manager.GetComponent<EffectManager>().show(note.type == Config.Type.Drag ? 1 : 0, note_manager.GetComponent<NoteManager>().getPosition(note), note.color, delayTime);
+                effect_manager.GetComponent<EffectManager>().show(
+                    note_manager.GetComponent<NoteManager>().getPosition(note), note.color, delayTime, null, "perfect",
+                    note.type == Config.Type.Drag ? 1 : 0);
                 note_manager.GetComponent<NoteManager>().noteStateList[note] = Config.ControlState.detach;
                 note_manager.GetComponent<NoteManager>().releaseNote(note, 0);
                 note_manager.GetComponent<NoteManager>().startNoteRanking(note, time);
