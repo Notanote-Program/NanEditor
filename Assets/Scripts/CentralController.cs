@@ -135,9 +135,8 @@ public class CentralController : MonoBehaviour
         {
             if (!imgHashs.ContainsKey(img.path))
             {
-                imgHashs.Add(img.path,
-                    Utilities.GetFileMD5(File.ReadAllBytes(
-                        $"{System.Environment.CurrentDirectory}/Charts/{chart_name}/imgs/{img.path}.png")));
+                string imgFilePath = $"{System.Environment.CurrentDirectory}/Charts/{chart_name}/imgs/{img.path}.png";
+                imgHashs.Add(img.path, File.Exists(imgFilePath) ? Utilities.GetFileMD5(File.ReadAllBytes(imgFilePath)) : "");
             }
 
             img.hash = imgHashs[img.path];
