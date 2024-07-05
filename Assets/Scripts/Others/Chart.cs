@@ -80,6 +80,8 @@ public class Chart
                 case 1:
                     foreach (PerformImg performImg in oldChart.performImgList)
                     {
+                        performImg.scaleX = performImg.scale;
+                        performImg.scaleY = performImg.scale;
                         performImg.eventList.scaleXEvents.AddRange(
                             performImg.eventList.scaleEvents.Select(e => e.Clone()));
                         performImg.eventList.scaleYEvents.AddRange(
@@ -929,6 +931,7 @@ public class PerformImg
     [JsonIgnore] public Color color;
     [JsonIgnore] public Vector3 position;
     public float angle;
+    public float scale;
     public float scaleX;
     public float scaleY;
     public float startTime;
