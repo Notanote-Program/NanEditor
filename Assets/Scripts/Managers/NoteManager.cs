@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class NoteManager : BaseManager
@@ -51,7 +52,7 @@ public class NoteManager : BaseManager
         }
 
         scoreManager = new ScoreManager();
-        scoreManager.init(notes.Count);
+        scoreManager.init(notes.Where(note => !note.fake).ToList().Count);
         playUI_manager = GameObject.Find("playUI").gameObject;
         this._judgelineManager = _judgelineManager;
     }
@@ -65,7 +66,7 @@ public class NoteManager : BaseManager
         selectedNoteList.Clear();
         nextNoteId = 0;
 
-        scoreManager.init(noteList.Count);
+        scoreManager.init(noteList.Where(note => !note.fake).ToList().Count);
     }
     private void addNote(Note note)
     {
