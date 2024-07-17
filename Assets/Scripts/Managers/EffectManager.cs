@@ -27,15 +27,16 @@ public class EffectManager : BaseManager
         effect.GetComponent<EffectRenderer>().init(color, position);
         if(parent != null)
             effect.transform.parent = parent.transform;
-        effect.GetComponent<AudioSource>().volume = Config.keyVolume * Config.defaultKeyVolume;
-        effect.GetComponent<AudioSource>().clip = type switch
-        {
-            0 => Config.tapSound,
-            1 => Config.dragSound,
-            _ => throw new ArgumentException()
-        };
-        effect.GetComponent<AudioSource>().time = 0;
-        effect.GetComponent<AudioSource>().Play();
+        // effect.GetComponent<AudioSource>().volume = Config.keyVolume * Config.defaultKeyVolume;
+        // effect.GetComponent<AudioSource>().clip = type switch
+        // {
+        //     0 => Config.tapSound,
+        //     1 => Config.dragSound,
+        //     _ => throw new ArgumentException()
+        // };
+        // effect.GetComponent<AudioSource>().time = 0;
+        // effect.GetComponent<AudioSource>().Play();
+        HitSoundManager.Instance.Play(type);
         Debug.Log("play tap sound,time =" + Time.time);
         yield return new WaitForSeconds(effect.GetComponent<EffectRenderer>().duration);
         pool.release_item(effect);

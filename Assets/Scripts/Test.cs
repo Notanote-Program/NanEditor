@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Cysharp.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -36,24 +37,27 @@ public class Test : MonoBehaviour
     public bool finished = false;
     void Start()
     {
-        Config.tapSound = defaultHitSound;
-        Config.dragSound = defaultHitSound;
         if (isEditor)
         {
+            HitSoundManager.Instance.UpdateVolume(Config.keyVolume * Config.defaultKeyVolume);
             LoadExternalHitSound();
         }
     }
 
     private async void LoadExternalHitSound()
     {
+        AudioClip tap = defaultHitSound, drag = defaultHitSound;
         if (File.Exists(Application.dataPath + "/../SFX/tap.wav"))
         {
-            Config.tapSound = await AudioLoader.LoadWavExternal(Application.dataPath + "/../SFX/tap.wav");
+            tap = await AudioLoader.LoadWavExternal(Application.dataPath + "/../SFX/tap.wav");
         }
         if (File.Exists(Application.dataPath + "/../SFX/drag.wav"))
         {
-            Config.dragSound = await AudioLoader.LoadWavExternal(Application.dataPath + "/../SFX/drag.wav");
+            drag = await AudioLoader.LoadWavExternal(Application.dataPath + "/../SFX/drag.wav");
         }
+        
+        HitSoundManager.Instance.RefreshHitSounds(tap, drag);
+        
         Debug.Log("Loaded");
     }
     // Update is called once per frame

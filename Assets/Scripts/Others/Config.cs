@@ -29,6 +29,11 @@ public class Config
             PlayerPrefs.SetFloat("delay", value);
         }
     }
+
+    static async void Init()
+    {
+        
+    }
     static public float keyVolume
     {
         get
@@ -231,8 +236,7 @@ public class Config
                 PlayerPrefs.SetInt("loadType", 0);
         }
     }
-
-    static public AudioClip tapSound, dragSound;
+    
     static public Sprite getRankImage(int score)
     {
         string path = "Textures/Rank/";
