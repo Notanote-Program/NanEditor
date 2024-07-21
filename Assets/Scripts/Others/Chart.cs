@@ -59,6 +59,8 @@ public class Chart
         {
             switch (oldChart.formatVersion)
             {
+                case -1:
+                    break;
                 case 0:
                     foreach (JudgeLine judgeLine in oldChart.judgelineList)
                     {
