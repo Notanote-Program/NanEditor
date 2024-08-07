@@ -407,10 +407,14 @@ public class CentralController : MonoBehaviour
         }
     }
 
-    private void setSongLength(float t)
+    private void setSongLength()
     {
-        front_ui.GetComponent<FrontUIManager>().setMaxTime(t);
-        chart_maker.GetComponent<chartMaker>().setFullTime(t);
+        if (display_manager.GetComponent<AudioSource>().clip)
+        {
+            float time = display_manager.GetComponent<AudioSource>().clip.length * 1000.0f;
+            front_ui.GetComponent<FrontUIManager>().setMaxTime(time);
+            chart_maker.GetComponent<chartMaker>().setFullTime(time);
+        }
     }
 
     private void synchronize() // to sync audio length
@@ -424,8 +428,7 @@ public class CentralController : MonoBehaviour
         for (int i = 0; i < 10; i++)
         {
             yield return new WaitForSeconds(sync_time);
-            if (display_manager.GetComponent<AudioSource>().clip)
-                setSongLength(display_manager.GetComponent<AudioSource>().clip.length * 1000.0f);
+            setSongLength();
         }
     }
 
@@ -572,6 +575,7 @@ public class CentralController : MonoBehaviour
             return;
         chart.bpm = float.Parse(s);
         setInfo();
+        setSongLength();
         reset();
     }
 
