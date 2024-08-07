@@ -62,7 +62,7 @@ public class chartMaker : MonoBehaviour
         timeline_manager.transform.parent = scroll.content;
         timeline_manager.AddComponent<TimeLineManager>();
         timeline_manager.GetComponent<TimeLineManager>().ChartMaker = this.gameObject;
-        timeline_manager.GetComponent<TimeLineManager>().init(200, partition, density, timeline_manager);
+        timeline_manager.GetComponent<TimeLineManager>().init(800, partition, density, timeline_manager);
     }
     private void initEventline()
     {
