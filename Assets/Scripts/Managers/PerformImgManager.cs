@@ -12,9 +12,12 @@ public class PerformImgManager : BaseManager
     private Dictionary<int, GameObject> imgObjectList; //selected imgs
     private int nextImgId;
     private Config.LoadType loadType;
+
     private string path; // path of img file
+
     // Start is called before the first frame update
-    public void init(List<PerformImg> imgList, int num, GameObject parent = null, Config.LoadType loadType = Config.LoadType.Resource, string chartName = "test")
+    public void init(List<PerformImg> imgList, int num, GameObject parent = null,
+        Config.LoadType loadType = Config.LoadType.Resource, string chartName = "test")
     {
         this.loadType = loadType;
         initPool(img_prefab_path, num, parent);
@@ -29,7 +32,7 @@ public class PerformImgManager : BaseManager
         presentScaleYEventNum = new List<int>();
         nextImgId = 0;
 
-        if(loadType == Config.LoadType.Resource)
+        if (loadType == Config.LoadType.Resource)
         {
             path = "Charts/" + chartName + "/imgs/";
         }
@@ -37,15 +40,14 @@ public class PerformImgManager : BaseManager
         {
             path = System.Environment.CurrentDirectory + "/Charts/" + chartName + "/imgs/";
         }
-        
+
         foreach (var performImg in imgList)
         {
             EventList.Add(performImg.eventList.Clone());
-            if (performImg.path == null)
-                performImg.path = "";
+            performImg.path ??= "";
             if (!Config.spriteList.ContainsKey(performImg.path))
             {
-                Config.spriteList[performImg.path] = Utilities.loadSprite(path + performImg.path, loadType);
+                Config.spriteList[performImg.path] = Config.GetImgSprite(path, performImg.path, loadType);
                 Config.spriteList[performImg.path].name = performImg.path;
             }
 
@@ -56,13 +58,15 @@ public class PerformImgManager : BaseManager
             presentScaleYEventNum.Add(0);
         }
     }
-    
+
     public void reset()
     {
         foreach (GameObject obj in imgObjectList.Values)
         {
+            obj.GetComponent<PerformImgRenderer>().OnRelease();
             pool.release_item(obj);
         }
+
         imgObjectList.Clear();
         nextImgId = 0;
         for (int i = 0; i < imgList.Count; i++)
@@ -74,6 +78,7 @@ public class PerformImgManager : BaseManager
             presentScaleYEventNum[i] = 0;
         }
     }
+
     public void update(float time)
     {
         while (nextImgId < imgList.Count && imgList[nextImgId].startTime < time)
@@ -82,11 +87,14 @@ public class PerformImgManager : BaseManager
             GameObject newImg = pool.get_item();
             //Debug.Log(img.path);
 
-            newImg.GetComponent<PerformImgRenderer>().init(Config.spriteList[img.path], img.color, img.position, img.scaleX, img.scaleY, img.layer, img.angle, img.sortingOrder,loadType);
+            newImg.GetComponent<PerformImgRenderer>().init(Config.spriteList[img.path], img.color, img.position,
+                img.scaleX, img.scaleY, img.layer, img.angle, img.sortingOrder,
+                img.path.StartsWith("$") ? img.path[1..] : null);
             imgObjectList.Add(nextImgId, newImg);
             nextImgId++;
         }
-        foreach (KeyValuePair<int, GameObject> imgs in imgObjectList )
+
+        foreach (KeyValuePair<int, GameObject> imgs in imgObjectList)
         {
             int id = imgs.Key;
             updateMoveEvents(id, time);
@@ -94,6 +102,7 @@ public class PerformImgManager : BaseManager
             updateColorEvents(id, time);
             updateScaleEvents(id, time);
         }
+
         List<int> destroyId = new List<int>();
         foreach (KeyValuePair<int, GameObject> imgs in imgObjectList)
         {
@@ -104,12 +113,15 @@ public class PerformImgManager : BaseManager
                 destroyId.Add(id);
             }
         }
+
         foreach (int id in destroyId)
         {
+            imgObjectList[id].GetComponent<PerformImgRenderer>().OnRelease();
             pool.release_item(imgObjectList[id]);
             imgObjectList.Remove(id);
-        } 
+        }
     }
+
     private void updateMoveEvents(int Id, float time)
     {
         List<MoveEvent> events = EventList[Id].moveEvents;
@@ -119,17 +131,20 @@ public class PerformImgManager : BaseManager
         {
             presentMoveEventNum[Id]++;
         }
+
         if (presentMoveEventNum[Id] >= events.Count && events.Count > 0)
         {
             Vector3 pos = events[events.Count - 1].positions[events[events.Count - 1].positions.Count - 1];
             imgObjectList[Id].GetComponent<PerformImgRenderer>().position = pos;
             return;
         }
+
         if (events[presentMoveEventNum[Id]].positions.Count < 2)
         {
             Debug.LogError("error: not enough positions in Object " + Id + " , MoveEvent " + presentMoveEventNum[Id]);
             return;
         }
+
         if (events[presentMoveEventNum[Id]].startTime <= time)
         {
             Vector2 pos = getPosition(events[presentMoveEventNum[Id]], time);
@@ -137,10 +152,12 @@ public class PerformImgManager : BaseManager
         }
         else if (presentMoveEventNum[Id] > 0)
         {
-            Vector3 pos = events[presentMoveEventNum[Id] - 1].positions[events[presentMoveEventNum[Id] - 1].positions.Count - 1];
+            Vector3 pos = events[presentMoveEventNum[Id] - 1]
+                .positions[events[presentMoveEventNum[Id] - 1].positions.Count - 1];
             imgObjectList[Id].GetComponent<PerformImgRenderer>().position = pos;
         }
     }
+
     private void updateRotateEvents(int Id, float time)
     {
         List<RotateEvent> events = EventList[Id].rotateEvents;
@@ -150,15 +167,16 @@ public class PerformImgManager : BaseManager
         {
             presentRotateEventNum[Id]++;
         }
+
         if (presentRotateEventNum[Id] >= events.Count && events.Count > 0)
         {
             float angle = events[events.Count - 1].endAngle;
             imgObjectList[Id].GetComponent<PerformImgRenderer>().angle = angle;
             return;
         }
+
         if (events[presentRotateEventNum[Id]].startTime <= time)
         {
-
             float angle = getAngle(events[presentRotateEventNum[Id]], time);
             //Debug.Log(time + ":" + angle);
             imgObjectList[Id].GetComponent<PerformImgRenderer>().angle = angle;
@@ -169,6 +187,7 @@ public class PerformImgManager : BaseManager
             imgObjectList[Id].GetComponent<PerformImgRenderer>().angle = angle;
         }
     }
+
     private void updateColorEvents(int Id, float time)
     {
         List<ColorModifyEvent> events = EventList[Id].colorModifyEvents;
@@ -178,15 +197,16 @@ public class PerformImgManager : BaseManager
         {
             presentColorEventNum[Id]++;
         }
+
         if (presentColorEventNum[Id] >= events.Count && events.Count > 0)
         {
             Color color = events[events.Count - 1].endColor;
             imgObjectList[Id].GetComponent<PerformImgRenderer>().color = color;
             return;
         }
+
         if (events[presentColorEventNum[Id]].startTime <= time)
         {
-
             Color color = getColor(events[presentColorEventNum[Id]], time);
             //Debug.Log(time + ":" + color);
             imgObjectList[Id].GetComponent<PerformImgRenderer>().color = color;
@@ -198,8 +218,9 @@ public class PerformImgManager : BaseManager
             imgObjectList[Id].GetComponent<PerformImgRenderer>().color = color;
         }
     }
+
     private void updateScaleEvents(int Id, float time)
-    { 
+    {
         List<ScaleEvent> xEvents = EventList[Id].scaleXEvents;
         List<ScaleEvent> yEvents = EventList[Id].scaleYEvents;
         if (xEvents.Count + yEvents.Count == 0)
@@ -214,6 +235,7 @@ public class PerformImgManager : BaseManager
             {
                 presentScaleXEventNum[Id]++;
             }
+
             if (presentScaleXEventNum[Id] >= xEvents.Count && xEvents.Count > 0)
             {
                 x = xEvents[^1].endScale;
@@ -237,6 +259,7 @@ public class PerformImgManager : BaseManager
             {
                 presentScaleYEventNum[Id]++;
             }
+
             if (presentScaleYEventNum[Id] >= yEvents.Count && yEvents.Count > 0)
             {
                 y = yEvents[^1].endScale;
@@ -253,22 +276,25 @@ public class PerformImgManager : BaseManager
                 }
             }
         }
-        
+
         if (xHasEvent && yHasEvent)
         {
             imgObjectList[Id].GetComponent<PerformImgRenderer>().SetScaleRespectively(x, y);
-        } else if (xHasEvent)
+        }
+        else if (xHasEvent)
         {
             imgObjectList[Id].GetComponent<PerformImgRenderer>().scaleX = x;
-        } else if (yHasEvent)
+        }
+        else if (yHasEvent)
         {
             imgObjectList[Id].GetComponent<PerformImgRenderer>().scaleY = y;
         }
     }
+
     public void reload(string imgpath)
     {
         if (imgpath == null)
             imgpath = "";
-        Config.spriteList[imgpath] = Utilities.loadSprite(path + imgpath,loadType);
+        Config.spriteList[imgpath] = Config.GetImgSprite(path, imgpath, loadType);
     }
 }

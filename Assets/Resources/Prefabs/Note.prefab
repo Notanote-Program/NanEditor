@@ -71,7 +71,7 @@ LineRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -151222137
-  m_SortingLayer: 4
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Positions:
   - {x: 0, y: 0, z: 0}
@@ -178,6 +178,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 0
+  NoteHead: {fileID: 5310499598718346864}
+  NoteBody: {fileID: 1151208810}
 --- !u!1 &5310499598718346870
 GameObject:
   m_ObjectHideFlags: 0
@@ -249,7 +251,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -151222137
-  m_SortingLayer: 4
+  m_SortingLayer: 5
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 10d763c39a0afc9469ae55662e063bd9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

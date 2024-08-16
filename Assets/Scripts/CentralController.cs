@@ -496,15 +496,44 @@ public class CentralController : MonoBehaviour
             paths.Add(imgpath);
         }
 
-        foreach (string imgpath in paths)
+        for (var i = 0; i < paths.Count; i++)
         {
+            var imgpath = paths[i];
+            if (imgpath.StartsWith("$"))
+            {
+                string internalReference = imgpath[..1];
+                switch (internalReference)
+                {
+                    case "tap":
+                    case "tap_hl": // TODO: 多押
+                    case "drag":
+                        break;
+                    case "cover":
+                        imgpath = "../Illustration";
+                        goto qwq;
+                    default:
+                        if (internalReference.StartsWith("hold_") &&
+                            float.TryParse(internalReference["hold_".Length..], out _))
+                        {
+                            break;
+                        }
+
+                        Config.spriteList[imgpath] = Utilities.GetDefaultSprite();
+                        break;
+                }
+
+                continue;
+            }
+            
+            qwq:
             string path = System.Environment.CurrentDirectory + "/Charts/" + chart_name + "/imgs/" + imgpath + ".png";
             Texture2D texture = Utilities.LoadTexture2D(path);
             if (texture != null)
                 Config.spriteList[imgpath] = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
                     new Vector2(0.5f, 0.5f));
             else
-                Config.spriteList[imgpath] = Resources.Load<Sprite>("Textures/defaultimg");
+                Config.spriteList[imgpath] =
+                    imgpath.StartsWith("$") ? null : Resources.Load<Sprite>("Textures/defaultimg");
         }
 
         setImage();
@@ -512,6 +541,34 @@ public class CentralController : MonoBehaviour
 
     private void reloadSpite(string imgpath)
     {
+        if (imgpath.StartsWith("$"))
+        {
+            string internalReference = imgpath[..1];
+            switch (internalReference)
+            {
+                case "tap":
+                case "tap_hl": // TODO: 多押
+                case "drag":
+                    break;
+                case "cover":
+                    imgpath = "../Illustration";
+                    goto qwq;
+                default:
+                    if (internalReference.StartsWith("hold_") &&
+                        float.TryParse(internalReference["hold_".Length..], out _))
+                    {
+                        Config.spriteList[imgpath] = null;
+                        break;
+                    }
+
+                    Config.spriteList[imgpath] = Utilities.GetDefaultSprite();
+                    break;
+            }
+            
+            return;
+        }
+        
+        qwq:
         string path = System.Environment.CurrentDirectory + "/Charts/" + chart_name + "/imgs/" + imgpath + ".png";
         Texture2D texture = Utilities.LoadTexture2D(path);
         if (texture != null)
@@ -2123,8 +2180,8 @@ public class CentralController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.I))
         {
-            reset();
             reloadSprites();
+            reset();
         }
     }
 }

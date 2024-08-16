@@ -5,7 +5,8 @@ using UnityEngine;
 public class NoteRenderer : MoveableObject
 {
     public Config.Type type = Config.Type.Tap;
-    private GameObject NoteHead, NoteBody;
+    [SerializeField] private SpriteRenderer NoteHead;
+    [SerializeField] private LineRenderer NoteBody;
     private Color defaultColor = Color.white;
     private const float defaultWidth = 0.6f;
     public float distance
@@ -15,17 +16,17 @@ public class NoteRenderer : MoveableObject
     }
     public Sprite sprite
     {
-        get { return NoteHead.GetComponent<SpriteRenderer>().sprite; }
-        set { NoteHead.GetComponent<SpriteRenderer>().sprite = value; }
+        get { return NoteHead.sprite; }
+        set { NoteHead.sprite = value; }
     }
     public Color color
     {
-        get { return NoteHead.GetComponent<SpriteRenderer>().color; }
+        get { return NoteHead.color; }
         set
         {
-            NoteHead.GetComponent<SpriteRenderer>().color = value;
-            NoteBody.GetComponent<LineRenderer>().endColor = value;
-            NoteBody.GetComponent<LineRenderer>().startColor = value;
+            NoteHead.color = value;
+            NoteBody.endColor = value;
+            NoteBody.startColor = value;
         }
     }
     public float length
@@ -34,7 +35,7 @@ public class NoteRenderer : MoveableObject
         {
             if (type == Config.Type.Hold)
             {
-                Vector3 endPos = NoteBody.GetComponent<LineRenderer>().GetPosition(1);
+                Vector3 endPos = NoteBody.GetPosition(1);
                 return endPos.y;
             }
             else
@@ -44,9 +45,9 @@ public class NoteRenderer : MoveableObject
         {
             if (type == Config.Type.Hold)
             {
-                Vector3 endPos = NoteBody.GetComponent<LineRenderer>().GetPosition(1);
+                Vector3 endPos = NoteBody.GetPosition(1);
                 endPos.y = value;
-                NoteBody.GetComponent<LineRenderer>().SetPosition(1, endPos);
+                NoteBody.SetPosition(1, endPos);
             }
         }
     }
@@ -70,20 +71,18 @@ public class NoteRenderer : MoveableObject
     }
     private void getGameObject()
     {
-        NoteHead = transform.Find("NoteHead").gameObject;
-        NoteBody = transform.Find("NoteBody").gameObject;
         sprite = getNoteSprite(type);
         if (type == Config.Type.Hold)
         {
-            NoteBody.SetActive(true);
-            NoteBody.GetComponent<LineRenderer>().useWorldSpace = false;
-            NoteBody.GetComponent<LineRenderer>().positionCount = 2;
-            NoteBody.GetComponent<LineRenderer>().SetPosition(0, Vector3.zero);
-            NoteBody.GetComponent<LineRenderer>().SetPosition(1, new Vector3(0, length, 0));
+            NoteBody.gameObject.SetActive(true);
+            NoteBody.useWorldSpace = false;
+            NoteBody.positionCount = 2;
+            NoteBody.SetPosition(0, Vector3.zero);
+            NoteBody.SetPosition(1, new Vector3(0, length, 0));
         }
         else
         {
-            NoteBody.SetActive(false);
+            NoteBody.gameObject.SetActive(false);
         }
     }
     public void init(float _distance, Color _NoteColor, Config.Type _type = Config.Type.Tap, float length = 0, Config.ControlState state = Config.ControlState.init)
@@ -92,15 +91,15 @@ public class NoteRenderer : MoveableObject
         getGameObject();
         distance = _distance;
         color = _NoteColor;
-        NoteBody.GetComponent <LineRenderer>().useWorldSpace = false;
+        NoteBody.useWorldSpace = false;
         setBodyWidth(this.transform.lossyScale.x);
         this.length = length;
         setControlState(state);
     }
     private void setBodyWidth(float width)
     {
-        NoteBody.GetComponent<LineRenderer>().startWidth = width * defaultWidth;
-        NoteBody.GetComponent<LineRenderer>().endWidth = width * defaultWidth;
+        NoteBody.startWidth = width * defaultWidth;
+        NoteBody.endWidth = width * defaultWidth;
     }
     public void setControlState(Config.ControlState state)
     {
@@ -121,6 +120,22 @@ public class NoteRenderer : MoveableObject
                 break;
         }
         Material material = Resources.Load<Material>(path);
-        NoteBody.GetComponent<LineRenderer>().material = material;
+        NoteBody.material = material;
+    }
+
+    public void setSortingLayerAndOrder(string sortingLayerName, int sortingOrder)
+    {
+        NoteHead.sortingLayerName = sortingLayerName;
+        NoteHead.sortingOrder = sortingOrder;
+        NoteBody.sortingLayerName = sortingLayerName;
+        NoteBody.sortingOrder = sortingOrder;
+    }
+
+    public void updateBodyWidth(float width = 1f)
+    {
+        if (type == Config.Type.Hold)
+        {
+            NoteBody.widthMultiplier = width;
+        }
     }
 }

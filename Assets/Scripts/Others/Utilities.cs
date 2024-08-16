@@ -370,25 +370,28 @@ public class Utilities
 
     public static Sprite loadSprite(string imgpath, Config.LoadType loadType)
     {
+        if (loadType == Config.LoadType.Resource)
+        {
+            Sprite sprite = Resources.Load<Sprite>(imgpath);
+            return sprite != null ? sprite : GetDefaultSprite();
+        }
         if (loadType == Config.LoadType.External)
             imgpath += ".png";
-        Texture2D texture = new Texture2D(50, 50);
+        Texture2D texture = new Texture2D(0, 0);
         if (imgpath != null)
         {
-            if (loadType == Config.LoadType.Resource)
-            {
-                Sprite sprite = Resources.Load<Sprite>(imgpath);
-                return sprite != null ? sprite : Resources.Load<Sprite>("Textures/defaultimg");
-            }
-/*                texture = Resources.Load<Texture2D>(imgpath);*/
-
             texture = Utilities.LoadTexture2D(imgpath);
             return texture != null
                 ? Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f))
-                : Resources.Load<Sprite>("Textures/defaultimg");
+                : GetDefaultSprite();
         }
 
-        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+        return GetDefaultSprite();
+    }
+
+    public static Sprite GetDefaultSprite()
+    {
+        return Resources.Load<Sprite>("Textures/defaultimg");
     }
 
     public static IEnumerator LoadSpriteAsync(AsyncRequest<Sprite> ar, string imgpath, Config.LoadType loadType)

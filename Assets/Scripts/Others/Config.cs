@@ -14,7 +14,8 @@ public class Config
 
     static public JudgeRange range_normal = new JudgeRange();
     static public float deltaTime = 0.001f;
-    static public Dictionary<string, Sprite> spriteList = new Dictionary<string, Sprite>();// cache for sprites
+    static public Dictionary<string, Sprite> spriteList = new Dictionary<string, Sprite>(); // cache for sprites
+
     static public float delay
     {
         get
@@ -24,16 +25,13 @@ public class Config
             else
                 return 0;
         }
-        set
-        {
-            PlayerPrefs.SetFloat("delay", value);
-        }
+        set { PlayerPrefs.SetFloat("delay", value); }
     }
 
     static async void Init()
     {
-        
     }
+
     static public float keyVolume
     {
         get
@@ -43,11 +41,9 @@ public class Config
             else
                 return 1;
         }
-        set
-        {
-            PlayerPrefs.SetFloat("keyVolume", value);
-        }
+        set { PlayerPrefs.SetFloat("keyVolume", value); }
     }
+
     static public float musicVolume
     {
         get
@@ -57,11 +53,9 @@ public class Config
             else
                 return 1;
         }
-        set
-        {
-            PlayerPrefs.SetFloat("musicVolume", value);
-        }
+        set { PlayerPrefs.SetFloat("musicVolume", value); }
     }
+
     static public int antiAliasing
     {
         get
@@ -79,6 +73,7 @@ public class Config
             QualitySettings.antiAliasing = value;
         }
     }
+
     static public int GraphicQuality
     {
         get
@@ -95,7 +90,8 @@ public class Config
             PlayerPrefs.SetInt("GraphicQuality", value);
             QualitySettings.SetQualityLevel(value);
         }
-    }  
+    }
+
     static public int dspBufferSize
     {
         get
@@ -116,7 +112,9 @@ public class Config
                 Debug.LogError("dspbuffer set failed");
         }
     }
+
     static public int lastSceneId = 0;
+
     static public string selectedChapter
     {
         get
@@ -126,11 +124,9 @@ public class Config
             else
                 return "";
         }
-        set
-        {
-            PlayerPrefs.SetString("selectedChapter", value);
-        }
+        set { PlayerPrefs.SetString("selectedChapter", value); }
     }
+
     static public string selectedChart
     {
         get
@@ -140,11 +136,9 @@ public class Config
             else
                 return "";
         }
-        set
-        {
-            PlayerPrefs.SetString("selectedChart", value);
-        }
+        set { PlayerPrefs.SetString("selectedChart", value); }
     }
+
     static public bool selectSP
     {
         get
@@ -161,12 +155,13 @@ public class Config
         }
         set
         {
-            if(value)
+            if (value)
                 PlayerPrefs.SetInt("selectSP", 1);
             else
                 PlayerPrefs.SetInt("selectSP", 0);
         }
     }
+
     static public bool initSceneSucceed
     {
         get
@@ -189,6 +184,7 @@ public class Config
                 PlayerPrefs.SetInt("loadSceneSucceed", 0);
         }
     }
+
     static public bool autoplay
     {
         get
@@ -211,6 +207,7 @@ public class Config
                 PlayerPrefs.SetInt("autoplay", 0);
         }
     }
+
     static public Config.LoadType loadType
     {
         get
@@ -218,7 +215,7 @@ public class Config
             if (PlayerPrefs.HasKey("loadType"))
             {
                 int b = PlayerPrefs.GetInt("loadType");
-                if (b == 0)// resource
+                if (b == 0) // resource
                     return Config.LoadType.Resource;
                 else
                     return Config.LoadType.External;
@@ -236,7 +233,7 @@ public class Config
                 PlayerPrefs.SetInt("loadType", 0);
         }
     }
-    
+
     static public Sprite getRankImage(int score)
     {
         string path = "Textures/Rank/";
@@ -258,12 +255,14 @@ public class Config
             path += "T_?";
         return Utilities.loadSprite(path, Config.LoadType.Resource);
     }
+
     public enum Type
     {
         Tap,
         Drag,
         Hold
     }
+
     public enum comboType
     {
         Perfect,
@@ -272,12 +271,14 @@ public class Config
         Bad,
         Miss
     }
+
     public enum ControlState
     {
         init,
         holding,
         detach
     }
+
     public enum EventType
     {
         Linear = 0,
@@ -312,27 +313,31 @@ public class Config
         BounceOut,
         BounceInOut
     }
-    
+
     public enum PathType
     {
         Straight,
         Bessel,
     }
+
     public enum LineType
     {
         Line1,
         Line2,
     }
+
     public enum LoadType
     {
         Resource, //from resource file
         External //form External file
     }
+
     public enum EventlineType
     {
         Judgeline,
         PerformImg
     }
+
     public enum PasteTyte
     {
         Normal,
@@ -347,23 +352,36 @@ public class Config
         AboveNote,
         AboveUI
     }
+
     static public Vector3 myposition2world(Vector3 mypos)
     {
         Vector3 screenpos = new Vector3((mypos.x + 1) / 2 * Screen.width, (mypos.y + 1) / 2 * Screen.height, mypos.z);
         return new Vector3(Camera.main.ScreenToWorldPoint(screenpos).x, Camera.main.ScreenToWorldPoint(screenpos).y, 0);
     }
+
     static public Vector3 world2myposition(Vector3 worldpos)
     {
         Vector3 screenpos = Camera.main.WorldToScreenPoint(worldpos);
-        return new Vector3((screenpos.x - Screen.width / 2) / Screen.width * 2, (screenpos.y - Screen.height / 2) / Screen.height * 2, 0);
+        return new Vector3((screenpos.x - Screen.width / 2) / Screen.width * 2,
+            (screenpos.y - Screen.height / 2) / Screen.height * 2, 0);
+    }
+
+    public static Sprite GetImgSprite(string rootFolder, string imgPath, LoadType loadType)
+    {
+        if (!rootFolder.Replace("\\", "/").EndsWith("/")) rootFolder += "/";
+        if (!imgPath.StartsWith("$")) return Utilities.loadSprite(rootFolder + imgPath, loadType);
+        imgPath = imgPath[1..];
+        if (imgPath != "cover" || loadType != LoadType.External) return null;
+        return Utilities.loadSprite(rootFolder + "../Illustration", loadType);
     }
 }
 
 public class JudgeRange
 {
-    public int perfect_duration;//ms
-    public int good_duration;//ms
-    public int bad_duration;//ms
+    public int perfect_duration; //ms
+    public int good_duration; //ms
+    public int bad_duration; //ms
+
     public JudgeRange(int perfect_duration = 70, int good_duration = 120, int bad_duration = 150)
     {
         this.perfect_duration = perfect_duration;
