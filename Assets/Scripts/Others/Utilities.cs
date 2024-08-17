@@ -158,11 +158,11 @@ public class Utilities
                 t = t < 0.5f ? Mathf.Pow(t, 4f) * 8 : 1 - Mathf.Pow(t - 1, 4f) * 8;
                 break;
             case Config.EventType.QuintIn:
-                t = (float) ((double) t * t * t * t * t);
+                t = (float)((double)t * t * t * t * t);
                 break;
             case Config.EventType.QuintOut:
                 t = 1 - t;
-                t = 1 - (float) ((double) t * t * t * t * t);
+                t = 1 - (float)((double)t * t * t * t * t);
                 break;
             case Config.EventType.QuintInOut:
                 if (t < 0.5f)
@@ -208,20 +208,25 @@ public class Utilities
 
                 break;
             case Config.EventType.BackIn:
-                t = Math.Abs(t) < 0.001f ? 0 :
-                    Math.Abs(t - 1f) < 0.001f ? 1 :
-                    -Mathf.Pow(2, 10 * t - 10) * Mathf.Sin((t * 10 - 10.75f) * 2 / 3 * Mathf.PI);
+                t = 2.70158f * t * t * t - 1.70158f * t * t;
                 break;
             case Config.EventType.BackOut:
-                t = Math.Abs(t) < 0.001f ? 0 :
-                    Math.Abs(t - 1f) < 0.001f ? 1 :
-                    Mathf.Pow(2, -10 * t) * Mathf.Sin((t * 10 - 0.75f) * 2 / 3 * Mathf.PI) + 1;
+                t -= 1;
+                t = 1 + 2.70158f * t * t * t + 1.70158f * t * t;
                 break;
             case Config.EventType.BackInOut:
-                t = Math.Abs(t) < 0.001f ? 0 :
-                    Math.Abs(t - 1f) < 0.001f ? 1 :
-                    t < 0.5 ? -(Mathf.Pow(2, 20 * t - 10) * Mathf.Sin((20 * t - 11.125f) * 4 / 9 * Mathf.PI)) / 2 :
-                    (Mathf.Pow(2, -20 * t + 10) * Mathf.Sin((20 * t - 11.125f) * 4 / 9 * Mathf.PI)) / 2 + 1;
+                if (t < 0.5f)
+                {
+                    t *= 2;
+                    t = t * t * ((2.5949095f + 1) * t - 2.5949095f) / 2;
+                }
+                else
+                {
+                    t *= 2;
+                    t -= 2;
+                    t = (t * t * ((2.5949095f + 1) * t + 2.5949095f) + 2) / 2;
+                }
+
                 break;
             case Config.EventType.ElasticIn:
                 t = Math.Abs(t) < 0.001f ? 0 :
@@ -375,6 +380,7 @@ public class Utilities
             Sprite sprite = Resources.Load<Sprite>(imgpath);
             return sprite != null ? sprite : GetDefaultSprite();
         }
+
         if (loadType == Config.LoadType.External)
             imgpath += ".png";
         Texture2D texture = new Texture2D(0, 0);
@@ -468,7 +474,7 @@ public class Utilities
         operation.allowSceneActivation = false;
         return operation;
     }
-    
+
     [UsedImplicitly]
     public static Resolution GetFullScreenResolution()
     {
@@ -480,7 +486,7 @@ public class Utilities
 
         return newRes;
     }
-    
+
     public static string GetFileMD5(byte[] data)
     {
         using MD5 md5 = MD5.Create();
