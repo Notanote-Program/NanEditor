@@ -63,7 +63,6 @@ public class PerformImgManager : BaseManager
     {
         foreach (GameObject obj in imgObjectList.Values)
         {
-            obj.GetComponent<PerformImgRenderer>().OnRelease();
             pool.release_item(obj);
         }
 
@@ -87,6 +86,7 @@ public class PerformImgManager : BaseManager
             GameObject newImg = pool.get_item();
             //Debug.Log(img.path);
 
+            newImg.name = img.name;
             newImg.GetComponent<PerformImgRenderer>().init(Config.spriteList[img.path], img.color, img.position,
                 img.scaleX, img.scaleY, img.layer, img.angle, img.sortingOrder,
                 img.path.StartsWith("$") ? img.path[1..] : null);
@@ -116,7 +116,6 @@ public class PerformImgManager : BaseManager
 
         foreach (int id in destroyId)
         {
-            imgObjectList[id].GetComponent<PerformImgRenderer>().OnRelease();
             pool.release_item(imgObjectList[id]);
             imgObjectList.Remove(id);
         }

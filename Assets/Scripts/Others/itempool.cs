@@ -63,5 +63,10 @@ public class itempool
     {
         item.SetActive(false);
         item.transform.SetParent(pool_object.transform, false);
+        IReleasablePoolItem[] releasablePoolItems = item.GetComponents<IReleasablePoolItem>();
+        foreach (IReleasablePoolItem releasablePoolItem in releasablePoolItems)
+        {
+            releasablePoolItem.OnRelease();
+        }
     }
 }

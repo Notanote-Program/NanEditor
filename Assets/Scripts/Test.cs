@@ -192,28 +192,28 @@ public class Test : MonoBehaviour
     }
     private void initEffectManager()
     {
-        effect_manager = new GameObject();
+        effect_manager = new GameObject(nameof(EffectManager));
         effect_manager.transform.parent = this.transform;
         effect_manager.AddComponent<EffectManager>();
         effect_manager.GetComponent<EffectManager>().init(1000, effect_manager);
     }
     private void initJudgelineManager(Chart chart)
     {
-        judgeline_manager = new GameObject();
+        judgeline_manager = new GameObject(nameof(JudgelineManager));
         judgeline_manager.transform.parent = this.transform;
         judgeline_manager.AddComponent<JudgelineManager>();
         judgeline_manager.GetComponent<JudgelineManager>().init(chart.judgelineList, chart.judgelineList.Count, judgeline_manager);
     }
     private void initPerformImgManager(Chart chart)
     {
-        img_manager = new GameObject();
+        img_manager = new GameObject(nameof(PerformImgManager));
         img_manager.transform.parent = this.transform;
         img_manager.AddComponent<PerformImgManager>();
         img_manager.GetComponent<PerformImgManager>().init(chart.performImgList, chart.performImgList.Count, img_manager, loadType, chart_name);
     }
     private void initNoteManager(Chart chart)
     {
-        note_manager = new GameObject();
+        note_manager = new GameObject(nameof(NoteManager));
         note_manager.transform.parent = this.transform;
         note_manager.AddComponent<NoteManager>();
         List<Note> notes = new List<Note>();

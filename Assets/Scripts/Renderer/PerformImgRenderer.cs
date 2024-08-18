@@ -7,7 +7,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
-public class PerformImgRenderer : MoveableObject
+public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
 {
     [SerializeField] private SpriteRenderer img;
     [SerializeField] private NoteRenderer noteRenderer;
@@ -20,7 +20,9 @@ public class PerformImgRenderer : MoveableObject
         set
         {
             _enableNoteRenderer = value;
-            noteRenderer.gameObject.SetActive(_enableNoteRenderer);
+            img.enabled = !EnableNoteRenderer;
+            noteRenderer.gameObject.SetActive(EnableNoteRenderer);
+            if (EnableNoteRenderer) noteRenderer.updateBodyWidth(scaleX);
         }
     }
 
@@ -37,10 +39,7 @@ public class PerformImgRenderer : MoveableObject
     public float scaleY
     {
         get { return transform.localScale.y; }
-        set
-        {
-            transform.localScale = new Vector3(transform.localScale.x, value, 1);
-        }
+        set { transform.localScale = new Vector3(transform.localScale.x, value, 1); }
     }
 
     public void SetScaleRespectively(float x, float y)
@@ -91,7 +90,8 @@ public class PerformImgRenderer : MoveableObject
                     noteRenderer.setSortingLayerAndOrder(sortingLayerName, sortingOrder);
                     break;
                 default:
-                    if (internalReference.StartsWith("hold_") && float.TryParse(internalReference["hold_".Length..], out var length))
+                    if (internalReference.StartsWith("hold_") &&
+                        float.TryParse(internalReference["hold_".Length..], out var length))
                     {
                         EnableNoteRenderer = true;
                         noteRenderer.init(0, _color, Config.Type.Hold, length);
