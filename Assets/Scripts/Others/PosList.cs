@@ -75,10 +75,9 @@ public class PosList : MonoBehaviour
         for(int i=0;i<poslist.Count;i++)
         {
             Vector3 pos = poslist[i];
-            GameObject obj = GameObject.Instantiate(ceil);
+            GameObject obj = GameObject.Instantiate(ceil, content.transform);
             obj.SetActive(true);
             obj.GetComponent<positionCeil>().init(i,pos.x, pos.y);
-            obj.transform.parent = content.transform;
             obj.transform.localScale = ceil.transform.localScale;
             ceilList.Add(obj);
         }

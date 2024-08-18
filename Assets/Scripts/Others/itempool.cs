@@ -48,7 +48,7 @@ public class itempool
         {
             for (int i=0;i<enlarge_size;i++)
             {
-                GameObject item = GameObject.Instantiate(prefab, prefab.transform.parent);
+                GameObject item = Object.Instantiate(prefab, prefab.transform.parent);
                 item.SetActive(false);
                 item_pool.Add(item);
             }                        

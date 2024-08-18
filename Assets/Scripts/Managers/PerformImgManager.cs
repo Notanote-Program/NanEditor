@@ -48,7 +48,7 @@ public class PerformImgManager : BaseManager
             if (!Config.spriteList.ContainsKey(performImg.path))
             {
                 Config.spriteList[performImg.path] = Config.GetImgSprite(path, performImg.path, loadType);
-                Config.spriteList[performImg.path].name = performImg.path;
+                if (Config.spriteList[performImg.path]) Config.spriteList[performImg.path].name = performImg.path;
             }
 
             presentMoveEventNum.Add(0);

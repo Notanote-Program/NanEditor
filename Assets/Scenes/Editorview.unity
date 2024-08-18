@@ -22811,7 +22811,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5749596777169518761, guid: 6b8009d067409d04d9ecf066183d8fb9, type: 3}
       propertyPath: m_Name
-      value: baseView
+      value: imageOrJudgelineView
       objectReference: {fileID: 0}
     - target: {fileID: 8053290608261794729, guid: 6b8009d067409d04d9ecf066183d8fb9, type: 3}
       propertyPath: m_AnchorMax.x

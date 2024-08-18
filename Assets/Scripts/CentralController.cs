@@ -509,7 +509,7 @@ public class CentralController : MonoBehaviour
                     case "drag":
                         break;
                     case "cover":
-                        imgpath = "../Illustration";
+                        imgpath = "../illustration";
                         goto qwq;
                     default:
                         if (internalReference.StartsWith("hold_") &&
@@ -551,7 +551,7 @@ public class CentralController : MonoBehaviour
                 case "drag":
                     break;
                 case "cover":
-                    imgpath = "../Illustration";
+                    imgpath = "../illustration";
                     goto qwq;
                 default:
                     if (internalReference.StartsWith("hold_") &&
@@ -2029,7 +2029,7 @@ public class CentralController : MonoBehaviour
             chartMaker.setGuideMode(true, 3);
         }
 
-        if (Input.GetKeyUp(KeyCode.E) && chartMaker.guidePos == 3) // add a moveEvent
+        if (Input.GetKeyUp(KeyCode.E) && chartMaker.guidePos == 3) // add a colorEvent
         {
             addEvent("colorEvent");
             chartMaker.setGuideMode(false);
@@ -2040,7 +2040,7 @@ public class CentralController : MonoBehaviour
             chartMaker.setGuideMode(true, 4);
         }
 
-        if (Input.GetKeyUp(KeyCode.R) && chartMaker.guidePos == 4) // add a moveEvent
+        if (Input.GetKeyUp(KeyCode.R) && chartMaker.guidePos == 4) // add a scaleXEvent
         {
             addEvent("scaleXEvent");
             chartMaker.setGuideMode(false);
@@ -2051,7 +2051,7 @@ public class CentralController : MonoBehaviour
             chartMaker.setGuideMode(true, 5);
         }
 
-        if (Input.GetKeyUp(KeyCode.T) && chartMaker.guidePos == 5) // add a moveEvent
+        if (Input.GetKeyUp(KeyCode.T) && chartMaker.guidePos == 5) // add a scaleYEvent
         {
             addEvent("scaleYEvent");
             chartMaker.setGuideMode(false);

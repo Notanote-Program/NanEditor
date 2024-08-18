@@ -9,7 +9,7 @@ using ColorUtility = UnityEngine.ColorUtility;
 
 public class Chart
 {
-    public const int LatestVersion = 3;
+    public const int LatestVersion = 4;
     public int formatVersion = -1;
     public string name;
     public string composer;
@@ -33,7 +33,7 @@ public class Chart
 
     [JsonIgnore] public Color startTipcolor = Color.white;
 
-    public static Chart InitNewChart() // JsonConvert.DeserializeObject<>()会调用ctor，所以不能在ctor里初始化变量
+    public static Chart InitNewChart() // JsonConvert.DeserializeObject<>()浼氳皟鐢╟tor锛屾墍浠ヤ笉鑳藉湪ctor閲屽垵濮嬪寲鍙橀噺
     {
         Chart chart = new Chart
         {
@@ -90,11 +90,27 @@ public class Chart
                             performImg.eventList.scaleEvents.Select(e => e.Clone()));
                         performImg.eventList.scaleEvents.Clear();
                     }
+
                     break;
-                case 2: // 用于标记谱面是否给图片上了hash
-                break;
+                case 2: // 鐢ㄤ簬鏍囪璋遍潰鏄惁缁欏浘鐗囦笂浜唄ash
+                    break;
+                case 3:
+                    foreach (JudgeLine judgeLine in oldChart.judgelineList)
+                    {
+                        judgeLine.position = ConvertCoordinate(judgeLine.position);
+                        judgeLine.eventList.moveEvents.ForEach(ConvertMoveEventCoordinate);
+                    }
+
+                    foreach (PerformImg performImg in oldChart.performImgList)
+                    {
+                        performImg.position = ConvertCoordinate(performImg.position);
+                        performImg.eventList.moveEvents.ForEach(ConvertMoveEventCoordinate);
+                    }
+
+                    break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(oldChart.formatVersion), oldChart.formatVersion, "Unknown format version");
+                    throw new ArgumentOutOfRangeException(nameof(oldChart.formatVersion), oldChart.formatVersion,
+                        "Unknown format version");
             }
 
             oldChart.formatVersion++;
@@ -133,6 +149,16 @@ public class Chart
                     performEvent.type = Config.EventType.CubicInOut;
                     break;
             }
+        }
+        
+        void ConvertMoveEventCoordinate(MoveEvent moveEvent)
+        {
+            moveEvent.positions = moveEvent.positions.Select(ConvertCoordinate).ToList();
+        }
+
+        Vector3 ConvertCoordinate(Vector3 position)
+        {
+            return new Vector3(position.x * 8f, position.y * 4.5f, position.z);
         }
     }
 

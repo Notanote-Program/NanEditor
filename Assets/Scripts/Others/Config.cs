@@ -12,11 +12,11 @@ public class Config
     public const float defaultMusicVolume = 0.25f;
     public const float defaultKeyVolume = 1.0f;
 
-    static public JudgeRange range_normal = new JudgeRange();
-    static public float deltaTime = 0.001f;
-    static public Dictionary<string, Sprite> spriteList = new Dictionary<string, Sprite>(); // cache for sprites
+    public static JudgeRange range_normal = new JudgeRange();
+    public static float deltaTime = 0.001f;
+    public static Dictionary<string, Sprite> spriteList = new Dictionary<string, Sprite>(); // cache for sprites
 
-    static public float delay
+    public static float delay
     {
         get
         {
@@ -32,7 +32,7 @@ public class Config
     {
     }
 
-    static public float keyVolume
+    public static float keyVolume
     {
         get
         {
@@ -44,7 +44,7 @@ public class Config
         set { PlayerPrefs.SetFloat("keyVolume", value); }
     }
 
-    static public float musicVolume
+    public static float musicVolume
     {
         get
         {
@@ -56,7 +56,7 @@ public class Config
         set { PlayerPrefs.SetFloat("musicVolume", value); }
     }
 
-    static public int antiAliasing
+    public static int antiAliasing
     {
         get
         {
@@ -74,7 +74,7 @@ public class Config
         }
     }
 
-    static public int GraphicQuality
+    public static int GraphicQuality
     {
         get
         {
@@ -92,7 +92,7 @@ public class Config
         }
     }
 
-    static public int dspBufferSize
+    public static int dspBufferSize
     {
         get
         {
@@ -113,9 +113,9 @@ public class Config
         }
     }
 
-    static public int lastSceneId = 0;
+    public static int lastSceneId = 0;
 
-    static public string selectedChapter
+    public static string selectedChapter
     {
         get
         {
@@ -127,7 +127,7 @@ public class Config
         set { PlayerPrefs.SetString("selectedChapter", value); }
     }
 
-    static public string selectedChart
+    public static string selectedChart
     {
         get
         {
@@ -139,7 +139,7 @@ public class Config
         set { PlayerPrefs.SetString("selectedChart", value); }
     }
 
-    static public bool selectSP
+    public static bool selectSP
     {
         get
         {
@@ -162,7 +162,7 @@ public class Config
         }
     }
 
-    static public bool initSceneSucceed
+    public static bool initSceneSucceed
     {
         get
         {
@@ -185,7 +185,7 @@ public class Config
         }
     }
 
-    static public bool autoplay
+    public static bool autoplay
     {
         get
         {
@@ -208,7 +208,7 @@ public class Config
         }
     }
 
-    static public Config.LoadType loadType
+    public static Config.LoadType loadType
     {
         get
         {
@@ -234,7 +234,7 @@ public class Config
         }
     }
 
-    static public Sprite getRankImage(int score)
+    public static Sprite getRankImage(int score)
     {
         string path = "Textures/Rank/";
         if (score == Config.TotalScore)
@@ -353,17 +353,16 @@ public class Config
         AboveUI
     }
 
-    static public Vector3 myposition2world(Vector3 mypos)
+    public static Vector3 myposition2world(Vector3 mypos)
     {
-        Vector3 screenpos = new Vector3((mypos.x + 1) / 2 * Screen.width, (mypos.y + 1) / 2 * Screen.height, mypos.z);
+        Vector3 screenpos = new Vector3((mypos.x / 16f + 0.5f) * Screen.width, (mypos.y / 9f + 0.5f) * Screen.height, mypos.z);
         return new Vector3(Camera.main.ScreenToWorldPoint(screenpos).x, Camera.main.ScreenToWorldPoint(screenpos).y, 0);
     }
 
-    static public Vector3 world2myposition(Vector3 worldpos)
+    public static Vector3 world2myposition(Vector3 worldpos)
     {
         Vector3 screenpos = Camera.main.WorldToScreenPoint(worldpos);
-        return new Vector3((screenpos.x - Screen.width / 2) / Screen.width * 2,
-            (screenpos.y - Screen.height / 2) / Screen.height * 2, 0);
+        return new Vector3((screenpos.x / Screen.width * 16 - 0.5f) * 16f, (screenpos.y / Screen.height - 0.5f) * 9f, 0);
     }
 
     public static Sprite GetImgSprite(string rootFolder, string imgPath, LoadType loadType)
@@ -372,7 +371,7 @@ public class Config
         if (!imgPath.StartsWith("$")) return Utilities.loadSprite(rootFolder + imgPath, loadType);
         imgPath = imgPath[1..];
         if (imgPath != "cover" || loadType != LoadType.External) return null;
-        return Utilities.loadSprite(rootFolder + "../Illustration", loadType);
+        return Utilities.loadSprite(rootFolder + "../illustration", loadType);
     }
 }
 

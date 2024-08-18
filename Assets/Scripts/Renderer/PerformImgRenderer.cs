@@ -80,7 +80,7 @@ public class PerformImgRenderer : MoveableObject
             switch (internalReference)
             {
                 case "tap":
-                case "tap_hl": // TODO: ¶àÑº
+                case "tap_hl": // TODO: å¤šæŠ¼
                     EnableNoteRenderer = true;
                     noteRenderer.init(0, _color, Config.Type.Tap);
                     noteRenderer.setSortingLayerAndOrder(sortingLayerName, sortingOrder);

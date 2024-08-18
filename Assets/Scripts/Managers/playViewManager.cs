@@ -216,11 +216,11 @@ public class playViewManager : MonoBehaviour
         string imgpath;
         if (loadType == Config.LoadType.Resource)
         {
-            imgpath = "Charts/" + Config.selectedChapter + "/" + Config.selectedChart + "/Illustration";
+            imgpath = "Charts/" + Config.selectedChapter + "/" + Config.selectedChart + "/illustration";
         }
         else
         {
-            imgpath = System.Environment.CurrentDirectory + "/Charts/" + Config.selectedChapter + "/" + Config.selectedChart + "/Illustration";
+            imgpath = System.Environment.CurrentDirectory + "/Charts/" + Config.selectedChapter + "/" + Config.selectedChart + "/illustration";
         }
         return Utilities.loadSprite(imgpath, loadType);
     }
