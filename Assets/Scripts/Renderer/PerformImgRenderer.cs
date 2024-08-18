@@ -28,7 +28,7 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
 
     public float scaleX
     {
-        get { return transform.localScale.x; }
+        get => transform.localScale.x;
         set
         {
             transform.localScale = new Vector3(value, transform.localScale.y, 1);
@@ -38,8 +38,8 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
 
     public float scaleY
     {
-        get { return transform.localScale.y; }
-        set { transform.localScale = new Vector3(transform.localScale.x, value, 1); }
+        get => transform.localScale.y;
+        set => transform.localScale = new Vector3(transform.localScale.x, value, 1);
     }
 
     public void SetScaleRespectively(float x, float y)
@@ -50,8 +50,12 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
 
     public Color color
     {
-        get { return img.color; }
-        set { img.color = value; }
+        get => img.color;
+        set
+        {
+            img.color = value;
+            if (EnableNoteRenderer) noteRenderer.color = value;
+        }
     }
 
     public void init(Sprite _sprite, Color _color, Vector3 _position, float _scaleX = 1, float _scaleY = 1,
