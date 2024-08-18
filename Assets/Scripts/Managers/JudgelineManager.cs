@@ -23,7 +23,7 @@ public class JudgelineManager : BaseManager
             EventList.Add(judgelinelist[i].eventList.Clone());
             judgelineObjectList.Add(pool.get_item());
             JudgeLine line = judgelinelist[i];
-            judgelineObjectList[i].GetComponent<JudgeLineRenderer>().init(line.color, line.position, line.scale, line.angle);
+            judgelineObjectList[i].GetComponent<JudgeLineRenderer>().init(line.color, line.position, line.angle);
             presentMoveEventNum.Add(0);
             presentRotateEventNum.Add(0);
             presentColorEventNum.Add(0);
@@ -37,7 +37,7 @@ public class JudgelineManager : BaseManager
             presentRotateEventNum[i] = 0;
             presentColorEventNum[i] = 0;
             JudgeLine line = judgeLineList[i];
-            judgelineObjectList[i].GetComponent<JudgeLineRenderer>().init(line.color, line.position, line.scale, line.angle);
+            judgelineObjectList[i].GetComponent<JudgeLineRenderer>().init(line.color, line.position, line.angle);
         }
     }
     public void update(float time,bool showId = false)

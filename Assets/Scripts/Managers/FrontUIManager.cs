@@ -308,10 +308,10 @@ public class FrontUIManager : MonoBehaviour
         note_speed.text = note.speed.ToString();
         switch (note.lineSide)
         {
-            case Config.LineType.Line1:
+            case Config.LineType.Up:
                 note_lineside.SetValueWithoutNotify(0);
                 break;
-            case Config.LineType.Line2:
+            case Config.LineType.Down:
                 note_lineside.SetValueWithoutNotify(1);
                 break;
         }
@@ -358,10 +358,12 @@ public class FrontUIManager : MonoBehaviour
         if (Config.spriteList.ContainsKey(img.path))
         {
             img_sprite.sprite = Config.spriteList[img.path];
+            img_sprite.color = Config.spriteList[img.path] == null ? Color.clear : Color.white;
         }
         else
         {
             img_sprite.sprite = Resources.Load<Sprite>("Textures/defaultimg");
+            img_sprite.color = Color.white;
         }
         /*
         if (texture != null)
@@ -385,6 +387,7 @@ public class FrontUIManager : MonoBehaviour
         img_endtime.text = "";
         img_eventnum.text = "";
         img_sprite.sprite = null;
+        img_sprite.color = Color.clear;
     }
 
     public void setImageList(List<PerformImg> imgList)

@@ -881,14 +881,14 @@ public class JudgeLine
     public float angle;
     public float scale;
 
-    public JudgeLine(Color color, Vector3 position, float angle = 0, float scale = 1)
+    public JudgeLine(Color color, Vector3 position, float angle = 0)
     {
         this.noteList = new List<Note>();
         this.eventList = new EventList();
         this.color = color;
         this.position = position;
         this.angle = angle;
-        this.scale = scale;
+        this.scale = 1f;
     }
 }
 
@@ -916,7 +916,7 @@ public class Note
     [JsonIgnore] public Color color;
 
     public Note(Config.Type type, Color color, float time, float duration = 0, float speed = 1, float livingTime = 5,
-        Config.LineType lineSide = Config.LineType.Line1, bool fake = false)
+        Config.LineType lineSide = Config.LineType.Up, bool fake = false)
     {
         this.type = type;
         this.time = time;

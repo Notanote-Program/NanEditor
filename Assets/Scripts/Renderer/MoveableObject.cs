@@ -13,6 +13,7 @@ public class MoveableObject : MonoBehaviour
     public Vector3 worldPosition
     {
         get { return transform.position; }
+        set { transform.position = value; }
     }
     private float _angle = 0;
     public float angle

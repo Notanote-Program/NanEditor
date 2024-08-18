@@ -322,8 +322,8 @@ public class Config
 
     public enum LineType
     {
-        Line1,
-        Line2,
+        Up = 0,
+        Down,
     }
 
     public enum LoadType

@@ -70,8 +70,8 @@ public class NoteManager : BaseManager
     }
     private void addNote(Note note)
     {
-        float distance = getDistance(note.livingTime, note.speed, note.lineSide);
-        float length = getDistance(note.duration, note.speed, note.lineSide);
+        float distance = GetDistance(note.livingTime, note.speed, note.lineSide);
+        float length = GetDistance(note.duration, note.speed, note.lineSide);
         if (!noteObjectList.ContainsKey(note))
         {
             noteStateList[note] = Config.ControlState.init;
@@ -90,10 +90,10 @@ public class NoteManager : BaseManager
             addNote(note);
         //Debug.Log(noteStateList[note]);
         noteObjectList[note].GetComponent<NoteRenderer>().setControlState(noteStateList[note]);
-        noteObjectList[note].GetComponent<NoteRenderer>().distance = getDistance(note.time - time, note.speed, note.lineSide);
+        noteObjectList[note].GetComponent<NoteRenderer>().distance = GetDistance(note.time - time, note.speed, note.lineSide);
         if (note.type == Config.Type.Hold)
         {
-            noteObjectList[note].GetComponent<NoteRenderer>().length = getDistance(Mathf.Min(note.duration, note.duration - time + note.time), note.speed, note.lineSide);
+            noteObjectList[note].GetComponent<NoteRenderer>().length = GetDistance(Mathf.Min(note.duration, note.duration - time + note.time), note.speed, note.lineSide);
         }
         fade(note, time);
     }
@@ -170,9 +170,10 @@ public class NoteManager : BaseManager
             }
         }
     }
-    private float getDistance(float duration, float speed, Config.LineType side)
+
+    public static float GetDistance(float duration, float speed, Config.LineType side)
     {
-        return Mathf.Max(0, duration)/1000.0f * speed * (side == Config.LineType.Line1 ? 1 : -1);
+        return Mathf.Max(0, duration) /1000.0f * speed * (side == Config.LineType.Up ? 1 : -1);
     }
     private NoteState getNoteState(Note note, float time)
     {

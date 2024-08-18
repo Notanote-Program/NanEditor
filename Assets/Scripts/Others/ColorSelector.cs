@@ -240,7 +240,7 @@ public class ColorSelector : MonoBehaviour, IDragHandler, IPointerDownHandler
     private void setMainCursorPos(Color _color)
     {
         Color[] colorArray = texture.GetPixels();
-        Debug.Log(colorArray.Length);
+        // Debug.Log(colorArray.Length);
         float x= 0, y = 1;
         for(int i = 0; i < colorArray.Length; i++) 
         {
@@ -254,7 +254,7 @@ public class ColorSelector : MonoBehaviour, IDragHandler, IPointerDownHandler
         }
         // float x = (_color.g - _color.r) / (_endcolor.g * _color.r - _color.r + _color.g - _color.g * _endcolor.r);
         // float y = _color.r / (1 - x + _endcolor.r * x);
-        Debug.Log(new Vector2(x, y));
+        // Debug.Log(new Vector2(x, y));
         Vector2 pos = getAnchoredPosition(new Vector2(x, y), mainImage.GetComponent<RectTransform>());
         circleRect.anchoredPosition = GetClampPosition(pos, mainImage.GetComponent<RectTransform>());
     }

@@ -131,11 +131,12 @@ public class NoteRenderer : MoveableObject
         NoteBody.sortingOrder = sortingOrder;
     }
 
-    public void updateBodyWidth(float width = 1f)
+    public void updateBodyWidth(float scale = 1f)
     {
         if (type == Config.Type.Hold)
         {
-            NoteBody.widthMultiplier = width;
+            NoteBody.startWidth = scale * defaultWidth;
+            NoteBody.endWidth = scale * defaultWidth;
         }
     }
 }

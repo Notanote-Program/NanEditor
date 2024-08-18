@@ -11,18 +11,20 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
 {
     [SerializeField] private SpriteRenderer img;
     [SerializeField] private NoteRenderer noteRenderer;
+    [SerializeField] private JudgeLineRenderer judgeLineRenderer;
     private float holdLength;
-    private bool _enableNoteRenderer;
-
-    public bool EnableNoteRenderer
+    private int _performImgType;
+    // 0: 普通图片，1: Note, 2: 判定线
+    public int PerformImgType
     {
-        get => _enableNoteRenderer;
+        get => _performImgType;
         set
         {
-            _enableNoteRenderer = value;
-            img.enabled = !EnableNoteRenderer;
-            noteRenderer.gameObject.SetActive(EnableNoteRenderer);
-            if (EnableNoteRenderer) noteRenderer.updateBodyWidth(scaleX);
+            _performImgType = value;
+            img.enabled = PerformImgType == 0;
+            noteRenderer.gameObject.SetActive(PerformImgType == 1);
+            if (PerformImgType == 1) noteRenderer.updateBodyWidth(scaleX);
+            if (PerformImgType == 2) judgeLineRenderer.setScaleX(scaleX);
         }
     }
 
@@ -32,7 +34,8 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
         set
         {
             transform.localScale = new Vector3(value, transform.localScale.y, 1);
-            if (EnableNoteRenderer) noteRenderer.updateBodyWidth(value);
+            if (PerformImgType == 1) noteRenderer.updateBodyWidth(value);
+            if (PerformImgType == 2) judgeLineRenderer.setScaleX(value);
         }
     }
 
@@ -45,7 +48,8 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
     public void SetScaleRespectively(float x, float y)
     {
         transform.localScale = new Vector3(x, y, 1);
-        if (EnableNoteRenderer) noteRenderer.updateBodyWidth(x);
+        if (PerformImgType == 1) noteRenderer.updateBodyWidth(x);
+        if (PerformImgType == 2) judgeLineRenderer.setScaleX(x);
     }
 
     public Color color
@@ -54,8 +58,15 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
         set
         {
             img.color = value;
-            if (EnableNoteRenderer) noteRenderer.color = value;
+            if (PerformImgType == 1) noteRenderer.color = value;
+            if (PerformImgType == 2) judgeLineRenderer.color = value;
         }
+    }
+
+    public void setSortingLayerNameAndOrderLocal(string sortingLayerName, int sortingOrder)
+    {
+        img.sortingLayerName = sortingLayerName;
+        img.sortingOrder = sortingOrder;
     }
 
     public void init(Sprite _sprite, Color _color, Vector3 _position, float _scaleX = 1, float _scaleY = 1,
@@ -76,34 +87,48 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
             Config.PerformImgLayer.AboveUI => "aboveUI",
             _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, null)
         };
-        img.sortingLayerName = sortingLayerName;
-        img.sortingOrder = sortingOrder;
+        setSortingLayerNameAndOrderLocal(sortingLayerName, sortingOrder);
         if (internalReference != null)
         {
             switch (internalReference)
             {
                 case "tap":
                 case "tap_hl": // TODO: 多押
-                    EnableNoteRenderer = true;
+                    PerformImgType = 1;
                     noteRenderer.init(0, _color, Config.Type.Tap);
                     noteRenderer.setSortingLayerAndOrder(sortingLayerName, sortingOrder);
                     break;
                 case "drag":
-                    EnableNoteRenderer = true;
+                    PerformImgType = 1;
                     noteRenderer.init(0, _color, Config.Type.Drag);
                     noteRenderer.setSortingLayerAndOrder(sortingLayerName, sortingOrder);
                     break;
+                case "cover":
+                    PerformImgType = 0;
+                    break;
+                case "judgeline":
+                    PerformImgType = 2;
+                    judgeLineRenderer.init(_color, world2myposition(transform.position));
+                    judgeLineRenderer.setSortingLayerAndOrder(sortingLayerName, sortingOrder);
+                    judgeLineRenderer.setScaleX(_scaleX);
+                    break;
                 default:
-                    if (internalReference.StartsWith("hold_") &&
-                        float.TryParse(internalReference["hold_".Length..], out var length))
+                    if (internalReference.StartsWith("hold_"))
                     {
-                        EnableNoteRenderer = true;
-                        noteRenderer.init(0, _color, Config.Type.Hold, length);
-                        noteRenderer.setSortingLayerAndOrder(sortingLayerName, sortingOrder);
-                        break;
+                        string[] content = internalReference["hold_".Length..].Split(",");
+                        bool isDownSide = false;
+                        if (content.Length is 2 or 3 && float.TryParse(content[0].Trim(), out var duration) &&
+                            float.TryParse(content[1].Trim(), out var speed) && 
+                            (content.Length == 2 || bool.TryParse(content[2].Trim(), out isDownSide)))
+                        {
+                            PerformImgType = 1;
+                            noteRenderer.init(0, _color, Config.Type.Hold, NoteManager.GetDistance(duration, speed, isDownSide ? Config.LineType.Down : Config.LineType.Up));
+                            noteRenderer.setSortingLayerAndOrder(sortingLayerName, sortingOrder);
+                            break;
+                        }
                     }
 
-                    EnableNoteRenderer = false;
+                    PerformImgType = 0;
                     img.sprite = Utilities.GetDefaultSprite();
                     break;
             }
@@ -112,6 +137,6 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
 
     public void OnRelease()
     {
-        EnableNoteRenderer = false;
+        PerformImgType = 0;
     }
 }

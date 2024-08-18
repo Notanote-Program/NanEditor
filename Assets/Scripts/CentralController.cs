@@ -136,7 +136,8 @@ public class CentralController : MonoBehaviour
             if (!imgHashs.ContainsKey(img.path))
             {
                 string imgFilePath = $"{System.Environment.CurrentDirectory}/Charts/{chart_name}/imgs/{img.path}.png";
-                imgHashs.Add(img.path, File.Exists(imgFilePath) ? Utilities.GetFileMD5(File.ReadAllBytes(imgFilePath)) : "");
+                imgHashs.Add(img.path,
+                    File.Exists(imgFilePath) ? Utilities.GetFileMD5(File.ReadAllBytes(imgFilePath)) : "");
             }
 
             img.hash = imgHashs[img.path];
@@ -501,21 +502,27 @@ public class CentralController : MonoBehaviour
             var imgpath = paths[i];
             if (imgpath.StartsWith("$"))
             {
-                string internalReference = imgpath[..1];
+                string internalReference = imgpath[1..];
                 switch (internalReference)
                 {
                     case "tap":
                     case "tap_hl": // TODO: 多押
                     case "drag":
+                    case "judgeline":
                         break;
                     case "cover":
                         imgpath = "../illustration";
                         goto qwq;
                     default:
-                        if (internalReference.StartsWith("hold_") &&
-                            float.TryParse(internalReference["hold_".Length..], out _))
+                        if (internalReference.StartsWith("hold_"))
                         {
-                            break;
+                            string[] content = internalReference["hold_".Length..].Split(",");
+                            if (content.Length is 2 or 3 && float.TryParse(content[0].Trim(), out _) &&
+                                float.TryParse(content[1].Trim(), out _) &&
+                                (content.Length == 2 || bool.TryParse(content[2].Trim(), out _)))
+                            {
+                                break;
+                            }
                         }
 
                         Config.spriteList[imgpath] = Utilities.GetDefaultSprite();
@@ -524,9 +531,10 @@ public class CentralController : MonoBehaviour
 
                 continue;
             }
-            
+
             qwq:
             string path = System.Environment.CurrentDirectory + "/Charts/" + chart_name + "/imgs/" + imgpath + ".png";
+            Debug.Log("path");
             Texture2D texture = Utilities.LoadTexture2D(path);
             if (texture != null)
                 Config.spriteList[imgpath] = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
@@ -543,31 +551,36 @@ public class CentralController : MonoBehaviour
     {
         if (imgpath.StartsWith("$"))
         {
-            string internalReference = imgpath[..1];
+            string internalReference = imgpath[1..];
             switch (internalReference)
             {
                 case "tap":
                 case "tap_hl": // TODO: 多押
                 case "drag":
+                case "judgeline":
                     break;
                 case "cover":
                     imgpath = "../illustration";
                     goto qwq;
                 default:
-                    if (internalReference.StartsWith("hold_") &&
-                        float.TryParse(internalReference["hold_".Length..], out _))
+                    if (internalReference.StartsWith("hold_"))
                     {
-                        Config.spriteList[imgpath] = null;
-                        break;
+                        string[] content = internalReference["hold_".Length..].Split(",");
+                        if (content.Length is 2 or 3 && float.TryParse(content[0].Trim(), out _) &&
+                            float.TryParse(content[1].Trim(), out _) &&
+                            (content.Length == 2 || bool.TryParse(content[2].Trim(), out _)))
+                        {
+                            break;
+                        }
                     }
 
                     Config.spriteList[imgpath] = Utilities.GetDefaultSprite();
                     break;
             }
-            
+
             return;
         }
-        
+
         qwq:
         string path = System.Environment.CurrentDirectory + "/Charts/" + chart_name + "/imgs/" + imgpath + ".png";
         Texture2D texture = Utilities.LoadTexture2D(path);
@@ -1472,7 +1485,7 @@ public class CentralController : MonoBehaviour
         }
     }
 
-    public void addNote(Config.Type noteType = Config.Type.Tap, Config.LineType lineSide = Config.LineType.Line1)
+    public void addNote(Config.Type noteType = Config.Type.Tap, Config.LineType lineSide = Config.LineType.Up)
     {
         if (state == State.editor && type == Config.EventlineType.Judgeline)
         {
@@ -1483,7 +1496,8 @@ public class CentralController : MonoBehaviour
                 duration = Mathf.Max(chart_maker.GetComponent<chartMaker>().getSelectedTime(), time) - time;
             }
 
-            Note note = new Note(noteType, template.color, time, duration, template.speed, template.livingTime, lineSide, template.fake);
+            Note note = new Note(noteType, template.color, time, duration, template.speed, template.livingTime,
+                lineSide, template.fake);
             chart.addNote(note, id);
             chart_maker.GetComponent<chartMaker>().cancelSelect();
             chart_maker.GetComponent<chartMaker>().reset(chart);
@@ -1613,10 +1627,10 @@ public class CentralController : MonoBehaviour
                 switch (t)
                 {
                     case 0:
-                        note.lineSide = Config.LineType.Line1;
+                        note.lineSide = Config.LineType.Up;
                         break;
                     case 1:
-                        note.lineSide = Config.LineType.Line2;
+                        note.lineSide = Config.LineType.Down;
                         break;
                 }
             }
