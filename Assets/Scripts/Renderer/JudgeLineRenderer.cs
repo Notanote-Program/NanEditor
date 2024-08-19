@@ -200,7 +200,12 @@ public class JudgeLineRenderer : MoveableObject
 
     public void setSortingLayerAndOrder(string sortingLayerName, int sortingOrder)
     {
-        
+        judgeCircle.sortingLayerName = sortingLayerName;
+        judgeCircle.sortingOrder = sortingOrder;
+        line1.sortingLayerName = sortingLayerName;
+        line1.sortingOrder = sortingOrder;
+        line2.sortingLayerName = sortingLayerName;
+        line2.sortingOrder = sortingOrder;
     }
 
     public void init(Color _color, Vector3 _position, float _angle = 0, bool isWorldPosition = false)
