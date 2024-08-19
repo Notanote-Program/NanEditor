@@ -362,7 +362,7 @@ public class Config
     public static Vector3 world2myposition(Vector3 worldpos)
     {
         Vector3 screenpos = Camera.main.WorldToScreenPoint(worldpos);
-        return new Vector3((screenpos.x / Screen.width * 16 - 0.5f) * 16f, (screenpos.y / Screen.height - 0.5f) * 9f, 0);
+        return new Vector3((screenpos.x / Screen.width - 0.5f) * 16f, (screenpos.y / Screen.height - 0.5f) * 9f, 0);
     }
 
     public static Sprite GetImgSprite(string rootFolder, string imgPath, LoadType loadType)
