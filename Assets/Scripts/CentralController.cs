@@ -513,6 +513,9 @@ public class CentralController : MonoBehaviour
                     case "cover":
                         imgpath = "../illustration";
                         goto qwq;
+                    case "cover_16x9":
+                        imgpath = "../illustration_16x9";
+                        goto qwq;
                     default:
                         if (internalReference.StartsWith("hold_"))
                         {
@@ -561,6 +564,9 @@ public class CentralController : MonoBehaviour
                     break;
                 case "cover":
                     imgpath = "../illustration";
+                    goto qwq;
+                case "cover_16x9":
+                    imgpath = "../illustration_16x9";
                     goto qwq;
                 default:
                     if (internalReference.StartsWith("hold_"))

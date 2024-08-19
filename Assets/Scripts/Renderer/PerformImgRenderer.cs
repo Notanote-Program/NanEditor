@@ -13,8 +13,9 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
     [SerializeField] private NoteRenderer noteRenderer;
     [SerializeField] private JudgeLineRenderer judgeLineRenderer;
     private float holdLength;
-    
+
     private PerformImgType _type;
+
     private PerformImgType Type
     {
         get => _type;
@@ -105,11 +106,12 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
                     noteRenderer.setSortingLayerAndOrder(sortingLayerName, sortingOrder);
                     break;
                 case "cover":
+                case "cover_16x9":
                     Type = PerformImgType.Normal;
                     break;
                 case "judgeline":
                     Type = PerformImgType.JudgeLine;
-                    judgeLineRenderer.init(_color, transform.position, isWorldPosition:true);
+                    judgeLineRenderer.init(_color, transform.position, isWorldPosition: true);
                     judgeLineRenderer.setSortingLayerAndOrder(sortingLayerName, sortingOrder);
                     judgeLineRenderer.setScaleX(_scaleX);
                     break;
@@ -119,11 +121,13 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
                         string[] content = internalReference["hold_".Length..].Split(",");
                         bool isDownSide = false;
                         if (content.Length is 2 or 3 && float.TryParse(content[0].Trim(), out var duration) &&
-                            float.TryParse(content[1].Trim(), out var speed) && 
+                            float.TryParse(content[1].Trim(), out var speed) &&
                             (content.Length == 2 || bool.TryParse(content[2].Trim(), out isDownSide)))
                         {
                             Type = PerformImgType.Note;
-                            noteRenderer.init(0, _color, Config.Type.Hold, NoteManager.GetDistance(duration, speed, isDownSide ? Config.LineType.Down : Config.LineType.Up));
+                            noteRenderer.init(0, _color, Config.Type.Hold,
+                                NoteManager.GetDistance(duration, speed,
+                                    isDownSide ? Config.LineType.Down : Config.LineType.Up));
                             noteRenderer.setSortingLayerAndOrder(sortingLayerName, sortingOrder);
                             break;
                         }

@@ -370,8 +370,13 @@ public class Config
         if (!rootFolder.Replace("\\", "/").EndsWith("/")) rootFolder += "/";
         if (!imgPath.StartsWith("$")) return Utilities.loadSprite(rootFolder + imgPath, loadType);
         imgPath = imgPath[1..];
-        if (imgPath != "cover" || loadType != LoadType.External) return null;
-        return Utilities.loadSprite(rootFolder + "../illustration", loadType);
+        if (loadType != LoadType.External) return null;
+        return imgPath switch
+        {
+            "cover" => Utilities.loadSprite(rootFolder + "../illustration", loadType),
+            "cover_16x9" => Utilities.loadSprite(rootFolder + "../illustration_16x9", loadType),
+            _ => null
+        };
     }
 }
 
