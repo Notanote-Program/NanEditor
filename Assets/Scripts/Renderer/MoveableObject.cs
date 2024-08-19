@@ -41,8 +41,6 @@ public class MoveableObject : MonoBehaviour
 
     public bool OutOfScreen(Vector3 mypos)
     {
-        if (Mathf.Abs(mypos.x) >= 8 || Mathf.Abs(mypos.y) >= 4.5f)
-            return true;
-        return false;
+        return Mathf.Abs(mypos.x) >= 8 || Mathf.Abs(mypos.y) >= 4.5f;
     }
 }
