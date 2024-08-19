@@ -137,7 +137,7 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
 
     public void OnRelease()
     {
-        Type = 0;
+        Type = PerformImgType.Normal;
     }
 
     private enum PerformImgType
