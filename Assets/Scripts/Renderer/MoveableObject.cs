@@ -10,19 +10,22 @@ public class MoveableObject : MonoBehaviour
         get { return world2myposition(transform.position); }
         set { transform.position = myposition2world(value); }
     }
+
     public Vector3 worldPosition
     {
         get { return transform.position; }
         set { transform.position = value; }
     }
+
     private float _angle = 0;
+
     public float angle
     {
         get { return _angle; }
-        set 
+        set
         {
             _angle = value;
-            transform.rotation = Quaternion.Euler(0,0,value);
+            transform.rotation = Quaternion.Euler(0, 0, value);
         }
     }
 
@@ -30,13 +33,15 @@ public class MoveableObject : MonoBehaviour
     {
         return Config.myposition2world(mypos);
     }
+
     public Vector3 world2myposition(Vector3 worldpos)
     {
-        return  Config.world2myposition(worldpos);
+        return Config.world2myposition(worldpos);
     }
+
     public bool OutOfScreen(Vector3 mypos)
     {
-        if(Mathf.Abs(mypos.x)>=1 || Mathf.Abs(mypos.y)>=1)
+        if (Mathf.Abs(mypos.x) >= 8 || Mathf.Abs(mypos.y) >= 4.5f)
             return true;
         return false;
     }

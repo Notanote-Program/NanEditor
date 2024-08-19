@@ -216,14 +216,13 @@ public class JudgeLineRenderer : MoveableObject
         if (isWorldPosition)
         {
             worldPosition = _position;
-            textId.transform.position = position;
         }
         else
         {
             position = _position;
-            textId.transform.position = worldPosition;
         }
 
+        textId.transform.position = worldPosition;
         color = _color;
         setscale(1f);
         angle = _angle;

@@ -109,7 +109,7 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
                     break;
                 case "judgeline":
                     Type = PerformImgType.JudgeLine;
-                    judgeLineRenderer.init(_color, world2myposition(transform.position));
+                    judgeLineRenderer.init(_color, transform.position, isWorldPosition:true);
                     judgeLineRenderer.setSortingLayerAndOrder(sortingLayerName, sortingOrder);
                     judgeLineRenderer.setScaleX(_scaleX);
                     break;
