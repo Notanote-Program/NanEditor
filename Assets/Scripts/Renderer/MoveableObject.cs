@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -29,11 +30,13 @@ public class MoveableObject : MonoBehaviour
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector3 myposition2world(Vector3 mypos)
     {
         return Config.myposition2world(mypos);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector3 world2myposition(Vector3 worldpos)
     {
         return Config.world2myposition(worldpos);
