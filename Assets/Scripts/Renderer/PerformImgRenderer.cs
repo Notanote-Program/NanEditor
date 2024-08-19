@@ -25,33 +25,20 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
             img.enabled = Type == PerformImgType.Normal;
             noteRenderer.gameObject.SetActive(Type == PerformImgType.Note);
             judgeLineRenderer.gameObject.SetActive(Type == PerformImgType.JudgeLine);
-            if (Type == PerformImgType.Note) noteRenderer.updateBodyWidth(scaleX);
-            if (Type == PerformImgType.JudgeLine) judgeLineRenderer.setScaleX(scaleX);
+            if (Type == PerformImgType.Note) noteRenderer.setBodyWidth(scaleX);
+            if (Type == PerformImgType.JudgeLine) judgeLineRenderer.scaleX = scaleX;
         }
     }
 
-    public float scaleX
+    protected override void RefreshTransformScale(bool hasX, bool hasY)
     {
-        get => transform.localScale.x;
-        set
+        base.RefreshTransformScale(hasX, hasY);
+        if (hasX)
         {
-            transform.localScale = new Vector3(value, transform.localScale.y, 1);
-            if (Type == PerformImgType.Note) noteRenderer.updateBodyWidth(value);
-            if (Type == PerformImgType.JudgeLine) judgeLineRenderer.setScaleX(value);
+            float x = scaleX;
+            if (Type == PerformImgType.Note) noteRenderer.setBodyWidth(x);
+            if (Type == PerformImgType.JudgeLine) judgeLineRenderer.scaleX = x;
         }
-    }
-
-    public float scaleY
-    {
-        get => transform.localScale.y;
-        set => transform.localScale = new Vector3(transform.localScale.x, value, 1);
-    }
-
-    public void SetScaleRespectively(float x, float y)
-    {
-        transform.localScale = new Vector3(x, y, 1);
-        if (Type == PerformImgType.Note) noteRenderer.updateBodyWidth(x);
-        if (Type == PerformImgType.JudgeLine) judgeLineRenderer.setScaleX(x);
     }
 
     public Color color
@@ -73,12 +60,12 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
 
     public void init(Sprite _sprite, Color _color, Vector3 _position, float _scaleX = 1, float _scaleY = 1,
         Config.PerformImgLayer layer = Config.PerformImgLayer.Background, float _angle = 0, int sortingOrder = 500,
-        string internalReference = "")
+        string internalReference = null)
     {
         //Debug.Log(path);
         this.color = _color;
         this.position = _position;
-        this.SetScaleRespectively(_scaleX, _scaleY);
+        this.scale = new Vector2(_scaleX, _scaleY);
         this.angle = _angle;
         img.sprite = _sprite;
         string sortingLayerName = layer switch
@@ -113,12 +100,20 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
                     Type = PerformImgType.JudgeLine;
                     judgeLineRenderer.init(_color, transform.position, isWorldPosition: true);
                     judgeLineRenderer.setSortingLayerAndOrder(sortingLayerName, sortingOrder);
-                    judgeLineRenderer.setScaleX(_scaleX);
+                    judgeLineRenderer.scaleX = _scaleX;
                     break;
                 default:
                     if (internalReference.StartsWith("hold_"))
                     {
-                        string[] content = internalReference["hold_".Length..].Split(",");
+                        string head = "hold_";
+                        bool isHl = false;
+                        if (internalReference.StartsWith(head + "hl_"))
+                        {
+                            head += "hl_";
+                            isHl = true; // Preserve
+                        }
+                        
+                        string[] content = internalReference[head.Length..].Split(",");
                         bool isDownSide = false;
                         if (content.Length is 2 or 3 && float.TryParse(content[0].Trim(), out var duration) &&
                             float.TryParse(content[1].Trim(), out var speed) &&

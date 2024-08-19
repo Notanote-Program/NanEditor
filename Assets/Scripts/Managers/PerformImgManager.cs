@@ -278,7 +278,7 @@ public class PerformImgManager : BaseManager
 
         if (xHasEvent && yHasEvent)
         {
-            imgObjectList[Id].GetComponent<PerformImgRenderer>().SetScaleRespectively(x, y);
+            imgObjectList[Id].GetComponent<PerformImgRenderer>().scale = new Vector2(x, y);
         }
         else if (xHasEvent)
         {

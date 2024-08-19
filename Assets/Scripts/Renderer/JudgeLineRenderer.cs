@@ -17,24 +17,6 @@ public class JudgeLineRenderer : MoveableObject
     private const float line_length = 10000.0f;
     private const float radius = 0.5f;
 
-    public float scale
-    {
-        get { return transform.localScale.x; }
-        set { transform.localScale = new Vector3(value, value, 1); }
-    }
-
-    public float scaleX
-    {
-        get => transform.localScale.x;
-        set { transform.localScale = new Vector3(value, transform.localScale.y, 1); }
-    }
-
-    public float scaleY
-    {
-        get => transform.localScale.y;
-        set => transform.localScale = new Vector3(transform.localScale.x, value, 1);
-    }
-
     // public float width
     // {
     //     get { return _width; }
@@ -98,7 +80,7 @@ public class JudgeLineRenderer : MoveableObject
         //Line2.sortingLayerID = 3;
         position = Vector3.zero;
         angle = 0;
-        scale = 1;
+        scaleSingle = 1;
         //Debug.Log("init line");
         line1.positionCount = 2;
         line2.positionCount = 2;
@@ -106,10 +88,10 @@ public class JudgeLineRenderer : MoveableObject
         line1.useWorldSpace = false;
         line2.useWorldSpace = false;
 
-        line1.startWidth = _width * scale;
-        line1.endWidth = _width * scale;
-        line2.startWidth = _width * scale;
-        line2.endWidth = _width * scale;
+        line1.startWidth = _width * scaleSingle;
+        line1.endWidth = _width * scaleSingle;
+        line2.startWidth = _width * scaleSingle;
+        line2.endWidth = _width * scaleSingle;
 
         line1.SetPosition(0, new Vector3(0, radius, 0));
         line1.SetPosition(1, new Vector3(0, line_length, 0));
@@ -131,13 +113,13 @@ public class JudgeLineRenderer : MoveableObject
     private void adjustLineY()
     {
         Vector3 originpos = line1.GetPosition(1);
-        if (scale != 0 && !OutOfScreen(world2myposition(transform.TransformPoint(originpos))))
+        if (scaleSingle != 0 && !OutOfScreen(world2myposition(transform.TransformPoint(originpos))))
         {
             line1.SetPosition(1, new Vector3(0, originpos.y * 2, 0));
         }
 
         originpos = line2.GetPosition(1);
-        if (scale != 0 && !OutOfScreen(world2myposition(transform.TransformPoint(originpos))))
+        if (scaleSingle != 0 && !OutOfScreen(world2myposition(transform.TransformPoint(originpos))))
         {
             line2.SetPosition(1, new Vector3(0, originpos.y * 2, 0));
         }
@@ -145,10 +127,10 @@ public class JudgeLineRenderer : MoveableObject
 
     private void adjustLineX()
     {
-        line1.startWidth = _width * scale;
-        line1.endWidth = _width * scale;
-        line2.startWidth = _width * scale;
-        line2.endWidth = _width * scale;
+        line1.startWidth = _width * scaleSingle;
+        line1.endWidth = _width * scaleSingle;
+        line2.startWidth = _width * scaleSingle;
+        line2.endWidth = _width * scaleSingle;
     }
 
     private bool LineInScreen(Vector3 pos1, Vector3 pos2)
@@ -174,22 +156,20 @@ public class JudgeLineRenderer : MoveableObject
         adjustLine();
     }
 
-    public void setscale(float _scale)
+    protected override void RefreshTransformScale(bool hasX, bool hasY)
     {
-        scale = _scale;
-        adjustLine();
-    }
-
-    public void setScaleX(float _scaleX)
-    {
-        scaleX = _scaleX;
-        adjustLineX();
-    }
-
-    public void setScaleY(float _scaleY)
-    {
-        scaleY = _scaleY;
-        adjustLineY();
+        base.RefreshTransformScale(hasX, hasY);
+        if (hasX && hasY)
+        {
+            adjustLine();
+        } else if (hasX)
+        {
+            adjustLineX();
+        }
+        else
+        {
+            adjustLineY();
+        }
     }
 
     public void setangle(float _angle)
@@ -224,7 +204,7 @@ public class JudgeLineRenderer : MoveableObject
 
         textId.transform.position = worldPosition;
         color = _color;
-        setscale(1f);
+        scaleSingle = 1f;
         angle = _angle;
     }
 

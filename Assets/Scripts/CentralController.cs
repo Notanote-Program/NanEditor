@@ -519,7 +519,15 @@ public class CentralController : MonoBehaviour
                     default:
                         if (internalReference.StartsWith("hold_"))
                         {
-                            string[] content = internalReference["hold_".Length..].Split(",");
+                            string head = "hold_";
+                            bool isHl = false;
+                            if (internalReference.StartsWith(head + "hl_"))
+                            {
+                                head += "hl_";
+                                isHl = true; // Preserve
+                            }
+                        
+                            string[] content = internalReference[head.Length..].Split(",");
                             if (content.Length is 2 or 3 && float.TryParse(content[0].Trim(), out _) &&
                                 float.TryParse(content[1].Trim(), out _) &&
                                 (content.Length == 2 || bool.TryParse(content[2].Trim(), out _)))
@@ -571,7 +579,15 @@ public class CentralController : MonoBehaviour
                 default:
                     if (internalReference.StartsWith("hold_"))
                     {
-                        string[] content = internalReference["hold_".Length..].Split(",");
+                        string head = "hold_";
+                        bool isHl = false;
+                        if (internalReference.StartsWith(head + "hl_"))
+                        {
+                            head += "hl_";
+                            isHl = true; // Preserve
+                        }
+                        
+                        string[] content = internalReference[head.Length..].Split(",");
                         if (content.Length is 2 or 3 && float.TryParse(content[0].Trim(), out _) &&
                             float.TryParse(content[1].Trim(), out _) &&
                             (content.Length == 2 || bool.TryParse(content[2].Trim(), out _)))

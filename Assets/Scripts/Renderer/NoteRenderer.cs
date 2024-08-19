@@ -96,10 +96,13 @@ public class NoteRenderer : MoveableObject
         this.length = length;
         setControlState(state);
     }
-    private void setBodyWidth(float width)
+    public void setBodyWidth(float scale)
     {
-        NoteBody.startWidth = width * defaultWidth;
-        NoteBody.endWidth = width * defaultWidth;
+        if (type == Config.Type.Hold)
+        {
+            NoteBody.startWidth = scale * defaultWidth;
+            NoteBody.endWidth = scale * defaultWidth;
+        }
     }
     public void setControlState(Config.ControlState state)
     {
@@ -129,14 +132,5 @@ public class NoteRenderer : MoveableObject
         NoteHead.sortingOrder = sortingOrder;
         NoteBody.sortingLayerName = sortingLayerName;
         NoteBody.sortingOrder = sortingOrder;
-    }
-
-    public void updateBodyWidth(float scale = 1f)
-    {
-        if (type == Config.Type.Hold)
-        {
-            NoteBody.startWidth = scale * defaultWidth;
-            NoteBody.endWidth = scale * defaultWidth;
-        }
     }
 }

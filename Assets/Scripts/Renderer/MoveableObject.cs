@@ -29,6 +29,52 @@ public class MoveableObject : MonoBehaviour
             transform.rotation = Quaternion.Euler(0, 0, value);
         }
     }
+    
+    private Vector2 _scale = new Vector2(1f, 1f);
+        
+    public float scaleSingle
+    {
+        get { return _scale.x; }
+        set
+        {
+            _scale = new Vector2(value, value);
+            RefreshTransformScale(true, true);
+        }
+    }
+    
+    public Vector2 scale
+    {
+        get { return _scale; }
+        set
+        {
+            _scale = value;
+            RefreshTransformScale(true, true);
+        }
+    }
+        
+    public float scaleX
+    {
+        get { return _scale.x; }
+        set
+        {
+            _scale = new Vector2(value, _scale.y);
+            RefreshTransformScale(true, false); 
+        }
+    }
+    public float scaleY
+    {
+        get { return _scale.y; }
+        set
+        {
+            _scale = new Vector2(_scale.x, value);
+            RefreshTransformScale(false, true); 
+        }
+    }
+
+    protected virtual void RefreshTransformScale(bool hasX, bool hasY)
+    {
+        transform.localScale = new Vector3(_scale.x, _scale.y, 1); 
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector3 myposition2world(Vector3 mypos)
