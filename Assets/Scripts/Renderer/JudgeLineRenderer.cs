@@ -18,7 +18,7 @@ public class JudgeLineRenderer : ColoredMoveableObject
         get => judgeCircle.color;
         set => judgeCircle.color = value;
     }
-
+    
     // Color
     protected override Color GetColor() => judgeCircle.color;
 
@@ -30,7 +30,7 @@ public class JudgeLineRenderer : ColoredMoveableObject
         line2.endColor = color;
         judgeCircle.color = color;
     }
-
+    
     private void initJudgeCircle()
     {
         judgeCircle.sprite = JudgeCircleSprite;
@@ -136,8 +136,7 @@ public class JudgeLineRenderer : ColoredMoveableObject
         if (hasX && hasY)
         {
             adjustLine();
-        }
-        else if (hasX)
+        } else if (hasX)
         {
             adjustLineX();
         }
