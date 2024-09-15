@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class BaseManager : MonoBehaviour
@@ -12,10 +10,10 @@ public class BaseManager : MonoBehaviour
     protected List<int> presentColorEventNum;
     protected List<int> presentScaleXEventNum;
     protected List<int> presentScaleYEventNum;
-    protected void initPool(string path, int num, GameObject parent = null)
+    protected void initPool(string path, int num, GameObject parent = null, bool needRelease = false)
     {
         pool = new itempool();
-        pool.set_item(path, parent);
+        pool.set_item(path, needRelease, parent);
         pool.init(num);
     }
     protected Vector3 getPosition(MoveEvent moveEvent,float time)

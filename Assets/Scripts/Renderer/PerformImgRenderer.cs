@@ -1,13 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.Serialization;
-using UnityEngine.UIElements;
 
-public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
+public class PerformImgRenderer : ColoredMoveableObject, IReleasablePoolItem
 {
     [SerializeField] private SpriteRenderer img;
     [SerializeField] private NoteRenderer noteRenderer;
@@ -26,7 +20,7 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
             noteRenderer.gameObject.SetActive(Type == PerformImgType.Note);
             judgeLineRenderer.gameObject.SetActive(Type == PerformImgType.JudgeLine);
             if (Type == PerformImgType.Note) noteRenderer.setBodyWidth(scaleX);
-            if (Type == PerformImgType.JudgeLine) judgeLineRenderer.scaleX = scaleX;
+            if (Type == PerformImgType.JudgeLine) judgeLineRenderer.scaleSingle = 1f;
         }
     }
 
@@ -37,19 +31,18 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
         {
             float x = scaleX;
             if (Type == PerformImgType.Note) noteRenderer.setBodyWidth(x);
-            if (Type == PerformImgType.JudgeLine) judgeLineRenderer.scaleX = x;
+            if (Type == PerformImgType.JudgeLine) judgeLineRenderer.setLineLength(1);
         }
     }
 
-    public Color color
+    // Color
+    protected override Color GetColor() => img.color;
+
+    protected override void SetColor(Color color)
     {
-        get => img.color;
-        set
-        {
-            img.color = value;
-            if (Type == PerformImgType.Note) noteRenderer.color = value;
-            if (Type == PerformImgType.JudgeLine) judgeLineRenderer.color = value;
-        }
+        img.color = color;
+        if (Type == PerformImgType.Note) noteRenderer.Color = color;
+        if (Type == PerformImgType.JudgeLine) judgeLineRenderer.Color = color;
     }
 
     public void setSortingLayerNameAndOrderLocal(string sortingLayerName, int sortingOrder)
@@ -63,7 +56,7 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
         string internalReference = null)
     {
         //Debug.Log(path);
-        this.color = _color;
+        this.Color = _color;
         this.position = _position;
         this.scale = new Vector2(_scaleX, _scaleY);
         this.angle = _angle;
@@ -112,7 +105,7 @@ public class PerformImgRenderer : MoveableObject, IReleasablePoolItem
                             head += "hl_";
                             isHl = true; // Preserve
                         }
-                        
+
                         string[] content = internalReference[head.Length..].Split(",");
                         bool isDownSide = false;
                         if (content.Length is 2 or 3 && float.TryParse(content[0].Trim(), out var duration) &&
