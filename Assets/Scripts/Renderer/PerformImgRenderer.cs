@@ -17,10 +17,25 @@ public class PerformImgRenderer : ColoredMoveableObject, IReleasablePoolItem
         {
             _type = value;
             img.enabled = Type == PerformImgType.Normal;
-            noteRenderer.gameObject.SetActive(Type == PerformImgType.Note);
-            judgeLineRenderer.gameObject.SetActive(Type == PerformImgType.JudgeLine);
-            if (Type == PerformImgType.Note) noteRenderer.setBodyWidth(scaleX);
-            if (Type == PerformImgType.JudgeLine) judgeLineRenderer.scaleSingle = 1f;
+            if (Type == PerformImgType.Note)
+            {
+                noteRenderer.gameObject.SetActive(true);
+                noteRenderer.setBodyWidth(scaleX);
+            }
+            else
+            {
+                noteRenderer?.gameObject.SetActive(false);
+            }
+
+            if (Type == PerformImgType.JudgeLine)
+            {
+                judgeLineRenderer.gameObject.SetActive(true);
+                judgeLineRenderer.scaleSingle = 1f;
+            }
+            else
+            {
+                judgeLineRenderer?.gameObject.SetActive(false);
+            }
         }
     }
 
