@@ -158,18 +158,18 @@ public class JudgelineManager : BaseManager
         if (presentColorEventNum[Id] >= events.Count && events.Count > 0)
         {
             Color color = events[events.Count - 1].endColor;
-            judgelineObjectList[Id].GetComponent<JudgeLineRenderer>().color = color;
+            judgelineObjectList[Id].GetComponent<JudgeLineRenderer>().Color = color;
             return;
         }
         if (events[presentColorEventNum[Id]].startTime <= time)
         {
             Color color = getColor(events[presentColorEventNum[Id]], time);
-            judgelineObjectList[Id].GetComponent<JudgeLineRenderer>().color = color;
+            judgelineObjectList[Id].GetComponent<JudgeLineRenderer>().Color = color;
         }
         else if (presentColorEventNum[Id] > 0)
         {
             Color color = events[presentColorEventNum[Id] - 1].endColor;
-            judgelineObjectList[Id].GetComponent<JudgeLineRenderer>().color = color;
+            judgelineObjectList[Id].GetComponent<JudgeLineRenderer>().Color = color;
         }
     }
 }

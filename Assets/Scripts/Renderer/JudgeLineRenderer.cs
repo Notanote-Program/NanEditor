@@ -1,11 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class JudgeLineRenderer : MoveableObject
+public class JudgeLineRenderer : ColoredMoveableObject
 {
     [SerializeField] private SpriteRenderer judgeCircle;
     [SerializeField] private LineRenderer line1;
@@ -17,54 +13,24 @@ public class JudgeLineRenderer : MoveableObject
     private const float line_length = 10000.0f;
     private const float radius = 0.5f;
 
-    // public float width
-    // {
-    //     get { return _width; }
-    //     set
-    //     {
-    //         _width = value;
-    //         adjustLine();
-    //     }
-    // }
-    //
-    // public Color color_line1
-    // {
-    //     get { return line1.startColor; }
-    //     set
-    //     {
-    //         line1.startColor = value;
-    //         line1.endColor = value;
-    //     }
-    // }
-    //
-    // public Color color_line2
-    // {
-    //     get { return line2.startColor; }
-    //     set
-    //     {
-    //         line2.startColor = value;
-    //         line2.endColor = value;
-    //     }
-    // }
-
-    public Color color_judgecircle
+    public Color ColorJudgeCircle
     {
-        get { return judgeCircle.color; }
-        set { judgeCircle.color = value; }
+        get => judgeCircle.color;
+        set => judgeCircle.color = value;
     }
+    
+    // Color
+    protected override Color GetColor() => judgeCircle.color;
 
-    public Color color
+    protected override void SetColor(Color color)
     {
-        set
-        {
-            line1.startColor = value;
-            line1.endColor = value;
-            line2.startColor = value;
-            line2.endColor = value;
-            judgeCircle.color = value;
-        }
+        line1.startColor = color;
+        line1.endColor = color;
+        line2.startColor = color;
+        line2.endColor = color;
+        judgeCircle.color = color;
     }
-
+    
     private void initJudgeCircle()
     {
         judgeCircle.sprite = JudgeCircleSprite;
@@ -131,6 +97,14 @@ public class JudgeLineRenderer : MoveableObject
         line1.endWidth = _width * scaleSingle;
         line2.startWidth = _width * scaleSingle;
         line2.endWidth = _width * scaleSingle;
+    }
+
+    public void setLineLength(float scale)
+    {
+        line1.startWidth = _width * scale;
+        line1.endWidth = _width * scale;
+        line2.startWidth = _width * scale;
+        line2.endWidth = _width * scale;
     }
 
     private bool LineInScreen(Vector3 pos1, Vector3 pos2)
@@ -203,7 +177,7 @@ public class JudgeLineRenderer : MoveableObject
         }
 
         textId.transform.position = worldPosition;
-        color = _color;
+        Color = _color;
         scaleSingle = 1f;
         angle = _angle;
     }

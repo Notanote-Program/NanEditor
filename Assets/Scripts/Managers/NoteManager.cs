@@ -222,14 +222,14 @@ public class NoteManager : BaseManager
             if (note.time + note.duration < time)
             {
                 float a = 1 - Mathf.Clamp((time - note.time - note.duration) / Config.range_normal.bad_duration, 0, 1);
-                noteObjectList[note].GetComponent<NoteRenderer>().color = new Color(note.color.r, note.color.g, note.color.b, note.color.a * a);
+                noteObjectList[note].GetComponent<NoteRenderer>().Color = new Color(note.color.r, note.color.g, note.color.b, note.color.a * a);
 
             }
         }
         else if (note.time < time)
         {
             float a = 1 - Mathf.Clamp((time - note.time) / Config.range_normal.bad_duration, 0, 1);
-            noteObjectList[note].GetComponent<NoteRenderer>().color = new Color(note.color.r, note.color.g, note.color.b, note.color.a * a);
+            noteObjectList[note].GetComponent<NoteRenderer>().Color = new Color(note.color.r, note.color.g, note.color.b, note.color.a * a);
         }
     }
     public void startNoteRanking(Note note, float time)

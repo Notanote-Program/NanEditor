@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,8 +8,10 @@ public class itempool
     private List<GameObject> item_pool = new List<GameObject>();
     private int max_pool_size = 1 << 31; 
     private int enlarge_size = 256;
-    public int set_item(string path , GameObject parent = null)
+    private bool needRelease = false;
+    public int set_item(string path, bool needRelease, GameObject parent = null)
     {
+        this.needRelease = needRelease;
         if (parent == null)
             parent = new GameObject();
         pool_object = parent;
@@ -63,6 +64,7 @@ public class itempool
     {
         item.SetActive(false);
         item.transform.SetParent(pool_object.transform, false);
+        if (!needRelease) return;
         IReleasablePoolItem[] releasablePoolItems = item.GetComponents<IReleasablePoolItem>();
         foreach (IReleasablePoolItem releasablePoolItem in releasablePoolItems)
         {

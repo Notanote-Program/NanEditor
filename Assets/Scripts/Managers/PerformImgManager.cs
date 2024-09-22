@@ -20,7 +20,7 @@ public class PerformImgManager : BaseManager
         Config.LoadType loadType = Config.LoadType.Resource, string chartName = "test")
     {
         this.loadType = loadType;
-        initPool(img_prefab_path, num, parent);
+        initPool(img_prefab_path, num, parent, true);
         this.imgList = new List<PerformImg>(imgList);
         imgObjectList = new Dictionary<int, GameObject>();
         EventList = new List<EventList>();
@@ -200,7 +200,7 @@ public class PerformImgManager : BaseManager
         if (presentColorEventNum[Id] >= events.Count && events.Count > 0)
         {
             Color color = events[events.Count - 1].endColor;
-            imgObjectList[Id].GetComponent<PerformImgRenderer>().color = color;
+            imgObjectList[Id].GetComponent<PerformImgRenderer>().Color = color;
             return;
         }
 
@@ -208,13 +208,13 @@ public class PerformImgManager : BaseManager
         {
             Color color = getColor(events[presentColorEventNum[Id]], time);
             //Debug.Log(time + ":" + color);
-            imgObjectList[Id].GetComponent<PerformImgRenderer>().color = color;
+            imgObjectList[Id].GetComponent<PerformImgRenderer>().Color = color;
         }
         else if (presentColorEventNum[Id] > 0)
         {
             Color color = events[presentColorEventNum[Id] - 1].endColor;
             //Debug.Log(time + ":" + color);
-            imgObjectList[Id].GetComponent<PerformImgRenderer>().color = color;
+            imgObjectList[Id].GetComponent<PerformImgRenderer>().Color = color;
         }
     }
 

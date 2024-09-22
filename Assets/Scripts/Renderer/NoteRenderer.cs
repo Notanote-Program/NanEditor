@@ -1,34 +1,35 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class NoteRenderer : MoveableObject
+public class NoteRenderer : ColoredMoveableObject
 {
     public Config.Type type = Config.Type.Tap;
     [SerializeField] private SpriteRenderer NoteHead;
     [SerializeField] private LineRenderer NoteBody;
     private Color defaultColor = Color.white;
     private const float defaultWidth = 0.6f;
+
     public float distance
     {
         get { return transform.localPosition.y; }
         set { transform.localPosition = new Vector3(0, value, 0); }
     }
+
     public Sprite sprite
     {
         get { return NoteHead.sprite; }
         set { NoteHead.sprite = value; }
     }
-    public Color color
+
+    // Color
+    protected override Color GetColor() => NoteHead.color;
+
+    protected override void SetColor(Color color)
     {
-        get { return NoteHead.color; }
-        set
-        {
-            NoteHead.color = value;
-            NoteBody.endColor = value;
-            NoteBody.startColor = value;
-        }
+        NoteHead.color = color;
+        NoteBody.endColor = color;
+        NoteBody.startColor = color;
     }
+
     public float length
     {
         get
@@ -51,6 +52,7 @@ public class NoteRenderer : MoveableObject
             }
         }
     }
+
     private Sprite getNoteSprite(Config.Type _type = Config.Type.Tap)
     {
         string path = "Textures/";
@@ -66,9 +68,11 @@ public class NoteRenderer : MoveableObject
                 path += "Hold";
                 break;
         }
+
         Sprite sprite = Resources.Load<Sprite>(path);
         return sprite;
     }
+
     private void getGameObject()
     {
         sprite = getNoteSprite(type);
@@ -85,17 +89,20 @@ public class NoteRenderer : MoveableObject
             NoteBody.gameObject.SetActive(false);
         }
     }
-    public void init(float _distance, Color _NoteColor, Config.Type _type = Config.Type.Tap, float length = 0, Config.ControlState state = Config.ControlState.init)
+
+    public void init(float _distance, Color _NoteColor, Config.Type _type = Config.Type.Tap, float length = 0,
+        Config.ControlState state = Config.ControlState.init)
     {
         type = _type;
         getGameObject();
         distance = _distance;
-        color = _NoteColor;
+        Color = _NoteColor;
         NoteBody.useWorldSpace = false;
         setBodyWidth(this.transform.lossyScale.x);
         this.length = length;
         setControlState(state);
     }
+
     public void setBodyWidth(float scale)
     {
         if (type == Config.Type.Hold)
@@ -104,6 +111,7 @@ public class NoteRenderer : MoveableObject
             NoteBody.endWidth = scale * defaultWidth;
         }
     }
+
     public void setControlState(Config.ControlState state)
     {
         //Debug.Log(state);
@@ -122,6 +130,7 @@ public class NoteRenderer : MoveableObject
                 path += "hold_detach";
                 break;
         }
+
         Material material = Resources.Load<Material>(path);
         NoteBody.material = material;
     }
