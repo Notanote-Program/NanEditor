@@ -12,7 +12,7 @@ using JetBrains.Annotations;
 using Unity.Burst;
 using UnityEngine.SceneManagement;
 
-public class Utilities
+public static class Utilities
 {
     public static string toString<T>(T obj)
     {
@@ -578,6 +578,8 @@ public class Utilities
 
         return (newRes, fullScreen);
     }
+    
+    public static Vector3 SetPosZ(this Vector3 pos, float z) => new Vector3(pos.x, pos.y, z);
 }
 
 public class AsyncRequest<T>
