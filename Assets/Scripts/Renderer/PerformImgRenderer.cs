@@ -46,7 +46,7 @@ public class PerformImgRenderer : ColoredMoveableObject, IReleasablePoolItem
         {
             float x = scaleX;
             if (Type == PerformImgType.Note) noteRenderer.setBodyWidth(x);
-            if (Type == PerformImgType.JudgeLine) judgeLineRenderer.setLineLength(1);
+            if (Type == PerformImgType.JudgeLine) judgeLineRenderer.setLineLength(x);
         }
     }
 

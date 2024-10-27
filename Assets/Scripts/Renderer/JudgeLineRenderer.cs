@@ -54,10 +54,7 @@ public class JudgeLineRenderer : ColoredMoveableObject
         line1.useWorldSpace = false;
         line2.useWorldSpace = false;
 
-        line1.startWidth = _width * scaleSingle;
-        line1.endWidth = _width * scaleSingle;
-        line2.startWidth = _width * scaleSingle;
-        line2.endWidth = _width * scaleSingle;
+        adjustLineX();
 
         line1.SetPosition(0, new Vector3(0, radius, 0));
         line1.SetPosition(1, new Vector3(0, line_length, 0));
@@ -93,18 +90,14 @@ public class JudgeLineRenderer : ColoredMoveableObject
 
     private void adjustLineX()
     {
-        line1.startWidth = _width * scaleSingle;
-        line1.endWidth = _width * scaleSingle;
-        line2.startWidth = _width * scaleSingle;
-        line2.endWidth = _width * scaleSingle;
+        AnimationCurve animationCurve = new AnimationCurve(new Keyframe(0, _width * scaleX));
+        line1.widthCurve = animationCurve;
+        line2.widthCurve = animationCurve;
     }
 
     public void setLineLength(float scale)
     {
-        line1.startWidth = _width * scale;
-        line1.endWidth = _width * scale;
-        line2.startWidth = _width * scale;
-        line2.endWidth = _width * scale;
+        scaleX = scale;
     }
 
     private bool LineInScreen(Vector3 pos1, Vector3 pos2)
