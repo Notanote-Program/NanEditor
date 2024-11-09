@@ -12,6 +12,7 @@ public class JudgeLineRenderer : ColoredMoveableObject
     private float _width = 0.06f;
     private const float line_length = 10000.0f;
     private const float radius = 0.5f;
+    private float lineScale = 1f;
 
     public Color ColorJudgeCircle
     {
@@ -90,14 +91,15 @@ public class JudgeLineRenderer : ColoredMoveableObject
 
     private void adjustLineX()
     {
-        AnimationCurve animationCurve = new AnimationCurve(new Keyframe(0, _width * scaleX));
+        AnimationCurve animationCurve = new AnimationCurve(new Keyframe(0, _width * lineScale));
         line1.widthCurve = animationCurve;
         line2.widthCurve = animationCurve;
     }
 
     public void setLineLength(float scale)
     {
-        scaleX = scale;
+        lineScale = scale;
+        adjustLineX();
     }
 
     private bool LineInScreen(Vector3 pos1, Vector3 pos2)
