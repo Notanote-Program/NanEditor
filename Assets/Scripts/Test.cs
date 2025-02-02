@@ -468,27 +468,36 @@ public class Test : MonoBehaviour
                     //Debug.Log("on holding");
                     float delayTime = time + delta_time - note.time;
                     note_manager.GetComponent<NoteManager>().noteStateList[note] = Config.ControlState.holding;
-                    effect_manager.GetComponent<EffectManager>().show(note_manager.GetComponent<NoteManager>().getPosition(note), note.color, delayTime);
-                    note_manager.GetComponent<NoteManager>().startNoteRanking(note, time);
+                    if (!note.fake)
+                    {
+                        effect_manager.GetComponent<EffectManager>().show(note_manager.GetComponent<NoteManager>().getPosition(note), note.color, delayTime);
+                        note_manager.GetComponent<NoteManager>().startNoteRanking(note, time);
+                    }
                 }
                 if (note.time + note.duration <= time && state(note) == Config.ControlState.holding)
                 {
-                    float delayTime = time + delta_time - note.time - note.duration;
-                    //effect_manager.GetComponent<EffectManager>().show(note_manager.GetComponent<NoteManager>().getPosition(note), note.color, delayTime);
-                    note_manager.GetComponent<NoteManager>().endNoteRanking(note);
+                    // float delayTime = time + delta_time - note.time - note.duration;
+                    if (!note.fake)
+                    {
+                        //effect_manager.GetComponent<EffectManager>().show(note_manager.GetComponent<NoteManager>().getPosition(note), note.color, delayTime);
+                        note_manager.GetComponent<NoteManager>().endNoteRanking(note);
+                    }
                     note_manager.GetComponent<NoteManager>().releaseNote(note, 0);
                 }
             }
             else if (note.time < (time + delta_time) && state(note) == Config.ControlState.init)
             {
                 float delayTime = time + delta_time - note.time;
-                effect_manager.GetComponent<EffectManager>().show(
-                    note_manager.GetComponent<NoteManager>().getPosition(note), note.color, delayTime, null, "perfect",
-                    note.type == Config.Type.Drag ? 1 : 0);
+                if (!note.fake)
+                {
+                    effect_manager.GetComponent<EffectManager>().show(
+                        note_manager.GetComponent<NoteManager>().getPosition(note), note.color, delayTime, null, "perfect",
+                        note.type == Config.Type.Drag ? 1 : 0);
+                    note_manager.GetComponent<NoteManager>().startNoteRanking(note, time);
+                    note_manager.GetComponent<NoteManager>().endNoteRanking(note);
+                }
                 note_manager.GetComponent<NoteManager>().noteStateList[note] = Config.ControlState.detach;
                 note_manager.GetComponent<NoteManager>().releaseNote(note, 0);
-                note_manager.GetComponent<NoteManager>().startNoteRanking(note, time);
-                note_manager.GetComponent<NoteManager>().endNoteRanking(note);
             }
         }
     }
